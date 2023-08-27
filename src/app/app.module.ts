@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BarComponent } from './bar/bar.component';
 import { TailwindCalendarComponent } from './tailwind-calendar/tailwind-calendar.component';
+import { RingsComponent } from './rings/rings.component';
 
 @NgModule({
   declarations: [AppComponent],
@@ -13,6 +14,7 @@ import { TailwindCalendarComponent } from './tailwind-calendar/tailwind-calendar
     AppRoutingModule,
     BarComponent,
     TailwindCalendarComponent,
+    RingsComponent
   ],
   providers: [],
   bootstrap: [AppComponent],

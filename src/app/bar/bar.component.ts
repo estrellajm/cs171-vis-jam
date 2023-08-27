@@ -45,12 +45,18 @@ export class BarComponent {
       .enter()
       .append('text')
       .text((d) => d)
-      .attr('x', (d, i) => i * (w / this.dataset.length) + (w / this.dataset.length - barPadding) /2)
-      .attr('y', (d) => h - d * 4 + 14)
-      .attr('font-family','sans-serif')
-      .attr('font-size','11px')
-      .attr('fill','white')
-      .attr('text-anchor','middle')
+      .attr(
+        'x',
+        (d, i) =>
+          i * (w / this.dataset.length) +
+          (w / this.dataset.length - barPadding) / 2
+      )
+      // .attr('y', (d) => h - d * 4 + 14) // anchor text - top of bar
+      .attr('y', h - 5)
+      .attr('font-family', 'sans-serif')
+      .attr('font-size', '11px')
+      .attr('fill', 'white')
+      .attr('text-anchor', 'middle');
   }
 
   // createD3Circles() {
