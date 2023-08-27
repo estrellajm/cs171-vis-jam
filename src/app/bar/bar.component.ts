@@ -10,20 +10,22 @@ import * as d3 from 'd3';
   styleUrls: ['./bar.component.scss'],
 })
 export class BarComponent {
-  dataset = [5, 10, 15, 20, 25];
+  dataset = [
+    5, 10, 13, 19, 21, 25, 22, 18, 15, 13, 11, 12, 15, 20, 18, 17, 16, 18, 23,
+  ];
   ngOnInit() {
     this.createD3();
   }
 
   createD3() {
-    const h = 50;
-    const w = 500;
+    const h = 100;
+    const w = 1000;
 
     const svg = d3
       .select('figure#wiring')
       .append('svg')
       .attr('height', h)
-      .attr('widtg', w);
+      .attr('width', w);
 
     const circles = svg
       .selectAll('circle')
