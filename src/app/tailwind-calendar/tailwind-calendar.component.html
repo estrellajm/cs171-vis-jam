@@ -1,22 +1,17 @@
-<div class="grid min-h-screen place-items-center bg-cyan-500">
-  <!--
-      TODO:
-      1. Combine grid children elements 
-      with the `col-span-2` class.
-      
-      The background colors should be
-      `cyan-600` on the left and
-      `cyan-500` on the right.
-  
-      2. Abstract away this crazy `grid-template-columns` 
-      arbitrary valuec class by creating a custom CSS 
-      class in the `tailwind.css` file.
-    -->
+<div class="grid min-h-screen bg-cyan-500">
+  <div
+    class="fixed inset-0 hidden grid-cols-2 min-[480px]:grid"
+  >
+    <div class="col-span-2 bg-cyan-600"></div>
+    <div class="col-span-2 bg-cyan-500"></div>
+  </div>
+</div>
+<!-- <div class="grid min-h-screen place-items-center bg-cyan-500">
   <div
     class="fixed inset-0 hidden grid-cols-[minmax(theme(padding.8),1fr),theme(width.56),minmax(0,calc(theme(maxWidth.2xl)-theme(width.56)-(theme(padding.8)*2))),minmax(theme(padding.8),1fr)] min-[480px]:grid"
   >
-  <div class="col-span-2 bg-cyan-600"></div>
-  <div class="col-span-2 bg-cyan-500"></div>
+    <div class="col-span-2 bg-cyan-600"></div>
+    <div class="col-span-2 bg-cyan-500"></div>
   </div>
   <div class="isolate mx-auto w-full max-w-2xl px-8">
     <div
@@ -26,4 +21,4 @@
       <main class="bg-white"></main>
     </div>
   </div>
-</div>
+</div> -->
