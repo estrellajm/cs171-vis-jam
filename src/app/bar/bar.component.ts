@@ -10,34 +10,55 @@ import * as d3 from 'd3';
   styleUrls: ['./bar.component.scss'],
 })
 export class BarComponent {
-  dataset = [
-    25, 7, 5, 26, 11, 8, 25, 14, 23, 19, 14, 11, 22, 29, 11, 13, 12, 17, 18, 10,
-    24, 18, 25, 9, 3,
-  ];
+  dataset = [5, 10, 15, 20, 25];
   ngOnInit() {
-    this.genRandomDataSet(20);
-  }
-
-  genRandomDataSet(n: number) {
-    this.dataset = [...Array(n).keys()].map(() =>
-      Math.floor(Math.random() * 100)
-    );
     this.createD3();
   }
+
   createD3() {
+    const h = 50;
+    const w = 500;
+
+    const svg = d3
+      .select('figure#wiring')
+      .append('svg')
+      .attr('height', h)
+      .attr('widtg', w);
+
+    const circles = svg
+      .selectAll('circle')
+      .data(this.dataset)
+      .enter()
+      .append('circle');
+
+    circles
+      .attr('cx', (d, i) => {
+        return i * 50 + 25;
+      })
+      .attr('cy', h / 2)
+      .attr('r', (d) => d)
+      .attr('fill', 'yellow')
+      .attr('stroke', 'orange')
+      .attr('stroke-width', (d) => d / 2);
+  }
+
+  createD3BarChart() {
     d3.select('figure#wiring')
       .selectAll('div')
       .data(this.dataset)
       .enter()
       .append('div')
       .attr('class', 'bar')
-      .style('height', (d) => `${d * 5}px`);
-    // .text((d) => d);
+      .style('height', (d) => `${d * 5}px`)
+      .text(this.processData);
   }
-
+  genRandomDataSet(n: number) {
+    this.dataset = [...Array(n).keys()].map(() =>
+      Math.floor(Math.random() * 100)
+    );
+    this.createD3BarChart();
+  }
   processData = (d: any) => {
-    console.log(d);
-
     return `Yesh! ${d}`;
   };
 }
