@@ -38,7 +38,7 @@ export class RingsComponent {
       .attr('cx', xy)
       .attr('cy', xy)
       .attr('r', (d) => d.radius)
-      .attr('stroke', (d) => d.color)
+      .attr('stroke', '#F2F3F9')
       .attr('stroke-width', strokeWidth);
 
     const path = group.append('path');
