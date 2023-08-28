@@ -35,16 +35,18 @@ export class BarComponent {
 
     //Function for converting CSV values from strings to Dates and numbers
     const rowConverter = (d: any) => {
-      return d;
       return {
         Date: parseTime(d.Date),
         Amount: parseInt(d.Amount),
       };
     };
 
-    //Load in the data
-    dataset = await d3.csv('assets/time_scale_data.csv').then(rowConverter);
-    console.log(dataset);
+    const arrConverter = (arr: any[]) => {
+      return arr.map(rowConverter);
+    };
+
+    /** Load in the data */
+    dataset = await d3.csv('assets/time_scale_data.csv').then(arrConverter);
 
     const xMin = +d3.min(dataset, (d: any) => d.Date)!;
     const xMax = +d3.max(dataset, (d: any) => d.Date)!;
