@@ -2,6 +2,11 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as d3 from 'd3';
 
+interface MyRequestInit extends RequestInit {
+  Date?: Date | null;
+  Amount?: number;
+}
+
 @Component({
   selector: 'app-bar',
   standalone: true,
@@ -11,79 +16,139 @@ import * as d3 from 'd3';
 })
 export class BarComponent {
   ngOnInit() {
-    this.deScales();
+    this.d3TimeScales();
   }
 
-  deScales() {
-    const dataset = [
-      [5, 20],
-      [480, 90],
-      [250, 50],
-      [100, 33],
-      [330, 95],
-      [410, 12],
-      [475, 44],
-      [25, 67],
-      [85, 21],
-      [220, 88],
-      [600, 150],
-    ];
+  async d3TimeScales() {
+    //Width and height
+    let w = 500;
+    let h = 300;
+    let padding = 40;
 
-    const w = 1000;
-    const h = 300;
-    const padding = 20;
+    let dataset: any, xScale: any, yScale: any; //Empty, for now
 
-    // const scale = (axis: 'x' | 'y') => {
-    //   if (axis === 'x') {
-    //     const max = d3.max(dataset, (d) => d[0])!;
-    //     return d3.scaleLinear().domain([0, max]).range([10, w]);
-    //   }
-    //   if (axis === 'y') {
-    //     const max = d3.max(dataset, (d) => d[1])!;
-    //     return d3.scaleLinear().domain([0, max]).range([10, h]);
-    //   }
-    //   return d3.scaleLinear().domain([0, 100]).range([10, h]);
-    // };
-    const xMax = d3.max(dataset, (d) => d[0])!;
-    const xScale = d3.scaleLinear().domain([0, xMax]).range([padding, w - padding * 2 - 3]);
-    const yMax = d3.max(dataset, (d) => d[1])!;
-    const yScale = d3.scaleLinear().domain([0, yMax]).range([h - padding, padding]);
-    const rMax = d3.max(dataset, (d) => d[1])!;
-    const rScale = d3.scaleLinear().domain([0, yMax]).range([2, 5]);
-    const aMax = d3.max(dataset, (d) => d[1])!;
-    const aScale = d3.scaleSqrt().domain([0, yMax]).range([0, 10]);
+    //For converting strings to Dates
+    let parseTime = d3.timeParse('%m/%d/%y');
 
-    const svg = d3
-      .select('figure#wiring')
+    //For converting Dates to strings
+    let formatTime = d3.timeFormat('%b %e');
+
+    //Function for converting CSV values from strings to Dates and numbers
+    const rowConverter = (d: any) => {
+      return d;
+      return {
+        Date: parseTime(d.Date),
+        Amount: parseInt(d.Amount),
+      };
+    };
+
+    //Load in the data
+    dataset = await d3.csv('assets/time_scale_data.csv').then(rowConverter);
+    console.log(dataset);
+
+    const xMin = +d3.min(dataset, (d: any) => d.Date)!;
+    const xMax = +d3.max(dataset, (d: any) => d.Date)!;
+    xScale = d3
+      .scaleLinear()
+      .domain([xMin, xMax])
+      .range([padding, w - padding]);
+
+    const yMin = +d3.min(dataset, (d: any) => d.Amount)!;
+    const yMax = +d3.max(dataset, (d: any) => d.Amount)!;
+    yScale = d3
+      .scaleLinear()
+      .domain([yMin, yMax])
+      .range([h - padding, padding]);
+
+    //Create SVG element
+    let svg = d3
+      .select('body')
       .append('svg')
       .attr('width', w)
       .attr('height', h);
 
-    svg
-      .selectAll('circle')
-      .data(dataset)
-      .enter()
-      .append('circle')
-      .attr('cx', (d) => xScale(d[0]))
-      .attr('cy', (d) => yScale(d[1]))
-      .attr('r', (d) => aScale(d[1]));
-
+    //Generate date labels first, so they are in back
     svg
       .selectAll('text')
       .data(dataset)
       .enter()
       .append('text')
-      .text((d) => `${d[0]}, ${d[1]}`)
-
-      .attr('x', (d) => xScale(d[0]))
-      .attr('y', (d) => yScale(d[1]))
+      .text((d: any) => formatTime(d.Date))
+      .attr('x', (d: any) => xScale(d.Date) + 4)
+      .attr('y', (d: any) => yScale(d.Amount) + 4)
       .attr('font-family', 'sans-serif')
       .attr('font-size', '11px')
-      .attr('fill', 'red');
+      .attr('fill', '#bbb');
 
-
-      
+    //Generate circles last, so they appear in front
+    svg
+      .selectAll('circle')
+      .data(dataset)
+      .enter()
+      .append('circle')
+      .attr('cx', (d: any) => xScale(d.Date))
+      .attr('cy', (d: any) => yScale(d.Amount))
+      .attr('r', 2);
   }
+
+  /** D3 Scales Works */
+  // d3Scales() {
+  //   const dataset = [
+  //     [5, 20],
+  //     [480, 90],
+  //     [250, 50],
+  //     [100, 33],
+  //     [330, 95],
+  //     [410, 12],
+  //     [475, 44],
+  //     [25, 67],
+  //     [85, 21],
+  //     [220, 88],
+  //     [600, 150],
+  //   ];
+
+  //   const w = 1000;
+  //   const h = 300;
+  //   const padding = 40;
+
+  //   const xMax = d3.max(dataset, (d) => d[0])!;
+  //   const xScale = d3.scaleLinear().domain([0, xMax]).range([padding, w - padding * 2]);
+  //   const yMax = d3.max(dataset, (d) => d[1])!;
+  //   const yScale = d3.scaleLinear().domain([0, yMax]).range([h - padding, padding]);
+  //   const rMax = d3.max(dataset, (d) => d[1])!;
+  //   const rScale = d3.scaleLinear().domain([0, yMax]).range([2, 5]);
+  //   const aMax = d3.max(dataset, (d) => d[1])!;
+  //   const aScale = d3.scaleSqrt().domain([0, yMax]).range([0, 10]);
+
+  //   const svg = d3
+  //     .select('figure#wiring')
+  //     .append('svg')
+  //     .attr('width', w)
+  //     .attr('height', h);
+
+  //   svg
+  //     .selectAll('circle')
+  //     .data(dataset)
+  //     .enter()
+  //     .append('circle')
+  //     .attr('cx', (d) => xScale(d[0]))
+  //     .attr('cy', (d) => yScale(d[1]))
+  //     .attr('r', (d) => aScale(d[1]));
+
+  //   svg
+  //     .selectAll('text')
+  //     .data(dataset)
+  //     .enter()
+  //     .append('text')
+  //     .text((d) => `${d[0]}, ${d[1]}`)
+
+  //     .attr('x', (d) => xScale(d[0]))
+  //     .attr('y', (d) => yScale(d[1]))
+  //     .attr('font-family', 'sans-serif')
+  //     .attr('font-size', '11px')
+  //     .attr('fill', 'red');
+
+  // }
 
   // d3ScatterPlot() {
   //   const dataset = [
