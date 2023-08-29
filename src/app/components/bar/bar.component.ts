@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as d3 from 'd3';
 
-interface MyRequestInit extends RequestInit {
-  Date?: Date | null;
-  Amount?: number;
+interface DateObj {
+  Date: Date;
+  Amount: number;
 }
 
 @Component({
@@ -16,7 +16,7 @@ interface MyRequestInit extends RequestInit {
 })
 export class BarComponent {
   ngOnInit() {
-    this.d3ScatterPlotScalesWithAxis();
+    this.d3TimeScales();
   }
 
   /** D3 Scatter Plot Scales With Axis */
@@ -28,20 +28,6 @@ export class BarComponent {
       ]);
     };
     const dataset = genRandomCoordinates(50);
-
-    // const dataset = [
-    //   [5, 20],
-    //   [480, 90],
-    //   [250, 50],
-    //   [100, 33],
-    //   [330, 95],
-    //   [410, 12],
-    //   [475, 44],
-    //   [25, 67],
-    //   [85, 21],
-    //   [220, 88],
-    //   [600, 150],
-    // ];
 
     const w = 500;
     const h = 300;
@@ -59,8 +45,10 @@ export class BarComponent {
       .range([h - padding, padding]);
     const aScale = d3.scaleSqrt().domain([0, yMax]).range([0, 10]);
 
+    // const formatAsPercentage = d3.format('.1%');
+    // const xAxis = d3.axisBottom(xScale).ticks(5).tickFormat(formatAsPercentage);
     const xAxis = d3.axisBottom(xScale).ticks(5);
-    const yAxis = d3.axisLeft(yScale).ticks(5);
+    const yAxis = d3.axisLeft(yScale).ticks(4);
 
     const svg = d3
       .select('figure#wiring')
@@ -77,24 +65,14 @@ export class BarComponent {
       .attr('cy', (d) => yScale(d[1]))
       .attr('r', (d) => aScale(d[1]));
 
-    svg
-      .selectAll('text')
-      .data(dataset)
-      .enter()
-      .append('text')
-      .text((d) => `${d[0]}, ${d[1]}`)
-
-      .attr('x', (d) => xScale(d[0]))
-      .attr('y', (d) => yScale(d[1]))
-      .attr('font-family', 'sans-serif')
-      .attr('font-size', '11px')
-      .attr('fill', 'red');
-
+    /** X Axis Bar */
     svg
       .append('g')
       .attr('class', 'axis')
       .attr('transform', `translate(0, ${h - padding})`)
       .call(xAxis);
+
+    /** Y Axis Bar */
     svg
       .append('g')
       .attr('class', 'axis')
@@ -102,79 +80,111 @@ export class BarComponent {
       .call(yAxis);
   }
 
-  // async d3TimeScales() {
-  //   //Width and height
-  //   let w = 500;
-  //   let h = 300;
-  //   let padding = 40;
+  async d3TimeScales() {
+    //Width and height
+    let w = 500;
+    let h = 300;
+    let padding = 40;
 
-  //   let dataset: any, xScale: any, yScale: any; //Empty, for now
+    let dataset: any, xScale: any, yScale: any; //Empty, for now
 
-  //   //For converting strings to Dates
-  //   let parseTime = d3.timeParse('%m/%d/%y');
+    //For converting strings to Dates
+    let parseTime = d3.timeParse('%m/%d/%y');
 
-  //   //For converting Dates to strings
-  //   let formatTime = d3.timeFormat('%b %e');
+    //For converting Dates to strings
+    let formatTime = d3.timeFormat('%b %e');
 
-  //   //Function for converting CSV values from strings to Dates and numbers
-  //   const rowConverter = (d: any) => {
-  //     return {
-  //       Date: parseTime(d.Date),
-  //       Amount: parseInt(d.Amount),
-  //     };
-  //   };
+    //Function for converting CSV values from strings to Dates and numbers
+    const rowConverter = (d: any) => {
+      return {
+        Date: parseTime(d.Date),
+        Amount: parseInt(d.Amount),
+      };
+    };
 
-  //   const arrConverter = (arr: any[]) => {
-  //     return arr.map(rowConverter);
-  //   };
+    const arrConverter = (arr: any[]) => {
+      return arr.map(rowConverter);
+    };
 
-  //   /** Load in the data */
-  //   dataset = await d3.csv('assets/time_scale_data.csv').then(arrConverter);
+    /** Load in the data */
+    const importedData: DateObj[] = (await d3
+      .csv('assets/time_scale_data.csv')
+      .then(arrConverter)) as DateObj[];
 
-  //   const xMin = +d3.min(dataset, (d: any) => d.Date)!;
-  //   const xMax = +d3.max(dataset, (d: any) => d.Date)!;
-  //   xScale = d3
-  //     .scaleLinear()
-  //     .domain([xMin, xMax])
-  //     .range([padding, w - padding]);
+    // dataset = aaa.filter(Boolean)
+    function isString(value: any) {
+      // console.log(value.Date);
+      // console.log(value.Amount);
 
-  //   const yMin = +d3.min(dataset, (d: any) => d.Amount)!;
-  //   const yMax = +d3.max(dataset, (d: any) => d.Amount)!;
-  //   yScale = d3
-  //     .scaleLinear()
-  //     .domain([yMin, yMax])
-  //     .range([h - padding, padding]);
+      if (!value.Date) null;
+      return value;
+    }
+    dataset = importedData;
 
-  //   //Create SVG element
-  //   let svg = d3
-  //     .select('body')
-  //     .append('svg')
-  //     .attr('width', w)
-  //     .attr('height', h);
+    const xMax = d3.max(dataset, (d: DateObj) => d.Date);
+    const xMin = d3.min(dataset, (d: DateObj) => d.Date);
+    xScale = d3
+      .scaleLinear()
+      .domain([xMin!, xMax!])
+      .range([padding, w - padding]);
 
-  //   //Generate date labels first, so they are in back
-  //   svg
-  //     .selectAll('text')
-  //     .data(dataset)
-  //     .enter()
-  //     .append('text')
-  //     .text((d: any) => formatTime(d.Date))
-  //     .attr('x', (d: any) => xScale(d.Date) + 4)
-  //     .attr('y', (d: any) => yScale(d.Amount) + 4)
-  //     .attr('font-family', 'sans-serif')
-  //     .attr('font-size', '11px')
-  //     .attr('fill', '#bbb');
+    const yMax = d3.max(dataset, (d: DateObj) => d.Amount);
+    const yMin = d3.min(dataset, (d: DateObj) => d.Amount);
+    yScale = d3
+      .scaleLinear()
+      .domain([yMin!, yMax!])
+      .range([h - padding, padding]);
 
-  //   //Generate circles last, so they appear in front
-  //   svg
-  //     .selectAll('circle')
-  //     .data(dataset)
-  //     .enter()
-  //     .append('circle')
-  //     .attr('cx', (d: any) => xScale(d.Date))
-  //     .attr('cy', (d: any) => yScale(d.Amount))
-  //     .attr('r', 2);
-  // }
+    const xAxis = d3
+      .axisBottom(xScale)
+      .scale(xScale)
+      .ticks(4)
+      .tickFormat((d: any) => formatTime(d));
+    const yAxis = d3.axisLeft(yScale).ticks(4);
+
+    /** Create SVG element */ let svg = d3
+      .select('body')
+      .append('svg')
+      .attr('width', w)
+      .attr('height', h);
+
+    /** Generate date labels first, so they are in back */
+    svg
+      .selectAll('text')
+      .data(dataset)
+      .enter()
+      .append('text')
+      .text((d: any) => formatTime(d.Date))
+      .attr('x', (d: any) => xScale(d.Date) + 4)
+      .attr('y', (d: any) => yScale(d.Amount) + 4)
+      .attr('font-family', 'sans-serif')
+      .attr('font-size', '11px')
+      .attr('fill', '#bbb');
+
+    /** Generate circles last, so they appear in front */
+    svg
+      .selectAll('circle')
+      .data(dataset)
+      .enter()
+      .append('circle')
+      .attr('cx', (d: any) => xScale(d.Date))
+      .attr('cy', (d: any) => yScale(d.Amount))
+      .attr('r', 2);
+
+    /** X Axis Bar */
+    svg
+      .append('g')
+      .attr('class', 'axis')
+      .attr('transform', `translate(0, ${h - padding})`)
+      .call(xAxis);
+
+    /** Y Axis Bar */
+    svg
+      .append('g')
+      .attr('class', 'axis')
+      .attr('transform', `translate(${padding}, 0)`)
+      .call(yAxis);
+  }
 
   // /** D3 Scales Works */
   // d3ScatterPlotScales() {
