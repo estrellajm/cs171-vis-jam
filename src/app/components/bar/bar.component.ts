@@ -16,121 +16,204 @@ interface DateObj {
 })
 export class BarComponent {
   ngOnInit() {
-    this.d3TimeScalesPrettied();
+    this.updatedNewD3BarChart();
   }
 
-  async d3TimeScalesPrettied() {
-    //Width and height
-    let w = 500;
-    let h = 300;
-    let padding = 40;
+  updatedNewD3BarChart() {
+    const w = 600;
+    const h = 250;
+    const barPadding = 1;
 
-    let dataset: any, xScale: any, yScale: any; //Empty, for now
+    const dataset = [
+      5, 10, 13, 19, 21, 25, 22, 18, 15, 13, 11, 12, 15, 20, 18, 17, 16, 18, 23,
+      25,
+    ];
+    
+    const xScale = d3
+      .scaleBand()
+      .domain(d3.range(dataset.length) as unknown as string)
+      .rangeRound([0, w])
+      .paddingInner(0.05);
 
-    //For converting strings to Dates
-    let parseTime = d3.timeParse('%m/%d/%y');
-
-    //For converting Dates to strings
-    let formatTime = d3.timeFormat('%e');
-
-    //Function for converting CSV values from strings to Dates and numbers
-    const rowConverter = (d: any) => {
-      return {
-        Date: parseTime(d.Date),
-        Amount: parseInt(d.Amount),
-      };
-    };
-
-    const arrConverter = (arr: any[]) => {
-      return arr.map(rowConverter);
-    };
-
-    /** Load in the data */
-    const importedData: DateObj[] = (await d3
-      .csv('assets/time_scale_data.csv')
-      .then(arrConverter)) as DateObj[];
-
-    // dataset = aaa.filter(Boolean)
-    function isString(value: any) {
-      // console.log(value.Date);
-      // console.log(value.Amount);
-
-      if (!value.Date) null;
-      return value;
-    }
-    dataset = importedData;
-
-    //Discover start and end dates in dataset
-    var startDate = d3.min(dataset, (d: DateObj) => d.Date);
-    var endDate = d3.max(dataset, (d: DateObj) => d.Date);
-
-    const xMax = d3.max(dataset, (d: DateObj) => d.Date);
-    const xMin = d3.min(dataset, (d: DateObj) => d.Date);
-    xScale = d3
+    const yScale = d3
       .scaleLinear()
-      .domain([
-        d3.timeDay.offset(startDate!, -1), //startDate minus one day, for padding
-        d3.timeDay.offset(endDate!, 1),
-      ])
-      .range([padding, w - padding]);
+      .domain([0, d3.max(dataset)!])
+      .range([0, h]);
 
-    const yMax = d3.max(dataset, (d: DateObj) => d.Amount);
-    const yMin = d3.min(dataset, (d: DateObj) => d.Amount);
-    yScale = d3
-      .scaleLinear()
-      .domain([0, yMax!])
-      .range([h - padding, padding]);
-
-    const xAxis = d3
-      .axisBottom(xScale)
-      .scale(xScale)
-      .ticks(9)
-      .tickFormat((d: any) => formatTime(d));
-    const yAxis = d3.axisLeft(yScale).ticks(4);
-
-    /** Create SVG element */ let svg = d3
-      .select('body')
+    const svg = d3
+      .select('figure#wiring')
       .append('svg')
       .attr('width', w)
       .attr('height', h);
 
-    //Generate guide lines
+    //Create bars
     svg
-      .selectAll('line')
+      .selectAll('rect')
       .data(dataset)
       .enter()
-      .append('line')
-      .attr('x1', (d: any) => xScale(d.Date))
-      .attr('x2', (d: any) => xScale(d.Date))
-      .attr('y1', h - padding)
-      .attr('y2', (d: any) => yScale(d.Amount))
-      .attr('stroke', '#ddd')
-      .attr('stroke-width', 1);
+      .append('rect')
+      .attr('x', (d, i: any) => xScale(i)!)
+      .attr('y', (d) => h - yScale(d))
+      .attr('width', xScale.bandwidth())
+      .attr('height', (d) => yScale(d))
+      .attr('fill', (d) => `rgb(0, 0, ${Math.round(d * 10)})`);
 
-    //Generate circles last, so they appear in front
+    //Create labels
     svg
-      .selectAll('circle')
+      .selectAll('text')
       .data(dataset)
       .enter()
-      .append('circle')
-      .attr('cx', (d: any) => xScale(d.Date))
-      .attr('cy', (d: any) => yScale(d.Amount))
-      .attr('r', 2);
+      .append('text')
+      .text((d) => d)
+      .attr('text-anchor', 'middle')
+      .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
+      .attr('y', (d) => h - yScale(d) + 14)
+      .attr('font-family', 'sans-serif')
+      .attr('font-size', '11px')
+      .attr('fill', 'white');
 
-    /** X Axis Bar */
-    svg
-      .append('g')
-      .attr('class', 'axis')
-      .attr('transform', `translate(0, ${h - padding})`)
-      .call(xAxis);
+    // svg
+    //   .selectAll('rect')
+    //   .data(dataset)
+    //   .enter()
+    //   .append('rect')
+    //   .attr('x', (d, i) => i * (w / dataset.length))
+    //   .attr('y', (d) => h - d * 4)
+    //   .attr('width', w / dataset.length - barPadding)
+    //   .attr('height', (d) => d * 4)
+    //   .attr('fill', (d) => `rgb(0,0,${Math.round(d * 10)})`);
 
-    /** Y Axis Bar */
-    svg
-      .append('g')
-      .attr('class', 'axis')
-      .attr('transform', `translate(${padding}, 0)`)
-      .call(yAxis);
+    // svg
+    //   .selectAll('text')
+    //   .data(dataset)
+    //   .enter()
+    //   .append('text')
+    //   .text((d) => d)
+    //   .attr(
+    //     'x',
+    //     (d, i) =>
+    //       i * (w / dataset.length) + (w / dataset.length - barPadding) / 2
+    //   )
+    //   .attr('y', (d) => h - d * 4 + 14) // anchor text - top of bar
+    //   // .attr('y', h - 5)
+    //   .attr('font-family', 'sans-serif')
+    //   .attr('font-size', '11px')
+    //   .attr('fill', 'white')
+    //   .attr('text-anchor', 'middle');
   }
+
+  // async d3TimeScalesPrettied() {
+  //   //Width and height
+  //   let w = 500;
+  //   let h = 300;
+  //   let padding = 40;
+
+  //   let dataset: any, xScale: any, yScale: any; //Empty, for now
+
+  //   //For converting strings to Dates
+  //   let parseTime = d3.timeParse('%m/%d/%y');
+
+  //   //For converting Dates to strings
+  //   let formatTime = d3.timeFormat('%e');
+
+  //   //Function for converting CSV values from strings to Dates and numbers
+  //   const rowConverter = (d: any) => {
+  //     return {
+  //       Date: parseTime(d.Date),
+  //       Amount: parseInt(d.Amount),
+  //     };
+  //   };
+
+  //   const arrConverter = (arr: any[]) => {
+  //     return arr.map(rowConverter);
+  //   };
+
+  //   /** Load in the data */
+  //   const importedData: DateObj[] = (await d3
+  //     .csv('assets/time_scale_data.csv')
+  //     .then(arrConverter)) as DateObj[];
+
+  //   // dataset = aaa.filter(Boolean)
+  //   function isString(value: any) {
+  //     // console.log(value.Date);
+  //     // console.log(value.Amount);
+
+  //     if (!value.Date) null;
+  //     return value;
+  //   }
+  //   dataset = importedData;
+
+  //   //Discover start and end dates in dataset
+  //   var startDate = d3.min(dataset, (d: DateObj) => d.Date);
+  //   var endDate = d3.max(dataset, (d: DateObj) => d.Date);
+
+  //   const xMax = d3.max(dataset, (d: DateObj) => d.Date);
+  //   const xMin = d3.min(dataset, (d: DateObj) => d.Date);
+  //   xScale = d3
+  //     .scaleLinear()
+  //     .domain([
+  //       d3.timeDay.offset(startDate!, -1), //startDate minus one day, for padding
+  //       d3.timeDay.offset(endDate!, 1),
+  //     ])
+  //     .range([padding, w - padding]);
+
+  //   const yMax = d3.max(dataset, (d: DateObj) => d.Amount);
+  //   const yMin = d3.min(dataset, (d: DateObj) => d.Amount);
+  //   yScale = d3
+  //     .scaleLinear()
+  //     .domain([0, yMax!])
+  //     .range([h - padding, padding]);
+
+  //   const xAxis = d3
+  //     .axisBottom(xScale)
+  //     .scale(xScale)
+  //     .ticks(9)
+  //     .tickFormat((d: any) => formatTime(d));
+  //   const yAxis = d3.axisLeft(yScale).ticks(4);
+
+  //   /** Create SVG element */ let svg = d3
+  //     .select('body')
+  //     .append('svg')
+  //     .attr('width', w)
+  //     .attr('height', h);
+
+  //   //Generate guide lines
+  //   svg
+  //     .selectAll('line')
+  //     .data(dataset)
+  //     .enter()
+  //     .append('line')
+  //     .attr('x1', (d: any) => xScale(d.Date))
+  //     .attr('x2', (d: any) => xScale(d.Date))
+  //     .attr('y1', h - padding)
+  //     .attr('y2', (d: any) => yScale(d.Amount))
+  //     .attr('stroke', '#ddd')
+  //     .attr('stroke-width', 1);
+
+  //   //Generate circles last, so they appear in front
+  //   svg
+  //     .selectAll('circle')
+  //     .data(dataset)
+  //     .enter()
+  //     .append('circle')
+  //     .attr('cx', (d: any) => xScale(d.Date))
+  //     .attr('cy', (d: any) => yScale(d.Amount))
+  //     .attr('r', 2);
+
+  //   /** X Axis Bar */
+  //   svg
+  //     .append('g')
+  //     .attr('class', 'axis')
+  //     .attr('transform', `translate(0, ${h - padding})`)
+  //     .call(xAxis);
+
+  //   /** Y Axis Bar */
+  //   svg
+  //     .append('g')
+  //     .attr('class', 'axis')
+  //     .attr('transform', `translate(${padding}, 0)`)
+  //     .call(yAxis);
+  // }
 
   // /** D3 Scatter Plot Scales With Axis */
   // d3ScatterPlotScalesWithAxis() {
