@@ -19,16 +19,20 @@ export class BarComponent {
     this.updatedNewD3BarChart();
   }
 
+  genRandomDataSet(n: number) {
+    return [...Array(n).keys()].map(() => Math.floor(Math.random() * 100));
+  }
+
   updatedNewD3BarChart() {
     const w = 600;
     const h = 250;
     const barPadding = 1;
 
-    const dataset = [
+    let dataset = [
       5, 10, 13, 19, 21, 25, 22, 18, 15, 13, 11, 12, 15, 20, 18, 17, 16, 18, 23,
       25,
     ];
-    
+
     const xScale = d3
       .scaleBand()
       .domain(d3.range(dataset.length) as unknown as string)
@@ -72,34 +76,30 @@ export class BarComponent {
       .attr('font-size', '11px')
       .attr('fill', 'white');
 
-    // svg
-    //   .selectAll('rect')
-    //   .data(dataset)
-    //   .enter()
-    //   .append('rect')
-    //   .attr('x', (d, i) => i * (w / dataset.length))
-    //   .attr('y', (d) => h - d * 4)
-    //   .attr('width', w / dataset.length - barPadding)
-    //   .attr('height', (d) => d * 4)
-    //   .attr('fill', (d) => `rgb(0,0,${Math.round(d * 10)})`);
+    d3.select('p').on('click', () => {
+      //New values for dataset
+      dataset = this.genRandomDataSet(20);
 
-    // svg
-    //   .selectAll('text')
-    //   .data(dataset)
-    //   .enter()
-    //   .append('text')
-    //   .text((d) => d)
-    //   .attr(
-    //     'x',
-    //     (d, i) =>
-    //       i * (w / dataset.length) + (w / dataset.length - barPadding) / 2
-    //   )
-    //   .attr('y', (d) => h - d * 4 + 14) // anchor text - top of bar
-    //   // .attr('y', h - 5)
-    //   .attr('font-family', 'sans-serif')
-    //   .attr('font-size', '11px')
-    //   .attr('fill', 'white')
-    //   .attr('text-anchor', 'middle');
+      const yScale = d3
+        .scaleLinear()
+        .domain([0, d3.max(dataset)!])
+        .range([0, h]);
+
+      //Update all rects
+      svg
+        .selectAll('rect')
+        .data(dataset)
+        .attr('y', (d) => h - yScale(d))
+        .attr('height', (d) => yScale(d))
+        .attr('fill', (d) => `rgb(0, 0, ${Math.round(d * 10)})`);
+
+      svg
+        .selectAll('text')
+        .data(dataset)
+        .text((d) => d)
+        .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
+        .attr('y', (d) => h - yScale(d) + 14);
+    });
   }
 
   // async d3TimeScalesPrettied() {
