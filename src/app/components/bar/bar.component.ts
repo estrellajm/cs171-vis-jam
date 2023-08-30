@@ -76,10 +76,12 @@ export class BarComponent {
       .attr('font-size', '11px')
       .attr('fill', 'white');
 
-    d3.select('p').on('click', () => {
+    d3.select('body').on('click', (dd) => {
+      console.log(dd);
+
       //New values for dataset
       dataset = this.genRandomDataSet(20);
-
+      const dur = 2000;
       const yScale = d3
         .scaleLinear()
         .domain([0, d3.max(dataset)!])
@@ -89,6 +91,10 @@ export class BarComponent {
       svg
         .selectAll('rect')
         .data(dataset)
+        .transition()
+        .delay((d, i) => i * 50)
+        .duration(dur)
+        .ease(d3.easeBounce)
         .attr('y', (d) => h - yScale(d))
         .attr('height', (d) => yScale(d))
         .attr('fill', (d) => `rgb(0, 0, ${Math.round(d * 10)})`);
@@ -96,6 +102,10 @@ export class BarComponent {
       svg
         .selectAll('text')
         .data(dataset)
+        .transition()
+        .delay((d, i) => i * 50)
+        .duration(dur)
+        .ease(d3.easeBounce)
         .text((d) => d)
         .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
         .attr('y', (d) => h - yScale(d) + 14);
