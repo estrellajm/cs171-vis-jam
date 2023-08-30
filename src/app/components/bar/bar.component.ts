@@ -20,10 +20,10 @@ export class BarComponent {
   }
 
   d3ScatterPlotScalesWithAxis() {
-    const genRandomCoordinates = (n: number) => {
+    const genRandomCoordinates = (n: number, maxNumber: number = 1000) => {
       return [...Array(n).keys()].map(() => [
-        Math.floor(Math.random() * 1000),
-        Math.floor(Math.random() * 1000),
+        Math.floor(Math.random() * maxNumber),
+        Math.floor(Math.random() * maxNumber),
       ]);
     };
     let dataset = genRandomCoordinates(50);
@@ -60,34 +60,48 @@ export class BarComponent {
       .append('circle')
       .attr('cx', (d) => xScale(d[0]))
       .attr('cy', (d) => yScale(d[1]))
-      .attr('r', (d) => aScale(d[1]));
+      .attr('r', 2);
 
     /** X Axis Bar */
     svg
       .append('g')
-      .attr('class', 'axis')
+      .attr('class', 'x axis')
       .attr('transform', `translate(0, ${h - padding})`)
       .call(xAxis);
 
     /** Y Axis Bar */
     svg
       .append('g')
-      .attr('class', 'axis')
+      .attr('class', 'y axis')
       .attr('transform', `translate(${padding}, 0)`)
       .call(yAxis);
 
     d3.select('body').on('click', (dd) => {
-      //New values for dataset
-      dataset = genRandomCoordinates(50);
+      /** New values for dataset */
+      dataset = genRandomCoordinates(50, Math.floor(Math.random() * 1000));
 
+      //Update scale domains
+      xScale.domain([0, d3.max(dataset, (d) => d[0])!]);
+      yScale.domain([0, d3.max(dataset, (d) => d[1])!]);
       svg
         .selectAll('circle')
         .data(dataset)
         .transition()
+        .duration(1000)
         .delay((d, i) => (i / dataset.length) * 50)
         .attr('cx', (d) => xScale(d[0]))
-        .attr('cy', (d) => yScale(d[1]))
-        .attr('r', (d) => aScale(d[1]));
+        .attr('cy', (d) => yScale(d[1]));
+
+      svg
+        .select('.x.axis')
+        .transition()
+        .duration(1000)
+        .call(xAxis as any);
+      svg
+        .select('.y.axis')
+        .transition()
+        .duration(1000)
+        .call(yAxis as any);
     });
   }
 
