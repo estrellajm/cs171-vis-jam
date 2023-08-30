@@ -16,7 +16,79 @@ interface DateObj {
 })
 export class BarComponent {
   ngOnInit() {
-    this.updatedNewD3BarChart();
+    this.d3ScatterPlotScalesWithAxis();
+  }
+
+  d3ScatterPlotScalesWithAxis() {
+    const genRandomCoordinates = (n: number) => {
+      return [...Array(n).keys()].map(() => [
+        Math.floor(Math.random() * 1000),
+        Math.floor(Math.random() * 1000),
+      ]);
+    };
+    let dataset = genRandomCoordinates(50);
+
+    const w = 500;
+    const h = 300;
+    const padding = 40;
+
+    const xMax = d3.max(dataset, (d) => d[0])!;
+    const xScale = d3
+      .scaleLinear()
+      .domain([0, xMax])
+      .range([padding, w - padding * 2]);
+    const yMax = d3.max(dataset, (d) => d[1])!;
+    const yScale = d3
+      .scaleLinear()
+      .domain([0, yMax])
+      .range([h - padding, padding]);
+    const aScale = d3.scaleSqrt().domain([0, yMax]).range([0, 10]);
+
+    const xAxis = d3.axisBottom(xScale).ticks(5);
+    const yAxis = d3.axisLeft(yScale).ticks(4);
+
+    const svg = d3
+      .select('figure#wiring')
+      .append('svg')
+      .attr('width', w)
+      .attr('height', h);
+
+    svg
+      .selectAll('circle')
+      .data(dataset)
+      .enter()
+      .append('circle')
+      .attr('cx', (d) => xScale(d[0]))
+      .attr('cy', (d) => yScale(d[1]))
+      .attr('r', (d) => aScale(d[1]));
+
+    /** X Axis Bar */
+    svg
+      .append('g')
+      .attr('class', 'axis')
+      .attr('transform', `translate(0, ${h - padding})`)
+      .call(xAxis);
+
+    /** Y Axis Bar */
+    svg
+      .append('g')
+      .attr('class', 'axis')
+      .attr('transform', `translate(${padding}, 0)`)
+      .call(yAxis);
+
+    d3.select('body').on('click', (dd) => {
+      //New values for dataset
+      dataset = genRandomCoordinates(50);
+
+      svg
+        .selectAll('circle')
+        .data(dataset)
+        .transition()
+        .delay((d, i) => (i / dataset.length) * 50)
+        .attr('cx', (d) => xScale(d[0]))
+        .attr('cy', (d) => yScale(d[1]))
+        .attr('r', (d) => aScale(d[1]));
+    });
   }
 
   genRandomDataSet(n: number, maxNumber: number = 100) {
