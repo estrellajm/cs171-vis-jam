@@ -19,8 +19,10 @@ export class BarComponent {
     this.updatedNewD3BarChart();
   }
 
-  genRandomDataSet(n: number) {
-    return [...Array(n).keys()].map(() => Math.floor(Math.random() * 100));
+  genRandomDataSet(n: number, maxNumber: number = 100) {
+    return [...Array(n).keys()].map(() =>
+      Math.floor(Math.random() * maxNumber)
+    );
   }
 
   updatedNewD3BarChart() {
@@ -77,22 +79,27 @@ export class BarComponent {
       .attr('fill', 'white');
 
     d3.select('body').on('click', (dd) => {
-      console.log(dd);
+      /** instead of 'click' above you can use 'keyup' */
+
+      const randMaxValue = Math.floor(Math.random() * 50);
 
       //New values for dataset
       dataset = this.genRandomDataSet(20);
-      const dur = 2000;
-      const yScale = d3
-        .scaleLinear()
-        .domain([0, d3.max(dataset)!])
-        .range([0, h]);
+      const dur = 750;
+      const xScale = d3
+        .scaleBand()
+        .domain(d3.range(dataset.length) as unknown as string)
+        .rangeRound([0, w])
+        .paddingInner(0.05);
+
+      yScale.domain([0, d3.max(dataset)!]);
 
       //Update all rects
       svg
         .selectAll('rect')
         .data(dataset)
         .transition()
-        .delay((d, i) => i * 50)
+        .delay((d, i) => (i / dataset.length) * 50)
         .duration(dur)
         .ease(d3.easeBounce)
         .attr('y', (d) => h - yScale(d))
@@ -103,12 +110,13 @@ export class BarComponent {
         .selectAll('text')
         .data(dataset)
         .transition()
-        .delay((d, i) => i * 50)
+        .delay((d, i) => (i / dataset.length) * 50)
         .duration(dur)
         .ease(d3.easeBounce)
         .text((d) => d)
-        .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
-        .attr('y', (d) => h - yScale(d) + 14);
+        .attr('y', (d) => h - yScale(d) + (d < 10 ? -2 : +14))
+        .attr('font-size', (d) => (d < 10 ? '12px' : '11px'))
+        .attr('fill', (d) => (d < 10 ? 'black' : 'white'));
     });
   }
 
