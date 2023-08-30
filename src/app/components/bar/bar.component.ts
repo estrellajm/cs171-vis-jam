@@ -42,10 +42,9 @@ export class BarComponent {
       .scaleLinear()
       .domain([0, yMax])
       .range([h - padding, padding]);
-    const aScale = d3.scaleSqrt().domain([0, yMax]).range([0, 10]);
 
     const xAxis = d3.axisBottom(xScale).ticks(5);
-    const yAxis = d3.axisLeft(yScale).ticks(4);
+    const yAxis = d3.axisLeft(yScale).ticks(5);
 
     const svg = d3
       .select('figure#wiring')
@@ -53,7 +52,21 @@ export class BarComponent {
       .attr('width', w)
       .attr('height', h);
 
+    //Define clipping path
     svg
+      .append('clipPath')
+      .attr('id', 'chart-area')
+      .append('rect')
+      .attr('x', padding)
+      .attr('y', padding)
+      .attr('width', w - padding * 3)
+      .attr('height', h - padding * 2);
+
+    //Create circles
+    svg
+      .append('g')
+      .attr('id', 'circles')
+      .attr('clip-path', 'url(#chart-area)')
       .selectAll('circle')
       .data(dataset)
       .enter()
@@ -83,14 +96,24 @@ export class BarComponent {
       //Update scale domains
       xScale.domain([0, d3.max(dataset, (d) => d[0])!]);
       yScale.domain([0, d3.max(dataset, (d) => d[1])!]);
+      
       svg
         .selectAll('circle')
         .data(dataset)
         .transition()
         .duration(1000)
+        /** to use 'this' you MUST use the traditional
+         *  'function() {}' not the fat arrow '() => {}'  */
+        .on('start', function () {
+          d3.select(this).attr('fill', 'magenta').attr('r', 7);
+        })
         .delay((d, i) => (i / dataset.length) * 50)
         .attr('cx', (d) => xScale(d[0]))
-        .attr('cy', (d) => yScale(d[1]));
+        .attr('cy', (d) => yScale(d[1]))
+        .transition()
+        .duration(400)
+        .attr('fill', 'black')
+        .attr('r', 2);
 
       svg
         .select('.x.axis')
@@ -102,6 +125,15 @@ export class BarComponent {
         .transition()
         .duration(1000)
         .call(yAxis as any);
+
+      svg
+        .append('clipPath')
+        .attr('id', 'chart-area')
+        .append('rect')
+        .attr('x', padding)
+        .attr('y', padding)
+        .attr('width', w - padding * 3)
+        .attr('height', h - padding * 2);
     });
   }
 
