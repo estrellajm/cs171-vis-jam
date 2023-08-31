@@ -62,6 +62,18 @@ export class BarComponent {
       .attr('width', w - padding * 3)
       .attr('height', h - padding * 2);
 
+    const grayLines = svg
+      .selectAll('line')
+      .data(dataset)
+      .enter()
+      .append('line')
+      .attr('x1', (d: any) => xScale(d[0]))
+      .attr('x2', (d: any) => xScale(d[0]))
+      .attr('y1', h - padding)
+      .attr('y2', (d: any) => yScale(d[1]))
+      .attr('stroke', '#ddd')
+      .attr('stroke-width', 1);
+
     //Create circles
     svg
       .append('g')
@@ -89,19 +101,19 @@ export class BarComponent {
       .attr('transform', `translate(${padding}, 0)`)
       .call(yAxis);
 
-    d3.select('body').on('click', (dd) => {
+    d3.select('figure#wiring').on('click', (dd) => {
       /** New values for dataset */
       dataset = genRandomCoordinates(50, Math.floor(Math.random() * 1000));
 
       //Update scale domains
       xScale.domain([0, d3.max(dataset, (d) => d[0])!]);
       yScale.domain([0, d3.max(dataset, (d) => d[1])!]);
-      
+
       svg
         .selectAll('circle')
         .data(dataset)
         .transition()
-        .duration(1000)
+        .duration(800)
         /** to use 'this' you MUST use the traditional
          *  'function() {}' not the fat arrow '() => {}'  */
         .on('start', function () {
@@ -115,6 +127,14 @@ export class BarComponent {
         .attr('fill', 'black')
         .attr('r', 2);
 
+      grayLines
+        .data(dataset)
+        .transition()
+        .duration(1000)
+        .attr('x1', (d: any) => xScale(d[0]))
+        .attr('x2', (d: any) => xScale(d[0]))
+        .attr('y1', h - padding)
+        .attr('y2', (d: any) => yScale(d[1]));
       svg
         .select('.x.axis')
         .transition()
@@ -313,7 +333,7 @@ export class BarComponent {
   //     .attr('width', w)
   //     .attr('height', h);
 
-  //   //Generate guide lines
+  //   //Generate guide gray lines
   //   svg
   //     .selectAll('line')
   //     .data(dataset)
