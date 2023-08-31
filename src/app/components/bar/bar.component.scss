@@ -14,3 +14,15 @@
 //   font-size: 14px;
 //   fill: teal;
 // }
+
+::ng-deep .information {
+  anchor-name: --i-btn;
+}
+::ng-deep [popover] {
+  anchor-default: --i-btn;
+  inset: unset;
+  bottom: anchor(top);
+  left: anchor(center);
+  translate: -50%;
+  margin: 0.25rem 0;
+}
