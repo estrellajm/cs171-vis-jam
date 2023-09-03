@@ -16,157 +16,19 @@ interface DateObj {
 })
 export class BarComponent {
   ngOnInit() {
-    this.d3ScatterPlotScalesWithAxis();
-  }
-
-  d3ScatterPlotScalesWithAxis() {
-    const genRandomCoordinates = (n: number, maxNumber: number = 1000) => {
-      return [...Array(n).keys()].map(() => [
-        Math.floor(Math.random() * maxNumber),
-        Math.floor(Math.random() * maxNumber),
-      ]);
-    };
-    let dataset = genRandomCoordinates(50);
-
-    const w = 500;
-    const h = 300;
-    const padding = 40;
-
-    const xMax = d3.max(dataset, (d) => d[0])!;
-    const xScale = d3
-      .scaleLinear()
-      .domain([0, xMax])
-      .range([padding, w - padding * 2]);
-    const yMax = d3.max(dataset, (d) => d[1])!;
-    const yScale = d3
-      .scaleLinear()
-      .domain([0, yMax])
-      .range([h - padding, padding]);
-
-    const xAxis = d3.axisBottom(xScale).ticks(5);
-    const yAxis = d3.axisLeft(yScale).ticks(5);
-
-    const svg = d3
-      .select('figure#wiring')
-      .append('svg')
-      .attr('width', w)
-      .attr('height', h);
-
-    //Define clipping path
-    svg
-      .append('clipPath')
-      .attr('id', 'chart-area')
-      .append('rect')
-      .attr('x', padding)
-      .attr('y', padding)
-      .attr('width', w - padding * 3)
-      .attr('height', h - padding * 2);
-
-    const grayLines = svg
-      .selectAll('line')
-      .data(dataset)
-      .enter()
-      .append('line')
-      .attr('x1', (d: any) => xScale(d[0]))
-      .attr('x2', (d: any) => xScale(d[0]))
-      .attr('y1', h - padding)
-      .attr('y2', (d: any) => yScale(d[1]))
-      .attr('stroke', '#ddd')
-      .attr('stroke-width', 1);
-
-    //Create circles
-    svg
-      .append('g')
-      .attr('id', 'circles')
-      .attr('clip-path', 'url(#chart-area)')
-      .selectAll('circle')
-      .data(dataset)
-      .enter()
-      .append('circle')
-      .attr('cx', (d) => xScale(d[0]))
-      .attr('cy', (d) => yScale(d[1]))
-      .attr('r', 2);
-
-    /** X Axis Bar */
-    svg
-      .append('g')
-      .attr('class', 'x axis')
-      .attr('transform', `translate(0, ${h - padding})`)
-      .call(xAxis);
-
-    /** Y Axis Bar */
-    svg
-      .append('g')
-      .attr('class', 'y axis')
-      .attr('transform', `translate(${padding}, 0)`)
-      .call(yAxis);
-
-    d3.select('figure#wiring').on('click', (dd) => {
-      /** New values for dataset */
-      dataset = genRandomCoordinates(50, Math.floor(Math.random() * 1000));
-
-      //Update scale domains
-      xScale.domain([0, d3.max(dataset, (d) => d[0])!]);
-      yScale.domain([0, d3.max(dataset, (d) => d[1])!]);
-
-      svg
-        .selectAll('circle')
-        .data(dataset)
-        .transition()
-        .duration(800)
-        /** to use 'this' you MUST use the traditional
-         *  'function() {}' not the fat arrow '() => {}'  */
-        .on('start', function () {
-          d3.select(this).attr('fill', 'magenta').attr('r', 7);
-        })
-        .delay((d, i) => (i / dataset.length) * 50)
-        .attr('cx', (d) => xScale(d[0]))
-        .attr('cy', (d) => yScale(d[1]))
-        .transition()
-        .duration(400)
-        .attr('fill', 'black')
-        .attr('r', 2);
-
-      grayLines
-        .data(dataset)
-        .transition()
-        .duration(1000)
-        .attr('x1', (d: any) => xScale(d[0]))
-        .attr('x2', (d: any) => xScale(d[0]))
-        .attr('y1', h - padding)
-        .attr('y2', (d: any) => yScale(d[1]));
-      svg
-        .select('.x.axis')
-        .transition()
-        .duration(1000)
-        .call(xAxis as any);
-      svg
-        .select('.y.axis')
-        .transition()
-        .duration(1000)
-        .call(yAxis as any);
-
-      svg
-        .append('clipPath')
-        .attr('id', 'chart-area')
-        .append('rect')
-        .attr('x', padding)
-        .attr('y', padding)
-        .attr('width', w - padding * 3)
-        .attr('height', h - padding * 2);
-    });
-  }
-
-  genRandomDataSet(n: number, maxNumber: number = 100) {
-    return [...Array(n).keys()].map(() =>
-      Math.floor(Math.random() * maxNumber)
-    );
+    this.updatedNewD3BarChart();
   }
 
   updatedNewD3BarChart() {
     const w = 600;
     const h = 250;
     const barPadding = 1;
+
+    const genRandomDataSet = (n: number, maxNumber: number = 100) => {
+      return [...Array(n).keys()].map(() =>
+        Math.floor(Math.random() * maxNumber)
+      );
+    };
 
     let dataset = [
       5, 10, 13, 19, 21, 25, 22, 18, 15, 13, 11, 12, 15, 20, 18, 17, 16, 18, 23,
@@ -217,46 +79,296 @@ export class BarComponent {
       .attr('fill', 'white');
 
     d3.select('body').on('click', (dd) => {
-      /** instead of 'click' above you can use 'keyup' */
+      const maxValue = 25;
+      const randMaxValue = Math.floor(Math.random() * maxValue);
+      dataset.push(randMaxValue);
 
-      const randMaxValue = Math.floor(Math.random() * 50);
+      xScale.domain(d3.range(dataset.length) as any);
+      yScale.domain([0, d3.max(dataset)] as any);
+      //Select…
+      const bars = svg
+        .selectAll('rect') //Select all bars
+        .data(dataset); //Re-bind data to existing bars, return the 'update' selection
+      //'bars' is now the update selection
 
-      //New values for dataset
-      dataset = this.genRandomDataSet(20);
-      const dur = 750;
-      const xScale = d3
-        .scaleBand()
-        .domain(d3.range(dataset.length) as unknown as string)
-        .rangeRound([0, w])
-        .paddingInner(0.05);
+      bars
+        .enter() //References the enter selection (a subset of the update selection)
+        .append('rect') //Creates a new rect
+        .attr('x', w) //Sets the initial x position of the rect beyond the far right edge of the SVG
+        .attr('y', (d) => h - yScale(d)) //Sets the y value, based on the updated yScale
+        .attr('width', xScale.bandwidth()) //Sets the width value, based on the updated xScale
+        .attr('height', (d) => yScale(d)) //Sets the height value, based on the updated yScale
+        .attr('fill', (d) => `rgb(0, 0, ${Math.round(d * 10)})`) //Sets the fill value
+        .merge(bars as any) //Merges the enter selection with the update selection
+        .transition() //Initiate a transition on all elements in the update selection (all rects)
+        .duration(500)
+        .attr('x', (d, i: any) => xScale(i)!)
+        .attr('y', (d) => h - yScale(d)) //Set new y position, based on the updated yScale
+        .attr('width', xScale.bandwidth()) //Set new width value, based on the updated xScale
+        .attr('height', (d) => yScale(d)); //Set new height value, based on the updated yScale
 
-      yScale.domain([0, d3.max(dataset)!]);
+      const barTexts = svg
+        .selectAll('text') //Select all bars
+        .data(dataset); //Re-bind data to existing bars, return the 'update' selection
+      //'bars' is now the update selection
 
-      //Update all rects
-      svg
-        .selectAll('rect')
-        .data(dataset)
-        .transition()
-        .delay((d, i) => (i / dataset.length) * 50)
-        .duration(dur)
-        .ease(d3.easeBounce)
-        .attr('y', (d) => h - yScale(d))
-        .attr('height', (d) => yScale(d))
-        .attr('fill', (d) => `rgb(0, 0, ${Math.round(d * 10)})`);
-
-      svg
-        .selectAll('text')
-        .data(dataset)
-        .transition()
-        .delay((d, i) => (i / dataset.length) * 50)
-        .duration(dur)
-        .ease(d3.easeBounce)
+      barTexts
+        .enter()
+        .append('text')
+        .attr('x', w)
+        .attr('y', (d) => h - yScale(d) + 14)
         .text((d) => d)
-        .attr('y', (d) => h - yScale(d) + (d < 10 ? -2 : +14))
-        .attr('font-size', (d) => (d < 10 ? '12px' : '11px'))
-        .attr('fill', (d) => (d < 10 ? 'black' : 'white'));
+        .attr('text-anchor', 'middle')
+        .attr('font-family', 'sans-serif')
+        .attr('font-size', '11px')
+        .attr('fill', 'white')
+        .merge(barTexts as any)
+        .transition()
+        .duration(500)
+        .text((d) => d)
+        .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
+        .attr('y', (d) => h - yScale(d) + 14);
     });
   }
+
+  // d3ScatterPlotScalesWithAxis() {
+  //   const genRandomCoordinates = (n: number, maxNumber: number = 1000) => {
+  //     return [...Array(n).keys()].map(() => [
+  //       Math.floor(Math.random() * maxNumber),
+  //       Math.floor(Math.random() * maxNumber),
+  //     ]);
+  //   };
+  //   let dataset = genRandomCoordinates(50);
+
+  //   const w = 500;
+  //   const h = 300;
+  //   const padding = 40;
+
+  //   const xMax = d3.max(dataset, (d) => d[0])!;
+  //   const xScale = d3
+  //     .scaleLinear()
+  //     .domain([0, xMax])
+  //     .range([padding, w - padding * 2]);
+  //   const yMax = d3.max(dataset, (d) => d[1])!;
+  //   const yScale = d3
+  //     .scaleLinear()
+  //     .domain([0, yMax])
+  //     .range([h - padding, padding]);
+
+  //   const xAxis = d3.axisBottom(xScale).ticks(5);
+  //   const yAxis = d3.axisLeft(yScale).ticks(5);
+
+  //   const svg = d3
+  //     .select('figure#wiring')
+  //     .append('svg')
+  //     .attr('width', w)
+  //     .attr('height', h);
+
+  //   //Define clipping path
+  //   svg
+  //     .append('clipPath')
+  //     .attr('id', 'chart-area')
+  //     .append('rect')
+  //     .attr('x', padding)
+  //     .attr('y', padding)
+  //     .attr('width', w - padding * 3)
+  //     .attr('height', h - padding * 2);
+
+  //   const grayLines = svg
+  //     .selectAll('line')
+  //     .data(dataset)
+  //     .enter()
+  //     .append('line')
+  //     .attr('x1', (d: any) => xScale(d[0]))
+  //     .attr('x2', (d: any) => xScale(d[0]))
+  //     .attr('y1', h - padding)
+  //     .attr('y2', (d: any) => yScale(d[1]))
+  //     .attr('stroke', '#ddd')
+  //     .attr('stroke-width', 1);
+
+  //   //Create circles
+  //   svg
+  //     .append('g')
+  //     .attr('id', 'circles')
+  //     .attr('clip-path', 'url(#chart-area)')
+  //     .selectAll('circle')
+  //     .data(dataset)
+  //     .enter()
+  //     .append('circle')
+  //     .attr('cx', (d) => xScale(d[0]))
+  //     .attr('cy', (d) => yScale(d[1]))
+  //     .attr('r', 2);
+
+  //   /** X Axis Bar */
+  //   svg
+  //     .append('g')
+  //     .attr('class', 'x axis')
+  //     .attr('transform', `translate(0, ${h - padding})`)
+  //     .call(xAxis);
+
+  //   /** Y Axis Bar */
+  //   svg
+  //     .append('g')
+  //     .attr('class', 'y axis')
+  //     .attr('transform', `translate(${padding}, 0)`)
+  //     .call(yAxis);
+
+  //   d3.select('figure#wiring').on('click', (dd) => {
+  //     /** New values for dataset */
+  //     dataset = genRandomCoordinates(50, Math.floor(Math.random() * 1000));
+
+  //     //Update scale domains
+  //     xScale.domain([0, d3.max(dataset, (d) => d[0])!]);
+  //     yScale.domain([0, d3.max(dataset, (d) => d[1])!]);
+
+  //     svg
+  //       .selectAll('circle')
+  //       .data(dataset)
+  //       .transition()
+  //       .duration(800)
+  //       /** to use 'this' you MUST use the traditional
+  //        *  'function() {}' not the fat arrow '() => {}'  */
+  //       .on('start', function () {
+  //         d3.select(this).attr('fill', 'magenta').attr('r', 7);
+  //       })
+  //       .delay((d, i) => (i / dataset.length) * 50)
+  //       .attr('cx', (d) => xScale(d[0]))
+  //       .attr('cy', (d) => yScale(d[1]))
+  //       .transition()
+  //       .duration(400)
+  //       .attr('fill', 'black')
+  //       .attr('r', 2);
+
+  //     grayLines
+  //       .data(dataset)
+  //       .transition()
+  //       .duration(1000)
+  //       .attr('x1', (d: any) => xScale(d[0]))
+  //       .attr('x2', (d: any) => xScale(d[0]))
+  //       .attr('y1', h - padding)
+  //       .attr('y2', (d: any) => yScale(d[1]));
+  //     svg
+  //       .select('.x.axis')
+  //       .transition()
+  //       .duration(1000)
+  //       .call(xAxis as any);
+  //     svg
+  //       .select('.y.axis')
+  //       .transition()
+  //       .duration(1000)
+  //       .call(yAxis as any);
+
+  //     svg
+  //       .append('clipPath')
+  //       .attr('id', 'chart-area')
+  //       .append('rect')
+  //       .attr('x', padding)
+  //       .attr('y', padding)
+  //       .attr('width', w - padding * 3)
+  //       .attr('height', h - padding * 2);
+  //   });
+  // }
+
+  // genRandomDataSet(n: number, maxNumber: number = 100) {
+  //   return [...Array(n).keys()].map(() =>
+  //     Math.floor(Math.random() * maxNumber)
+  //   );
+  // }
+
+  // updatedNewD3BarChart() {
+  //   const w = 600;
+  //   const h = 250;
+  //   const barPadding = 1;
+
+  //   let dataset = [
+  //     5, 10, 13, 19, 21, 25, 22, 18, 15, 13, 11, 12, 15, 20, 18, 17, 16, 18, 23,
+  //     25,
+  //   ];
+
+  //   const xScale = d3
+  //     .scaleBand()
+  //     .domain(d3.range(dataset.length) as unknown as string)
+  //     .rangeRound([0, w])
+  //     .paddingInner(0.05);
+
+  //   const yScale = d3
+  //     .scaleLinear()
+  //     .domain([0, d3.max(dataset)!])
+  //     .range([0, h]);
+
+  //   const svg = d3
+  //     .select('figure#wiring')
+  //     .append('svg')
+  //     .attr('width', w)
+  //     .attr('height', h);
+
+  //   //Create bars
+  //   svg
+  //     .selectAll('rect')
+  //     .data(dataset)
+  //     .enter()
+  //     .append('rect')
+  //     .attr('x', (d, i: any) => xScale(i)!)
+  //     .attr('y', (d) => h - yScale(d))
+  //     .attr('width', xScale.bandwidth())
+  //     .attr('height', (d) => yScale(d))
+  //     .attr('fill', (d) => `rgb(0, 0, ${Math.round(d * 10)})`);
+
+  //   //Create labels
+  //   svg
+  //     .selectAll('text')
+  //     .data(dataset)
+  //     .enter()
+  //     .append('text')
+  //     .text((d) => d)
+  //     .attr('text-anchor', 'middle')
+  //     .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
+  //     .attr('y', (d) => h - yScale(d) + 14)
+  //     .attr('font-family', 'sans-serif')
+  //     .attr('font-size', '11px')
+  //     .attr('fill', 'white');
+
+  //   d3.select('body').on('click', (dd) => {
+  //     /** instead of 'click' above you can use 'keyup' */
+
+  //     const randMaxValue = Math.floor(Math.random() * 50);
+
+  //     //New values for dataset
+  //     dataset = this.genRandomDataSet(20);
+  //     const dur = 750;
+  //     const xScale = d3
+  //       .scaleBand()
+  //       .domain(d3.range(dataset.length) as unknown as string)
+  //       .rangeRound([0, w])
+  //       .paddingInner(0.05);
+
+  //     yScale.domain([0, d3.max(dataset)!]);
+
+  //     //Update all rects
+  //     svg
+  //       .selectAll('rect')
+  //       .data(dataset)
+  //       .transition()
+  //       .delay((d, i) => (i / dataset.length) * 50)
+  //       .duration(dur)
+  //       .ease(d3.easeBounce)
+  //       .attr('y', (d) => h - yScale(d))
+  //       .attr('height', (d) => yScale(d))
+  //       .attr('fill', (d) => `rgb(0, 0, ${Math.round(d * 10)})`);
+
+  //     svg
+  //       .selectAll('text')
+  //       .data(dataset)
+  //       .transition()
+  //       .delay((d, i) => (i / dataset.length) * 50)
+  //       .duration(dur)
+  //       .ease(d3.easeBounce)
+  //       .text((d) => d)
+  //       .attr('y', (d) => h - yScale(d) + (d < 10 ? -2 : +14))
+  //       .attr('font-size', (d) => (d < 10 ? '12px' : '11px'))
+  //       .attr('fill', (d) => (d < 10 ? 'black' : 'white'));
+  //   });
+  // }
 
   // async d3TimeScalesPrettied() {
   //   //Width and height
