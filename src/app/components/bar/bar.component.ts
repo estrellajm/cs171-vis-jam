@@ -78,7 +78,7 @@ export class BarComponent {
       .attr('font-size', '11px')
       .attr('fill', 'white');
 
-    d3.select('body').on('click', (dd) => {
+    d3.select('div#addMoreData').on('click', (dd) => {
       const maxValue = 25;
       const randMaxValue = Math.floor(Math.random() * maxValue);
       dataset.push(randMaxValue);
@@ -128,6 +128,81 @@ export class BarComponent {
         .text((d) => d)
         .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
         .attr('y', (d) => h - yScale(d) + 14);
+    });
+
+    d3.select('div#deleteData').on('click', (dd) => {
+      dataset.pop();
+
+      xScale.domain(d3.range(dataset.length) as any);
+      yScale.domain([0, d3.max(dataset)] as any);
+      //Select…
+      const bars = svg
+        .selectAll('rect') //Select all bars
+        .data(dataset); //Re-bind data to existing bars, return the 'update' selection
+      //'bars' is now the update selection
+
+      bars
+        .enter() //References the enter selection (a subset of the update selection)
+        .append('rect') //Creates a new rect
+        .attr('x', w) //Sets the initial x position of the rect beyond the far right edge of the SVG
+        .attr('y', (d) => h - yScale(d)) //Sets the y value, based on the updated yScale
+        .attr('width', xScale.bandwidth()) //Sets the width value, based on the updated xScale
+        .attr('height', (d) => yScale(d)) //Sets the height value, based on the updated yScale
+        .attr('fill', (d) => `rgb(0, 0, ${Math.round(d * 10)})`) //Sets the fill value
+        .merge(bars as any) //Merges the enter selection with the update selection
+        .transition() //Initiate a transition on all elements in the update selection (all rects)
+        .duration(500)
+        .attr('x', (d, i: any) => xScale(i)!)
+        .attr('y', (d) => h - yScale(d)) //Set new y position, based on the updated yScale
+        .attr('width', xScale.bandwidth()) //Set new width value, based on the updated xScale
+        .attr('height', (d) => yScale(d)); //Set new height value, based on the updated yScale
+
+      const barTexts = svg
+        .selectAll('text') //Select all bars
+        .data(dataset); //Re-bind data to existing bars, return the 'update' selection
+      //'bars' is now the update selection
+
+      barTexts
+        .enter()
+        .append('text')
+        .attr('x', w)
+        .attr('y', (d) => h - yScale(d) + 14)
+        .text((d) => d)
+        .attr('text-anchor', 'middle')
+        .attr('font-family', 'sans-serif')
+        .attr('font-size', '11px')
+        .attr('fill', 'white')
+        .merge(barTexts as any)
+        .transition()
+        .duration(500)
+        .text((d) => d)
+        .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
+        .attr('y', (d) => h - yScale(d) + 14);
+
+      bars
+        .exit() //References the enter selection (a subset of the update selection)
+        .transition() //Initiate a transition on all elements in the update selection (all rects)
+        .duration(500)
+        .attr('x', w)
+        .remove();
+      barTexts
+        .exit() //References the enter selection (a subset of the update selection)
+        .transition() //Initiate a transition on all elements in the update selection (all rects)
+        .duration(500)
+        .attr('x', w)
+        .remove();
+
+      // const barTexts = svg
+      //   .selectAll('text') //Select all bars
+      //   .data(dataset); //Re-bind data to existing bars, return the 'update' selection
+      // //'bars' is now the update selection
+
+      // barTexts
+      //   .exit() //References the enter selection (a subset of the update selection)
+      //   .transition() //Initiate a transition on all elements in the update selection (all rects)
+      //   .duration(500)
+      //   .attr('x', w)
+      //   .remove();
     });
   }
 
