@@ -116,6 +116,7 @@ export class BarComponent {
       deleteData(updatedDataSet);
     });
 
+    /** BUG: Rapid Click bug creates phantom elements */
     d3.select('div#addMoreData').on('click', (dd) => {
       const maxValue = 25;
       const randMaxValue = Math.floor(Math.random() * maxValue);
