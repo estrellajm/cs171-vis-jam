@@ -18,20 +18,24 @@ export class WiringTableComponent {
   sampleData: WiringRequest[] = [];
 
   constructor() {
-    this.generateSampleData(1);
+    this.generateSampleData(10);
   }
 
-  generateSampleData(n: number) {
+  /*****************************/
+  /*** SAMPLE DATA GENERATOR ***/
+  /*****************************/
+  private generateSampleData(n: number) {
     const sampleWiringRequests = [];
 
     // Sample data arrays
-    const wireTypes: WireType[] = ['coax', 'twinax', 'smf', 'mmf'];
+    const wireTypes: WireType[] = ['coax', 'twinax', 'smf', 'mmf', 'copper'];
     const labTeams = ['ctec', 'ec'];
     const statuses = ['queued', 'in progress', 'completed', 'cancelled'];
-
     // Generate a random integer between min and max (inclusive)
     const getRandomInt = (min: number, max: number) =>
-      Math.floor(Math.random() * (max - min + 1)) + min;
+    Math.floor(Math.random() * (max - min + 1)) + min;
+    const getRandomJIRATicket = () => `LABOPS-${getRandomInt(1000, 9999)}`;
+    const wiringType = wireTypes[getRandomInt(0, wireTypes.length - 1)]
 
     const genWiringPoints = (n: number) => {
       const wiringArr: Wiring[] = [];
@@ -48,10 +52,10 @@ export class WiringTableComponent {
             rack: getRandomInt(1, 5),
             unit: `Unit${j}`,
             name: `Name${i}${j}`,
-            description: `Description${i}${j}`,
+            notes: `Notes${i}${j}`,
             slot: `Slot${j}`,
             port: getRandomInt(1, 48),
-            portType: wireTypes[getRandomInt(0, wireTypes.length - 1)],
+            portType: wiringType,
           };
           wiringPoints.push(wiringPoint);
         }
@@ -59,7 +63,7 @@ export class WiringTableComponent {
         const wiring: Wiring = {
           id: `Wiring${i}`,
           notes: `Notes for wiring ${i}`,
-          ckid: `CKID${i}`,
+          circuitId: `CKID${i}`,
           from: wiringPoints[0],
           to: wiringPoints[1],
         };
@@ -73,13 +77,12 @@ export class WiringTableComponent {
     for (let i = 1; i <= n; i++) {
       const wiringRequest = {
         id: `WR${i}`,
-        type: wireTypes[getRandomInt(0, wireTypes.length - 1)],
         labTeam: labTeams[getRandomInt(0, labTeams.length - 1)],
         requestingTeam: `Team${getRandomInt(1, 5)}`,
-        jira: `JIRA${i}`,
+        jira: getRandomJIRATicket(),
         date: new Date(),
         status: statuses[getRandomInt(0, statuses.length - 1)],
-        wiring: genWiringPoints(3),
+        wiring: genWiringPoints(getRandomInt(1, 4)),
       };
 
       sampleWiringRequests.push(wiringRequest);

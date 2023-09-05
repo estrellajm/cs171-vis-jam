@@ -9,9 +9,11 @@
 
     CTEC - Charter Technology and Engineering Center
     EC - Edge Connects
+
+    CKID - Circuit ID
  */
 
-export type WireType = 'coax' | 'twinax' | 'smf' | 'mmf';
+export type WireType = 'coax' | 'twinax' | 'smf' | 'mmf' | 'copper';
 export type LabTeam = 'ctec' | 'ec';
 export type StatusType = 'queued' | 'in progress' | 'completed' | 'cancelled';
 
@@ -22,7 +24,7 @@ export interface WiringPoint {
   rack: number;
   unit: string;
   name: string;
-  description: string;
+  notes: string;
   slot: string;
   port: string | number;
   portType: WireType;
@@ -31,14 +33,13 @@ export interface WiringPoint {
 export interface Wiring {
   id: string;
   notes: string;
-  ckid: string;
+  circuitId: string;
   from: WiringPoint;
   to: WiringPoint;
 }
 
 export interface WiringRequest {
   id: string;
-  type: WireType;
   labTeam: LabTeam;
   requestingTeam: string;
   jira: string;
