@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { BarComponent } from './components/bar/bar.component';
 import { TailwindCalendarComponent } from './components/tailwind-calendar/tailwind-calendar.component';
 import { RingsComponent } from './components/rings/rings.component';
+import { PathsComponent } from './components/paths/paths.component';
 
 @NgModule({
   declarations: [AppComponent],
@@ -15,6 +16,7 @@ import { RingsComponent } from './components/rings/rings.component';
     BarComponent,
     TailwindCalendarComponent,
     RingsComponent,
+    PathsComponent,
   ],
   providers: [],
   bootstrap: [AppComponent],
