@@ -101,7 +101,41 @@ export class BarComponent {
       .classed(
         'hover:fill-orange-400 transition-200 ease-in-out',
         true
-      ); /** Add hover orange */
+      ) /** Add hover orange */
+
+      /** This popover works */
+      .on('mouseover', function (d) {
+        const xPosition =
+          parseFloat(d3.select(this).attr('x')) + xScale.bandwidth() / 2;
+        // const yPosition = parseFloat(d3.select(this).attr('y')) / 2 + h / 2;
+        const yPosition = h - 10;
+
+        const elData = d3.select(d.target).datum() as any;
+        // svg
+        //   .append('text')
+        //   .attr('id', 'tooltip')
+        //   .attr('x', xPosition)
+        //   .attr('y', yPosition)
+        //   .attr('text-anchor', 'middle')
+        //   .attr('font-family', 'sans-serif')
+        //   .attr('font-size', '11px')
+        //   .attr('font-weight', 'bold')
+        //   .attr('fill', 'black')
+        //   .text(elData.value);
+        //Update the tooltip position and value
+        d3.select('#tooltip')
+          .style('left', `${xPosition}px`)
+          .style('top', `${yPosition}px`)
+          .select('#value')
+          .text(elData.value);
+
+        //Show the tooltip
+        d3.select('#tooltip').classed('hidden', false);
+      })
+      .on('mouseout', () => {
+        // d3.select('#tooltip').remove();
+        d3.select('#tooltip').classed('hidden', true);
+      });
 
     /** The following event listeners have to be redeclared in the 'ADD' section, or the new elements will not have it */
     // svg.selectAll('rect').on('click', function () {
@@ -117,6 +151,7 @@ export class BarComponent {
       .text((d) => d.value)
       .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
       .attr('y', (d) => h - yScale(d.value) + 14)
+      // .attr('y', (d) => h - 10) /** Sets the text towards the bottom of the 'rect */
       .attr('text-anchor', 'middle')
       .attr('font-family', 'sans-serif')
       .attr('font-size', '11px')
@@ -215,11 +250,11 @@ export class BarComponent {
         .attr('y', (d) => h - yScale(d.value) + 14);
 
       /** adds click listener */
-      // d3.selectAll('rect').on('click', function (ddd: PointerEvent) {
-      //   const key = d3.select(this).attr('id');
-      //   const updatedDataSet = dataset.filter((ds) => ds.key !== key);
-      //   deleteData(updatedDataSet);
-      // });
+      d3.selectAll('rect').on('click', function (ddd: PointerEvent) {
+        const key = d3.select(this).attr('id');
+        const updatedDataSet = dataset.filter((ds) => ds.key !== key);
+        deleteData(updatedDataSet);
+      });
     });
 
     d3.select('div#deleteData').on('click', (dd) => {
