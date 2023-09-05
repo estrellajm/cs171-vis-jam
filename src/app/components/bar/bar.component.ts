@@ -24,9 +24,12 @@ export class BarComponent {
     this.updatedNewD3BarChart();
   }
 
-  clickMe(aaa: any) {
-    console.log(`you clicked: ${aaa}`);
+  sortData() {
+    this.sortDataFunc();
   }
+
+  sortDataFunc: any;
+  ascending: boolean = true;
 
   updatedNewD3BarChart() {
     const w = 600;
@@ -43,22 +46,22 @@ export class BarComponent {
       { key: '0', value: 5 }, //dataset is now an array of objects.
       { key: '1', value: 10 }, //Each object has a 'key' and a 'value'.
       { key: '2', value: 13 },
-      // { key: '3', value: 19 },
-      // { key: '4', value: 21 },
-      // { key: '5', value: 25 },
-      // { key: '6', value: 22 },
-      // { key: '7', value: 18 },
-      // { key: '8', value: 15 },
-      // { key: '9', value: 13 },
-      // { key: '10', value: 11 },
-      // { key: '11', value: 12 },
-      // { key: '12', value: 15 },
-      // { key: '13', value: 20 },
-      // { key: '14', value: 18 },
-      // { key: '15', value: 17 },
-      // { key: '16', value: 16 },
-      // { key: '17', value: 18 },
-      // { key: '18', value: 23 },
+      { key: '3', value: 19 },
+      { key: '4', value: 21 },
+      { key: '5', value: 25 },
+      { key: '6', value: 22 },
+      { key: '7', value: 18 },
+      { key: '8', value: 15 },
+      { key: '9', value: 13 },
+      { key: '10', value: 11 },
+      { key: '11', value: 12 },
+      { key: '12', value: 15 },
+      { key: '13', value: 20 },
+      { key: '14', value: 18 },
+      { key: '15', value: 17 },
+      { key: '16', value: 16 },
+      { key: '17', value: 18 },
+      { key: '18', value: 23 },
       { key: 'ee', value: 25 },
     ];
     const xScale = d3
@@ -94,10 +97,19 @@ export class BarComponent {
       .attr('y', (d) => h - yScale(d.value))
       .attr('width', xScale.bandwidth())
       .attr('height', (d) => yScale(d.value))
-      .attr('fill', (d) => `rgb(0, 0, ${Math.round(d.value * 10)})`);
+      .attr('fill', (d) => `rgb(0, 0, ${Math.round(d.value * 10)})`)
+      .classed(
+        'hover:fill-orange-400 transition-200 ease-in-out',
+        true
+      ); /** Add hover orange */
+
+    /** The following event listeners have to be redeclared in the 'ADD' section, or the new elements will not have it */
+    // svg.selectAll('rect').on('click', function () {
+    //   console.log('hovering');
+    // });
 
     /** Create labels */
-    svg
+    const labels = svg
       .selectAll('text')
       .data(dataset, key)
       .enter()
@@ -110,7 +122,39 @@ export class BarComponent {
       .attr('font-size', '11px')
       .attr('fill', 'white');
 
-    d3.selectAll('rect').on('click', function (ddd: PointerEvent) {
+    const ascAndDec = (a: unknown, b: unknown) => {
+      const dataSetA = a as DataSet;
+      const dataSetB = b as DataSet;
+      if (this.ascending) {
+        return d3.ascending(dataSetA.value, dataSetB.value);
+      } else {
+        return d3.descending(dataSetA.value, dataSetB.value);
+      }
+    };
+    //Define sort function
+    const sortBars = () => {
+      const newOrder = svg.selectAll('rect').sort(ascAndDec);
+      newOrder
+        .transition()
+        .duration(1000)
+        .attr('x', (d, i: any) => xScale(i)!);
+      svg
+        .selectAll('text')
+        .sort(ascAndDec)
+        .transition()
+        .duration(1000)
+        .attr('x', (d, i: any) => xScale(i)! + 14);
+
+      dataset = newOrder.data() as DataSet[];
+      this.ascending = !this.ascending;
+    };
+
+    /** called from external */
+    this.sortDataFunc = () => {
+      sortBars();
+    };
+
+    d3.selectAll('rect').on('click', function () {
       const key = d3.select(this).attr('id');
       const updatedDataSet = dataset.filter((ds) => ds.key !== key);
       deleteData(updatedDataSet);
@@ -170,11 +214,12 @@ export class BarComponent {
         .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
         .attr('y', (d) => h - yScale(d.value) + 14);
 
-      d3.selectAll('rect').on('click', function (ddd: PointerEvent) {
-        const key = d3.select(this).attr('id');
-        const updatedDataSet = dataset.filter((ds) => ds.key !== key);
-        deleteData(updatedDataSet);
-      });
+      /** adds click listener */
+      // d3.selectAll('rect').on('click', function (ddd: PointerEvent) {
+      //   const key = d3.select(this).attr('id');
+      //   const updatedDataSet = dataset.filter((ds) => ds.key !== key);
+      //   deleteData(updatedDataSet);
+      // });
     });
 
     d3.select('div#deleteData').on('click', (dd) => {
