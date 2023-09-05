@@ -11,11 +11,11 @@
     EC - Edge Connects
  */
 
-type WireType = 'coax' | 'twinax' | 'smf' | 'mmf';
-type LabTeam = 'ctec' | 'ec';
-type StatusType = 'queued' | 'in progress' | 'completed' | 'cancelled';
+export type WireType = 'coax' | 'twinax' | 'smf' | 'mmf';
+export type LabTeam = 'ctec' | 'ec';
+export type StatusType = 'queued' | 'in progress' | 'completed' | 'cancelled';
 
-interface WiringPoint {
+export interface WiringPoint {
   id: string;
   pod: string;
   row: number;
