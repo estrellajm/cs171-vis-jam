@@ -5,8 +5,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BarComponent } from './components/sandbox/bar/bar.component';
 import { TailwindCalendarComponent } from './components/sandbox/tailwind-calendar/tailwind-calendar.component';
-import { RingsComponent } from './components/rings/rings.component';
-import { PathsComponent } from './components/paths/paths.component';
+import { RingsComponent } from './components/sandbox/rings/rings.component';
+import { PathsComponent } from './components/sandbox/paths/paths.component';
 import { WiringTableComponent } from './components/wiring-table/wiring-table.component';
 
 @NgModule({
@@ -18,7 +18,7 @@ import { WiringTableComponent } from './components/wiring-table/wiring-table.com
     TailwindCalendarComponent,
     RingsComponent,
     PathsComponent,
-    WiringTableComponent
+    WiringTableComponent,
   ],
   providers: [],
   bootstrap: [AppComponent],
