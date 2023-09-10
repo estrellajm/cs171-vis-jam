@@ -8,6 +8,7 @@ import { TailwindCalendarComponent } from './components/sandbox/tailwind-calenda
 import { RingsComponent } from './components/sandbox/rings/rings.component';
 import { PathsComponent } from './components/sandbox/paths/paths.component';
 import { WiringTableComponent } from './components/wiring-table/wiring-table.component';
+import { ThreeRingsComponent } from './components/three-rings/three-rings.component';
 
 @NgModule({
   declarations: [AppComponent],
@@ -19,6 +20,7 @@ import { WiringTableComponent } from './components/wiring-table/wiring-table.com
     RingsComponent,
     PathsComponent,
     WiringTableComponent,
+    ThreeRingsComponent,
   ],
   providers: [],
   bootstrap: [AppComponent],
