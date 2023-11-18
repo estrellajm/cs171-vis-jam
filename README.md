@@ -1,5 +1,11 @@
-# Cs171VisJam
+# CS-171 Vis JAM
 
+## Hosting
+https://cs171-vis-jam.web.app/
+
+Visit the link above to view the live server.
+
+## Angular 17
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.0.1.
 
 ## Development server
