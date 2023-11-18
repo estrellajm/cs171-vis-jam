@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/cs171-vis-jam",
+    "public": "dist/cs171-vis-jam/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
