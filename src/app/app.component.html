@@ -1,4 +1,4 @@
-<main class="main">
+<main class="main mt-20">
   <div class="content">
     <div class="left-side">
       <h1>{{ title }}</h1>
@@ -6,7 +6,7 @@
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">
       <ul>
-        <h3 class="font-bold">User</h3>
+        <h3 class="font-bold">Team Members</h3>
         <li *ngFor="let user of user$ | async" class="nowrap">
           {{ user.firstName }}
           {{ user.lastName }}
