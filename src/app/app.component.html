@@ -6,11 +6,11 @@
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">
       <ul>
-        <strong> Users: </strong>
+        <h3 class="font-bold">User</h3>
         <li *ngFor="let user of user$ | async" class="nowrap">
           {{ user.firstName }}
           {{ user.lastName }}
-          <a href="mailto:{{ user }}">{{ user.email }}</a>
+          <a class="text-blue-700 cursor-pointer" href="mailto:{{ user }}">{{ user.email }}</a>
         </li>
       </ul>
       <div class="social-links">
