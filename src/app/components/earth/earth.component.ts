@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  Renderer2,
-  ViewChild,
-  inject,
-} from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 
@@ -47,9 +41,8 @@ export class EarthComponent {
   path: any;
   world: any;
   countries: any;
-
-  private el = inject(ElementRef);
-  private render = inject(Renderer2);
+  connections: any;
+  airports: any;
 
   ngOnInit() {
     let promises = [
@@ -74,7 +67,7 @@ export class EarthComponent {
   initMainPage(allDataArray: any[]) {
     // log data
     // activity 2, force layout
-    this.initVis('#mapDiv', allDataArray[0], allDataArray[1]);
+    this.initVis('mapDiv', allDataArray[0], allDataArray[1]);
   }
 
   initVis(parentElement: string, airportData: any, geoData: any) {
@@ -88,7 +81,7 @@ export class EarthComponent {
 
     // init drawing area
     vis.svg = d3
-      .select(parentElement)
+      .select('#' + vis.parentElement)
       .append('svg')
       .attr('width', vis.width)
       .attr('height', vis.height)
@@ -100,20 +93,23 @@ export class EarthComponent {
       .attr('class', 'title')
       .attr('id', 'map-title')
       .append('text')
-      .text('Title for Map')
+      .text('Earth 616')
       .attr('transform', `translate(${vis.width / 2}, 20)`)
       .attr('text-anchor', 'middle');
 
+    // TODO
     vis.projection = d3
       .geoOrthographic() // d3.geoStereographic()
       .scale(160)
       .translate([vis.width / 2, vis.height / 2]);
     vis.path = d3.geoPath().projection(vis.projection);
-    vis.world = topojson.feature(geoData, geoData.objects.countries);
-    // vis.world = topojson.feature(geoData, geoData.objects.countries).features;
+    vis.world = topojson.feature(
+      vis.geoData,
+      vis.geoData.objects.countries
+    );
 
     /** Paint Ocean */
-    this.svg
+    vis.svg
       .append('path')
       .datum({ type: 'Sphere' })
       .attr('class', 'graticule')
@@ -121,9 +117,9 @@ export class EarthComponent {
       .attr('stroke', 'rgba(129,129,129,0.35)')
       .attr('d', vis.path);
 
-    let m0: any[], o0: number[];
+    let m0: any, o0: any;
 
-    this.svg.call(
+    vis.svg.call(
       d3
         .drag()
         .on('start', function (event) {
@@ -159,6 +155,46 @@ export class EarthComponent {
     vis.path = d3.geoPath().projection(vis.projection);
     vis.svg.selectAll('.country').attr('d', vis.path);
     vis.svg.selectAll('.graticule').attr('d', vis.path);
+
+    vis.svg
+      .selectAll('.airport')
+      .attr('cx', (d: any) => vis.projection([d.longitude, d.latitude])[0])
+      .attr('cy', (d: any) => vis.projection([d.longitude, d.latitude])[1]);
+
+    // vis.svg
+    //   .selectAll('.connection')
+    //   .attr(
+    //     'x1',
+    //     (d: any) =>
+    //       vis.projection([
+    //         vis.airportData.nodes[d.source].longitude,
+    //         vis.airportData.nodes[d.source].latitude,
+    //       ])[0]
+    //   )
+    //   .attr(
+    //     'y1',
+    //     (d: any) =>
+    //       vis.projection([
+    //         vis.airportData.nodes[d.source].longitude,
+    //         vis.airportData.nodes[d.source].latitude,
+    //       ])[1]
+    //   )
+    //   .attr(
+    //     'x2',
+    //     (d: any) =>
+    //       vis.projection([
+    //         vis.airportData.nodes[d.target].longitude,
+    //         vis.airportData.nodes[d.target].latitude,
+    //       ])[0]
+    //   )
+    //   .attr(
+    //     'y2',
+    //     (d: any) =>
+    //       vis.projection([
+    //         vis.airportData.nodes[d.target].longitude,
+    //         vis.airportData.nodes[d.target].latitude,
+    //       ])[1]
+    //   );
   }
 
   wrangleData() {
@@ -166,30 +202,30 @@ export class EarthComponent {
 
     // create random data structure with information for each land
     vis.countryInfo = {};
-
     vis.geoData.objects.countries.geometries.forEach((d: any) => {
       let randomCountryValue = Math.random() * 4;
       vis.countryInfo[d.properties.name] = {
         name: d.properties.name,
         category: `category_${Math.floor(randomCountryValue)}`,
-        color: this.colors[Math.floor(randomCountryValue)],
+        color: vis.colors[Math.floor(randomCountryValue)],
         value: (randomCountryValue / 4) * 100,
       };
     });
 
-    this.updateVis();
+    vis.updateVis();
   }
 
   updateVis() {
     let vis = this;
 
-    this.drawGraticules();
+    vis.drawGraticules();
+    // TODO
     // Ordinal color scale (10 default colors)
     let color = d3.scaleOrdinal(d3.schemeCategory10);
 
-    vis.countries = this.svg
+    vis.countries = vis.svg
       .selectAll('.country')
-      .data(vis.world)
+      .data(vis.world.features)
       .enter()
       .append('path')
       .attr('class', 'country')
@@ -208,13 +244,13 @@ export class EarthComponent {
           .style('opacity', 1)
           .style('left', event.pageX + 20 + 'px')
           .style('top', event.pageY + 'px').html(`
-                        <div style="border: thin solid grey; border-radius: 5px; background: lightgrey; padding: 20px">
-                            <h3>${country.name}<h3>
-							<h4> Name: ${country.name}</h4>
-                            <h4> Category: ${country.category}</h4>
-							<h4> Color: ${vis.countryInfo[d.properties.name].color}</h4>
-                            <h4> Value: ${country.value}</h4>            
-                        </div>`);
+                          <div style="border: thin solid grey; border-radius: 5px; background: lightgrey; padding: 20px">
+                              <h3>${country.name}<h3>
+                <h4> Name: ${country.name}</h4>
+                              <h4> Category: ${country.category}</h4>
+                <h4> Color: ${vis.countryInfo[d.properties.name].color}</h4>
+                              <h4> Value: ${country.value}</h4>            
+                          </div>`);
       })
       .on('mouseout', function (event: any, d: any) {
         d3.select(this)
@@ -228,8 +264,59 @@ export class EarthComponent {
           .html(``);
       });
 
+    vis.airports = vis.svg
+      .selectAll('.airport')
+      .data(vis.airportData.nodes)
+      .enter()
+      .append('circle')
+      .attr('class', 'airport')
+      .attr('r', 3)
+      .attr('fill', '#777')
+      .attr('cx', (d: any) => vis.projection([d.longitude, d.latitude])[0])
+      .attr('cy', (d: any) => vis.projection([d.longitude, d.latitude])[1]);
+
+    // vis.connections = vis.svg
+    //   .selectAll('.connection')
+    //   .data(vis.airportData.links)
+    //   .enter()
+    //   .append('line')
+    //   .attr('class', 'connection')
+    //   .attr('stroke', '#999')
+    //   .attr(
+    //     'x1',
+    //     (d: any) =>
+    //       vis.projection([
+    //         vis.airportData.nodes[d.source].longitude,
+    //         vis.airportData.nodes[d.source].latitude,
+    //       ])[0]
+    //   )
+    //   .attr(
+    //     'y1',
+    //     (d: any) =>
+    //       vis.projection([
+    //         vis.airportData.nodes[d.source].longitude,
+    //         vis.airportData.nodes[d.source].latitude,
+    //       ])[1]
+    //   )
+    //   .attr(
+    //     'x2',
+    //     (d: any) =>
+    //       vis.projection([
+    //         vis.airportData.nodes[d.target].longitude,
+    //         vis.airportData.nodes[d.target].latitude,
+    //       ])[0]
+    //   )
+    //   .attr(
+    //     'y2',
+    //     (d: any) =>
+    //       vis.projection([
+    //         vis.airportData.nodes[d.target].longitude,
+    //         vis.airportData.nodes[d.target].latitude,
+    //       ])[1]
+    //   );
+
     // append tooltip
-    this.tooltip = d3
+    vis.tooltip = d3
       .select('body')
       .append('div')
       .attr('class', 'tooltip')
@@ -240,7 +327,7 @@ export class EarthComponent {
     const svg = d3.select('svg'); // Assuming the SVG has been selected or created earlier.
     const svgWidth = +svg.attr('width'); // Extract the width of the SVG for positioning the legend.
 
-    this.drawLegend();
+    vis.drawLegend();
   }
 
   drawGraticules() {
@@ -249,10 +336,10 @@ export class EarthComponent {
     var graticule = d3.geoGraticule();
 
     // Create a path generator using the projection
-    var path = d3.geoPath().projection(this.projection);
+    var path = d3.geoPath().projection(vis.projection);
 
     // Append the graticule lines to the SVG
-    this.svg
+    vis.svg
       .append('path')
       .datum(graticule) // Bind the graticule data
       .attr('class', 'graticule') // Apply a class for styling if needed
@@ -263,7 +350,7 @@ export class EarthComponent {
       .attr('stroke-opacity', 0.6);
 
     // Optionally, append the outline of the graticule (the frame)
-    this.svg
+    vis.svg
       .append('path')
       .datum(graticule.outline)
       .attr('class', 'graticule-outline')
@@ -274,28 +361,29 @@ export class EarthComponent {
   }
 
   drawLegend() {
+    let vis = this;
+
     // Define the width and height for each color segment and SVG dimensions
-    const segmentWidth = this.colors.length * 30;
-    const width = 20;
+    const segmentWidth = vis.colors.length * 30;
     const height = 20;
     const svgWidth = segmentWidth + 20; // additional space for padding
     const svgHeight = 80;
 
-    const legendXPosition = width - svgWidth;
-    const legendYPosition = height - svgHeight + 30;
+    const legendXPosition = vis.width - svgWidth;
+    const legendYPosition = vis.height - svgHeight + 30;
 
     // Create SVG element
-    const legend = this.svg
+    const legend = vis.svg
       .append('g')
       .attr('transform', `translate(${legendXPosition}, ${legendYPosition})`);
 
     // Draw the color segments
-    this.colors.forEach((color, i) => {
+    vis.colors.forEach((color, i) => {
       legend
         .append('rect')
-        .attr('x', i * (segmentWidth / this.colors.length) + 10)
+        .attr('x', i * (segmentWidth / vis.colors.length) + 10)
         .attr('y', 10)
-        .attr('width', segmentWidth / this.colors.length)
+        .attr('width', segmentWidth / vis.colors.length)
         .attr('height', height)
         .style('fill', color);
     });
