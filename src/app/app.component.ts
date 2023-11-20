@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { WD_INDICATORS } from '../assets/wd_indicators';
+// import { WD_INDICATORS } from 'src/assets/wd_indicators';
 
 interface User {
   firstName: string;
@@ -30,7 +30,7 @@ export class AppComponent {
     this.initialConvertion();
   }
   initialConvertion() {
-    const convertedData = WD_INDICATORS;
-    console.log(convertedData);
+    // const convertedData = WD_INDICATORS;
+    // console.log(convertedData);
   }
 }
