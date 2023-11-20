@@ -1,5 +1,25 @@
-# D3Angular
+# CS-171 Vis JAM
 
+## Hosting
+https://cs171-vis-jam.web.app/
+
+Visit the link above to view the live server.
+
+## Git Commands
+
+To switch to a new branch
+```
+git checkout <branch_name>
+```
+example: `git checkout main`
+
+To create a new branch and immediately check it out
+```
+git checkout -b <branch_name>
+```
+
+
+## Angular 16
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.0.
 
 ## Development server
