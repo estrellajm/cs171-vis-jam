@@ -1,7 +1,7 @@
 # CS-171 Vis JAM
 
 ## Hosting
-<a href="https://cs171-vis-jam.web.app/" target="_blank">https://cs171-vis-jam.web.app/</a>
+https://cs171-vis-jam.web.app/
 
 Visit the link above to view the live server.
 
