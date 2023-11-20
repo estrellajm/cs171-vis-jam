@@ -1,0 +1,9 @@
+{
+  "hosting": [
+    {
+      "target": "cs171-vis-jam",
+      "source": ".",
+      "frameworksBackend": {}
+    }
+  ]
+}
