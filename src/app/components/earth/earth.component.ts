@@ -1,6 +1,13 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {
+  Component,
+  ElementRef,
+  Renderer2,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import * as d3 from 'd3';
+import * as topojson from 'topojson-client';
 
 interface DateObj {
   Date: Date;
@@ -20,309 +27,292 @@ interface DataSet {
   styleUrls: ['./earth.component.scss'],
 })
 export class EarthComponent {
-  ngOnInit() {
-    this.updatedNewD3EarthChart();
-  }
-
-  sortData() {
-    this.sortDataFunc();
-  }
+  @ViewChild('mapDiv') mapDiv: ElementRef;
 
   sortDataFunc: any;
   ascending: boolean = true;
+  colors = ['#fddbc7', '#f4a582', '#d6604d', '#b2182b'];
 
-  updatedNewD3EarthChart() {
-    const w = 600;
-    const h = 250;
-    const earthPadding = 1;
+  parentElement: any;
+  geoData: any;
+  airportData: any;
 
-    const genRandomDataSet = (n: number, maxNumber: number = 100) => {
-      return [...Array(n).keys()].map(() =>
-        Math.floor(Math.random() * maxNumber)
-      );
-    };
+  svg: any;
+  projection: any;
+  tooltip: any;
+  countryInfo: any;
+  margin: any;
+  width: any;
+  height: any;
+  path: any;
+  world: any;
+  countries: any;
 
-    let dataset: DataSet[] = [
-      { key: '0', value: 5 }, //dataset is now an array of objects.
-      { key: '1', value: 10 }, //Each object has a 'key' and a 'value'.
-      { key: '2', value: 13 },
-      { key: '3', value: 19 },
-      { key: '4', value: 21 },
-      { key: '5', value: 25 },
-      { key: '6', value: 22 },
-      { key: '7', value: 18 },
-      { key: '8', value: 15 },
-      { key: '9', value: 13 },
-      { key: '10', value: 11 },
-      { key: '11', value: 12 },
-      { key: '12', value: 15 },
-      { key: '13', value: 20 },
-      { key: '14', value: 18 },
-      { key: '15', value: 17 },
-      { key: '16', value: 16 },
-      { key: '17', value: 18 },
-      { key: '18', value: 23 },
-      { key: 'ee', value: 25 },
+  private el = inject(ElementRef);
+  private render = inject(Renderer2);
+
+  ngOnInit() {
+    let promises = [
+      d3.json('assets/data/airports.json'),
+      d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'),
     ];
-    const xScale = d3
-      .scaleBand()
-      .domain(d3.range(dataset.length) as unknown as string)
-      .rangeRound([0, w])
-      .paddingInner(0.05);
-
-    const yScale = d3
-      .scaleLinear()
-      .domain([0, d3.max(dataset, (d) => d.value)!])
-      .range([0, h]);
-
-    const svg = d3
-      .select('figure#wiring')
-      .append('svg')
-      .attr('width', w)
-      .attr('height', h);
-
-    const key = (d: any) => {
-      return d.key;
-    };
-
-    //Create earths
-    svg
-      .selectAll('rect')
-      .data(dataset, key)
-      .enter()
-      .append('rect')
-      .attr('id', (d) => d.key)
-      .classed('cursor-pointer', true)
-      .attr('x', (d, i: any) => xScale(i)!)
-      .attr('y', (d) => h - yScale(d.value))
-      .attr('width', xScale.bandwidth())
-      .attr('height', (d) => yScale(d.value))
-      .attr('fill', (d) => `rgb(0, 0, ${Math.round(d.value * 10)})`)
-      .classed(
-        'hover:fill-orange-400 transition-200 ease-in-out',
-        true
-      ) /** Add hover orange */
-
-      /** This popover works */
-      .on('mouseover', function (d) {
-        const xPosition =
-          parseFloat(d3.select(this).attr('x')) + xScale.bandwidth() / 2;
-        // const yPosition = parseFloat(d3.select(this).attr('y')) / 2 + h / 2;
-        const yPosition = h - 10;
-
-        const elData = d3.select(d.target).datum() as any;
-        // svg
-        //   .append('text')
-        //   .attr('id', 'tooltip')
-        //   .attr('x', xPosition)
-        //   .attr('y', yPosition)
-        //   .attr('text-anchor', 'middle')
-        //   .attr('font-family', 'sans-serif')
-        //   .attr('font-size', '11px')
-        //   .attr('font-weight', 'bold')
-        //   .attr('fill', 'black')
-        //   .text(elData.value);
-        //Update the tooltip position and value
-        d3.select('#tooltip')
-          .style('left', `${xPosition}px`)
-          .style('top', `${yPosition}px`)
-          .select('#value')
-          .text(elData.value);
-
-        //Show the tooltip
-        d3.select('#tooltip').classed('hidden', false);
+    Promise.all(promises)
+      .then((data) => {
+        this.initMainPage(data);
       })
-      .on('mouseout', () => {
-        // d3.select('#tooltip').remove();
-        d3.select('#tooltip').classed('hidden', true);
+      .catch(function (err) {
+        console.log(err);
       });
+  }
+  // ngAfterViewInit() {
+  //   const width = this.mapDiv.nativeElement.getBoundingClientRect().width;
+  //   const height = this.mapDiv.nativeElement.getBoundingClientRect().height;
+  //   console.log('Width of mapDiv:', width);
+  //   console.log('Height of mapDiv:', height);
+  // }
+  // initMainPage
+  initMainPage(allDataArray: any[]) {
+    // log data
+    // activity 2, force layout
+    this.initVis('#mapDiv', allDataArray[0], allDataArray[1]);
+  }
 
-    /** The following event listeners have to be redeclared in the 'ADD' section, or the new elements will not have it */
-    // svg.selectAll('rect').on('click', function () {
-    //   console.log('hovering');
-    // });
+  initVis(parentElement: string, airportData: any, geoData: any) {
+    let vis = this;
+    vis.parentElement = parentElement;
+    vis.airportData = airportData;
+    vis.geoData = geoData;
+    vis.margin = { top: 20, right: 20, bottom: 20, left: 200 };
+    vis.width = vis.margin.left - vis.margin.right + 400;
+    vis.height = vis.margin.top - vis.margin.bottom + 400;
 
-    /** Create labels */
-    const labels = svg
-      .selectAll('text')
-      .data(dataset, key)
-      .enter()
+    // init drawing area
+    vis.svg = d3
+      .select(parentElement)
+      .append('svg')
+      .attr('width', vis.width)
+      .attr('height', vis.height)
+      .attr('transform', `translate (${vis.margin.left}, ${vis.margin.top})`);
+
+    // add title
+    vis.svg
+      .append('g')
+      .attr('class', 'title')
+      .attr('id', 'map-title')
       .append('text')
-      .text((d) => d.value)
-      .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
-      .attr('y', (d) => h - yScale(d.value) + 14)
-      // .attr('y', (d) => h - 10) /** Sets the text towards the bottom of the 'rect */
-      .attr('text-anchor', 'middle')
-      .attr('font-family', 'sans-serif')
-      .attr('font-size', '11px')
-      .attr('fill', 'white');
+      .text('Title for Map')
+      .attr('transform', `translate(${vis.width / 2}, 20)`)
+      .attr('text-anchor', 'middle');
 
-    const ascAndDec = (a: unknown, b: unknown) => {
-      const dataSetA = a as DataSet;
-      const dataSetB = b as DataSet;
-      if (this.ascending) {
-        return d3.ascending(dataSetA.value, dataSetB.value);
-      } else {
-        return d3.descending(dataSetA.value, dataSetB.value);
-      }
-    };
-    //Define sort function
-    const sortEarths = () => {
-      const newOrder = svg.selectAll('rect').sort(ascAndDec);
-      newOrder
-        .transition()
-        .duration(1000)
-        .attr('x', (d, i: any) => xScale(i)!);
-      svg
-        .selectAll('text')
-        .sort(ascAndDec)
-        .transition()
-        .duration(1000)
-        .attr('x', (d, i: any) => xScale(i)! + 14);
+    vis.projection = d3
+      .geoOrthographic() // d3.geoStereographic()
+      .scale(160)
+      .translate([vis.width / 2, vis.height / 2]);
+    vis.path = d3.geoPath().projection(vis.projection);
+    vis.world = topojson.feature(geoData, geoData.objects.countries);
+    // vis.world = topojson.feature(geoData, geoData.objects.countries).features;
 
-      dataset = newOrder.data() as DataSet[];
-      this.ascending = !this.ascending;
-    };
+    /** Paint Ocean */
+    this.svg
+      .append('path')
+      .datum({ type: 'Sphere' })
+      .attr('class', 'graticule')
+      .attr('fill', '#ADDEFF')
+      .attr('stroke', 'rgba(129,129,129,0.35)')
+      .attr('d', vis.path);
 
-    /** called from external */
-    this.sortDataFunc = () => {
-      sortEarths();
-    };
+    let m0: any[], o0: number[];
 
-    d3.selectAll('rect').on('click', function () {
-      const key = d3.select(this).attr('id');
-      const updatedDataSet = dataset.filter((ds) => ds.key !== key);
-      deleteData(updatedDataSet);
+    this.svg.call(
+      d3
+        .drag()
+        .on('start', function (event) {
+          let lastRotationParams = vis.projection.rotate();
+          m0 = [event.x, event.y];
+          o0 = [-lastRotationParams[0], -lastRotationParams[1]];
+        })
+        .on('drag', function (event) {
+          if (m0) {
+            let m1 = [event.x, event.y],
+              o1 = [o0[0] + (m0[0] - m1[0]) / 4, o0[1] + (m1[1] - m0[1]) / 4];
+            vis.projection.rotate([-o1[0], -o1[1]]);
+            vis.updateMap();
+          }
+        })
+    );
+
+    vis.createTooltip();
+    vis.wrangleData();
+  }
+
+  createTooltip() {
+    this.tooltip = d3
+      .select('body')
+      .append('div')
+      .attr('class', 'tooltip')
+      .style('opacity', 0);
+  }
+
+  updateMap() {
+    let vis = this;
+
+    vis.path = d3.geoPath().projection(vis.projection);
+    vis.svg.selectAll('.country').attr('d', vis.path);
+    vis.svg.selectAll('.graticule').attr('d', vis.path);
+  }
+
+  wrangleData() {
+    let vis = this;
+
+    // create random data structure with information for each land
+    vis.countryInfo = {};
+
+    vis.geoData.objects.countries.geometries.forEach((d: any) => {
+      let randomCountryValue = Math.random() * 4;
+      vis.countryInfo[d.properties.name] = {
+        name: d.properties.name,
+        category: `category_${Math.floor(randomCountryValue)}`,
+        color: this.colors[Math.floor(randomCountryValue)],
+        value: (randomCountryValue / 4) * 100,
+      };
     });
 
-    /** BUG: Rapid Click bug creates phantom elements */
-    d3.select('div#addMoreData').on('click', (dd) => {
-      const maxValue = 25;
-      const randMaxValue = Math.floor(Math.random() * maxValue);
-      dataset.push({ key: `${randMaxValue}eee`, value: randMaxValue });
+    this.updateVis();
+  }
 
-      xScale.domain(d3.range(dataset.length) as any);
-      yScale.domain([0, d3.max(dataset, (d) => d.value)] as any);
-      //Select…
-      const earths = svg
-        .selectAll('rect') //Select all earths
-        .data(dataset, key); //Re-bind data to existing earths, return the 'update' selection
-      //'earths' is now the update selection
+  updateVis() {
+    let vis = this;
 
-      earths
-        .enter() //References the enter selection (a subset of the update selection)
-        .append('rect') //Creates a new rect
-        .attr('id', (d) => d.key)
-        .classed('cursor-pointer', true)
-        .attr('x', w) //Sets the initial x position of the rect beyond the far right edge of the SVG
-        .attr('y', (d) => h - yScale(d.value)) //Sets the y value, based on the updated yScale
-        .attr('width', xScale.bandwidth()) //Sets the width value, based on the updated xScale
-        .attr('height', (d) => yScale(d.value)) //Sets the height value, based on the updated yScale
-        .attr('fill', (d) => `rgb(0, 0, ${Math.round(d.value * 10)})`) //Sets the fill value
-        .merge(earths as any) //Merges the enter selection with the update selection
-        .transition() //Initiate a transition on all elements in the update selection (all rects)
-        .duration(500)
-        .attr('x', (d, i: any) => xScale(i)!)
-        .attr('y', (d) => h - yScale(d.value)) //Set new y position, based on the updated yScale
-        .attr('width', xScale.bandwidth()) //Set new width value, based on the updated xScale
-        .attr('height', (d) => yScale(d.value)); //Set new height value, based on the updated yScale
+    this.drawGraticules();
+    // Ordinal color scale (10 default colors)
+    let color = d3.scaleOrdinal(d3.schemeCategory10);
 
-      const earthTexts = svg
-        .selectAll('text') //Select all earths
-        .data(dataset, key); //Re-bind data to existing earths, return the 'update' selection
-      //'earths' is now the update selection
+    vis.countries = this.svg
+      .selectAll('.country')
+      .data(vis.world)
+      .enter()
+      .append('path')
+      .attr('class', 'country')
+      .attr('d', vis.path)
+      .style('fill', function (d: any, index: any) {
+        return vis.countryInfo[d.properties.name].color;
+      })
+      .on('mouseover', function (event: any, d: any) {
+        const country = vis.countryInfo[d.properties.name];
+        d3.select(this)
+          .attr('stroke-width', '2px')
+          .attr('stroke', 'black')
+          .attr('fill', 'rgba(173,222,255,0.62)');
 
-      earthTexts
-        .enter()
-        .append('text')
-        .attr('x', w)
-        .attr('y', (d) => h - yScale(d.value) + 14)
-        .attr('text-anchor', 'middle')
-        .text((d) => d.value)
-        .attr('font-family', 'sans-serif')
-        .attr('font-size', '11px')
-        .attr('fill', 'white')
-        .merge(earthTexts as any)
-        .transition()
-        .duration(500)
-        .text((d) => d.value)
-        .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
-        .attr('y', (d) => h - yScale(d.value) + 14);
+        vis.tooltip
+          .style('opacity', 1)
+          .style('left', event.pageX + 20 + 'px')
+          .style('top', event.pageY + 'px').html(`
+                        <div style="border: thin solid grey; border-radius: 5px; background: lightgrey; padding: 20px">
+                            <h3>${country.name}<h3>
+							<h4> Name: ${country.name}</h4>
+                            <h4> Category: ${country.category}</h4>
+							<h4> Color: ${vis.countryInfo[d.properties.name].color}</h4>
+                            <h4> Value: ${country.value}</h4>            
+                        </div>`);
+      })
+      .on('mouseout', function (event: any, d: any) {
+        d3.select(this)
+          .attr('stroke-width', '0px')
+          .attr('fill', (d: any) => vis.countryInfo[d.properties.name].color);
 
-      /** adds click listener */
-      d3.selectAll('rect').on('click', function (ddd: PointerEvent) {
-        const key = d3.select(this).attr('id');
-        const updatedDataSet = dataset.filter((ds) => ds.key !== key);
-        deleteData(updatedDataSet);
+        vis.tooltip
+          .style('opacity', 0)
+          .style('left', 0)
+          .style('top', 0)
+          .html(``);
       });
+
+    // append tooltip
+    this.tooltip = d3
+      .select('body')
+      .append('div')
+      .attr('class', 'tooltip')
+      .attr('id', 'pieTooltip');
+
+    /** LEGEND */
+    // Usage of the drawLegend function in a context where the SVG has already been defined.
+    const svg = d3.select('svg'); // Assuming the SVG has been selected or created earlier.
+    const svgWidth = +svg.attr('width'); // Extract the width of the SVG for positioning the legend.
+
+    this.drawLegend();
+  }
+
+  drawGraticules() {
+    let vis = this;
+    // Define the graticule generator
+    var graticule = d3.geoGraticule();
+
+    // Create a path generator using the projection
+    var path = d3.geoPath().projection(this.projection);
+
+    // Append the graticule lines to the SVG
+    this.svg
+      .append('path')
+      .datum(graticule) // Bind the graticule data
+      .attr('class', 'graticule') // Apply a class for styling if needed
+      .attr('d', path) // Generate the path data
+      .attr('fill', 'none')
+      .attr('stroke', '#000') // Style the lines with a light grey color
+      .attr('stroke-width', 0.2)
+      .attr('stroke-opacity', 0.6);
+
+    // Optionally, append the outline of the graticule (the frame)
+    this.svg
+      .append('path')
+      .datum(graticule.outline)
+      .attr('class', 'graticule-outline')
+      .attr('d', path)
+      .attr('fill', 'none')
+      .attr('stroke', '#000')
+      .attr('stroke-width', 0.5);
+  }
+
+  drawLegend() {
+    // Define the width and height for each color segment and SVG dimensions
+    const segmentWidth = this.colors.length * 30;
+    const width = 20;
+    const height = 20;
+    const svgWidth = segmentWidth + 20; // additional space for padding
+    const svgHeight = 80;
+
+    const legendXPosition = width - svgWidth;
+    const legendYPosition = height - svgHeight + 30;
+
+    // Create SVG element
+    const legend = this.svg
+      .append('g')
+      .attr('transform', `translate(${legendXPosition}, ${legendYPosition})`);
+
+    // Draw the color segments
+    this.colors.forEach((color, i) => {
+      legend
+        .append('rect')
+        .attr('x', i * (segmentWidth / this.colors.length) + 10)
+        .attr('y', 10)
+        .attr('width', segmentWidth / this.colors.length)
+        .attr('height', height)
+        .style('fill', color);
     });
 
-    d3.select('div#deleteData').on('click', (dd) => {
-      dataset.shift();
-      deleteData(dataset);
-    });
+    // Set up the scale for the xAxis
+    const xScale = d3
+      .scaleLinear()
+      .domain([0, 100])
+      .range([10, segmentWidth + 10]);
 
-    function deleteData(targetData: DataSet[]) {
-      dataset = targetData;
+    // Define the xAxis
+    const xAxis = d3.axisBottom(xScale).ticks(2);
 
-      xScale.domain(d3.range(targetData.length) as any);
-      yScale.domain([0, d3.max(targetData, (d) => d.value)] as any);
-      //Select…
-      const earths = svg
-        .selectAll('rect') //Select all earths
-        .data(targetData, key); //Re-bind data to existing earths, return the 'update' selection
-      //'earths' is now the update selection
-
-      earths
-        .enter() //References the enter selection (a subset of the update selection)
-        .append('rect') //Creates a new rect
-        .attr('x', w) //Sets the initial x position of the rect beyond the far right edge of the SVG
-        .attr('y', (d) => h - yScale(d.value)) //Sets the y value, based on the updated yScale
-        .attr('width', xScale.bandwidth()) //Sets the width value, based on the updated xScale
-        .attr('height', (d) => yScale(d.value)) //Sets the height value, based on the updated yScale
-        .attr('fill', (d) => `rgb(0, 0, ${Math.round(d.value * 10)})`) //Sets the fill value
-        .merge(earths as any) //Merges the enter selection with the update selection
-        .transition() //Initiate a transition on all elements in the update selection (all rects)
-        .duration(500)
-        .attr('x', (d, i: any) => xScale(i)!)
-        .attr('y', (d) => h - yScale(d.value)) //Set new y position, based on the updated yScale
-        .attr('width', xScale.bandwidth()) //Set new width value, based on the updated xScale
-        .attr('height', (d) => yScale(d.value)); //Set new height value, based on the updated yScale
-
-      const earthTexts = svg
-        .selectAll('text') //Select all earths
-        .data(targetData, key); //Re-bind data to existing earths, return the 'update' selection
-      //'earths' is now the update selection
-
-      earthTexts
-        .enter()
-        .append('text')
-        .attr('x', w)
-        .attr('y', (d) => h - yScale(d.value) + 14)
-        .text((d) => d.value)
-        .attr('text-anchor', 'middle')
-        .attr('font-family', 'sans-serif')
-        .attr('font-size', '11px')
-        .attr('fill', 'white')
-        .merge(earthTexts as any)
-        .transition()
-        .duration(500)
-        .text((d) => d.value)
-        .attr('x', (d, i: any) => xScale(i)! + xScale.bandwidth() / 2)
-        .attr('y', (d) => h - yScale(d.value) + 14);
-
-      earths
-        .exit() //References the enter selection (a subset of the update selection)
-        .transition() //Initiate a transition on all elements in the update selection (all rects)
-        .duration(500)
-        .attr('x', -xScale.bandwidth())
-        .remove();
-      earthTexts
-        .exit() //References the enter selection (a subset of the update selection)
-        .transition() //Initiate a transition on all elements in the update selection (all rects)
-        .duration(500)
-        .attr('x', -xScale.bandwidth())
-        .remove();
-    }
+    // Add the xAxis to the legend
+    legend
+      .append('g')
+      .attr('transform', `translate(0, ${height + 10})`)
+      .call(xAxis);
   }
 }
