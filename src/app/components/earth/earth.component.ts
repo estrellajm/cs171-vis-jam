@@ -156,10 +156,10 @@ export class EarthComponent {
     vis.svg.selectAll('.country').attr('d', vis.path);
     vis.svg.selectAll('.graticule').attr('d', vis.path);
 
-    vis.svg
-      .selectAll('.airport')
-      .attr('cx', (d: any) => vis.projection([d.longitude, d.latitude])[0])
-      .attr('cy', (d: any) => vis.projection([d.longitude, d.latitude])[1]);
+    // vis.svg
+    //   .selectAll('.airport')
+    //   .attr('cx', (d: any) => vis.projection([d.longitude, d.latitude])[0])
+    //   .attr('cy', (d: any) => vis.projection([d.longitude, d.latitude])[1]);
 
     // vis.svg
     //   .selectAll('.connection')
@@ -264,16 +264,16 @@ export class EarthComponent {
           .html(``);
       });
 
-    vis.airports = vis.svg
-      .selectAll('.airport')
-      .data(vis.airportData.nodes)
-      .enter()
-      .append('circle')
-      .attr('class', 'airport')
-      .attr('r', 3)
-      .attr('fill', '#777')
-      .attr('cx', (d: any) => vis.projection([d.longitude, d.latitude])[0])
-      .attr('cy', (d: any) => vis.projection([d.longitude, d.latitude])[1]);
+    // vis.airports = vis.svg
+    //   .selectAll('.airport')
+    //   .data(vis.airportData.nodes)
+    //   .enter()
+    //   .append('circle')
+    //   .attr('class', 'airport')
+    //   .attr('r', 3)
+    //   .attr('fill', '#777')
+    //   .attr('cx', (d: any) => vis.projection([d.longitude, d.latitude])[0])
+    //   .attr('cy', (d: any) => vis.projection([d.longitude, d.latitude])[1]);
 
     // vis.connections = vis.svg
     //   .selectAll('.connection')
