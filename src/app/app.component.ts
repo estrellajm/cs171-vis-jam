@@ -1,9 +1,6 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
-import { RouterOutlet } from '@angular/router';
 import { Observable } from 'rxjs';
-import { BarsModule } from './bars/bars.module';
 import { WD_INDICATORS } from '../assets/wd_indicators';
 
 interface User {
@@ -15,6 +12,7 @@ interface User {
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
   title = 'CS171 Vis JAM';
