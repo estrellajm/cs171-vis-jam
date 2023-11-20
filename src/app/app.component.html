@@ -1,7 +1,7 @@
 <main class="main mt-20">
   <div class="content">
     <div class="left-side">
-      <h1>{{ title }}</h1>
+      <h1 class="text-red-500">{{ title }}</h1>
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">
@@ -10,7 +10,9 @@
         <li *ngFor="let user of user$ | async" class="nowrap">
           {{ user.firstName }}
           {{ user.lastName }}
-          <a class="text-blue-700 cursor-pointer" href="mailto:{{ user }}">{{ user.email }}</a>
+          <a class="text-blue-700 cursor-pointer" href="mailto:{{ user }}">{{
+            user.email
+          }}</a>
         </li>
       </ul>
       <div class="social-links">
