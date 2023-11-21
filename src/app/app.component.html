@@ -1,21 +1,33 @@
-<router-outlet></router-outlet>
-<main class="main mt-20">
-  <div class="content">
-    <div class="left-side">
-      <h1 class="text-green-500">{{ title }}</h1>
-    </div>
-    <div class="divider" role="separator" aria-label="Divider"></div>
-    <div class="right-side">
-      <ul>
-        <h3 class="font-bold">Team Members</h3>
-        <li *ngFor="let user of user$ | async" class="nowrap">
-          {{ user.firstName }}
-          {{ user.lastName }}
-          <a class="text-blue-700 cursor-pointer" href="mailto:{{ user }}">{{
-            user.email
-          }}</a>
-        </li>
-      </ul>
-    </div>
+<div class="m-5">
+  <div class="m-5 flex gap-3">
+    <button
+      type="button"
+      class="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      routerLink="/welcome"
+    >
+      Welcome
+    </button>
+    <button
+      type="button"
+      class="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      routerLink="/correlation"
+    >
+      Correlation
+    </button>
+    <button
+      type="button"
+      class="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      routerLink="/exploration"
+    >
+      Exploration
+    </button>
+    <button
+      type="button"
+      class="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      routerLink="/credits"
+    >
+      Credits
+    </button>
   </div>
-</main>
+  <router-outlet></router-outlet>
+</div>

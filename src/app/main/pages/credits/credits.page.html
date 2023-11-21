@@ -1,0 +1,19 @@
+<main class="main mt-20" *ngIf="users$ | async as users">
+  <div class="content">
+    <div class="left-side">
+      <h1 class="text-green-500">CS171 Vis JAM</h1>
+    </div>
+    <div class="divider" role="separator" aria-label="Divider"></div>
+    <div class="right-side">
+      <ul>
+        <h3 class="font-bold">Team Members</h3>
+        <li *ngFor="let user of users" class="nowrap">
+          {{ user.firstName }} {{ user.lastName }}
+          <a class="text-blue-700 cursor-pointer" href="mailto:{{ user }}"
+            >{{ user.email }}</a
+          >
+        </li>
+      </ul>
+    </div>
+  </div>
+</main>
