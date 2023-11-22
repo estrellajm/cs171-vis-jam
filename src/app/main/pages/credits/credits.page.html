@@ -1,19 +1,29 @@
-<main class="main mt-20" *ngIf="users$ | async as users">
-  <div class="content">
-    <div class="left-side">
-      <h1 class="text-green-500">CS171 Vis JAM</h1>
-    </div>
-    <div class="divider" role="separator" aria-label="Divider"></div>
-    <div class="right-side">
-      <ul>
-        <h3 class="font-bold">Team Members</h3>
-        <li *ngFor="let user of users" class="nowrap">
-          {{ user.firstName }} {{ user.lastName }}
-          <a class="text-blue-700 cursor-pointer" href="mailto:{{ user }}"
-            >{{ user.email }}</a
-          >
-        </li>
-      </ul>
+<div class="flex items-center justify-center h-screen">
+  <div class="w-3/4">
+    <div class="relative h-full">
+      <a
+        class="mt-auto flex items-center px-4 py-2 rounded text-blue-800 bg-white"
+        routerLink="/correlation"
+      >
+        Back to Correlation
+      </a>
+      <div class="content" *ngIf="users$ | async as users">
+        <div class="left-side">
+          <h1 class="text-green-500">CS171 Vis JAM</h1>
+        </div>
+        <div class="divider" role="separator" aria-label="Divider"></div>
+        <div class="right-side">
+          <ul>
+            <h3 class="font-bold">Team Members</h3>
+            <li *ngFor="let user of users" class="nowrap">
+              {{ user.firstName }} {{ user.lastName }}
+              <a class="text-blue-700 cursor-pointer" href="mailto:{{ user }}"
+                >{{ user.email }}</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
-</main>
+</div>
