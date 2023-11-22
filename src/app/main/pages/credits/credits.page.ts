@@ -2,13 +2,8 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+import { User } from '@interfaces/user.interface';
 // import { WD_INDICATORS } from 'src/assets/wd_indicators';
-
-interface User {
-  firstName: string;
-  lastName: string;
-  email: string;
-}
 
 @Component({
   selector: 'app-credits',
