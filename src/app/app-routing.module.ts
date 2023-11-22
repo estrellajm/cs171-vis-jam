@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
+  { path: '', redirectTo: '/welcome', pathMatch: 'full' }, // redirect to `welcome`
   {
     path: 'welcome',
     loadComponent: () =>
@@ -14,17 +15,14 @@ const routes: Routes = [
       import('./main/pages/exploration/exploration.module').then(
         (m) => m.ExplorationModule
       ),
-
-
     data: { animation: 1 },
   },
   {
     path: 'credits',
     loadComponent: () =>
       import('./main/pages/credits/credits.page').then((m) => m.CreditsPage),
-    data: { animation: 2 },
+    data: { animation: 5 },
   },
-  { path: '', redirectTo: '/welcome', pathMatch: 'full' }, // redirect to `welcome`
   { path: '**', redirectTo: '/welcome' },
 ];
 
