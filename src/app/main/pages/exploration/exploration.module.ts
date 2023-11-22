@@ -8,22 +8,24 @@ const routes: Routes = [
     path: '',
     component: ExplorationPage,
     children: [
+      { path: '', redirectTo: 'economy', pathMatch: 'full' }, // on empty path redirect to economy
       {
         path: 'economy',
-        loadComponent: () =>
-          import('./globe/globe.page').then((m) => m.GlobePage),
-      },
-      {
-        path: 'environment',
         loadComponent: () =>
           import('./globe/globe.page').then((m) => m.GlobePage),
         data: { animation: 1 },
       },
       {
-        path: 'education',
+        path: 'environment',
         loadComponent: () =>
           import('./globe/globe.page').then((m) => m.GlobePage),
         data: { animation: 2 },
+      },
+      {
+        path: 'education',
+        loadComponent: () =>
+          import('./globe/globe.page').then((m) => m.GlobePage),
+        data: { animation: 3 },
       },
       {
         path: 'correlation',
@@ -31,12 +33,11 @@ const routes: Routes = [
           import('./correlation/correlation.page').then(
             (m) => m.CorrelationPage
           ),
-        data: { animation: 3 },
+        data: { animation: 4 },
       },
+      { path: '**', redirectTo: 'economy' }, // catch-all redirect
     ],
   },
-  { path: '', redirectTo: '/welcome', pathMatch: 'full' }, // redirect to `welcome`
-  { path: '**', redirectTo: '/welcome' },
 ];
 
 @NgModule({
