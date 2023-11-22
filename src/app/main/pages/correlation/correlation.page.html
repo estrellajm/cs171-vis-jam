@@ -1,7 +1,7 @@
 <div class="flex h-screen bg-blue-900 text-white">
   <!-- Sidebar -->
   <div
-    class="w-16 h-screen bg-[#03093C] flex flex-col items-center justify-center"
+    class="w-20 h-screen bg-[#03093C] flex flex-col items-center justify-center"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -17,9 +17,7 @@
     </svg>
   </div>
   <div class="p-8 space-y-4">
-    <a routerLink="/exploration" >
-      Back to Exploration
-    </a>
+    <a routerLink="/exploration"> Back to Exploration </a>
     <div class="font-bold text-xs">
       CS 171 FINAL PROJECT | FALL 2023 | Global Benchmarking
     </div>
@@ -60,9 +58,20 @@
       </ul>
     </div>
     <a
-      class="mt-auto flex items-center px-4 py-2 rounded text-blue-800 bg-white"
+      class="mt-auto flex gap-2 items-center underline underline-offset-4"
       routerLink="/credits"
     >
+      <svg
+        class="mt-1"
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 20 20"
+        fill="none"
+      >
+        <path d="M1 9L10 18L19 9" stroke="white" stroke-width="1.5" />
+        <path d="M10 0V18" stroke="white" stroke-width="1.5" />
+      </svg>
       Credits
     </a>
   </div>

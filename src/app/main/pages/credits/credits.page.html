@@ -16,7 +16,8 @@
           <ul>
             <h3 class="font-bold">Team Members</h3>
             <li *ngFor="let user of users" class="nowrap">
-              {{ user.firstName }} {{ user.lastName }}
+              <span [innerHTML]="makeFirstCharBold(user.firstName)"></span>
+              {{ user.lastName}}
               <a class="text-blue-700 cursor-pointer" href="mailto:{{ user }}"
                 >{{ user.email }}</a
               >
