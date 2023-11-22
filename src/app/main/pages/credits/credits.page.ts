@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
 import { User } from '@interfaces/user.interface';
+import { Observable } from 'rxjs';
 // import { WD_INDICATORS } from 'src/assets/wd_indicators';
 
 @Component({

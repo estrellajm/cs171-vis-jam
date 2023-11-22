@@ -1,7 +1,4 @@
-import { Component, inject } from '@angular/core';
-import { Firestore, collection, collectionData } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
-// import { WD_INDICATORS } from 'src/assets/wd_indicators';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
