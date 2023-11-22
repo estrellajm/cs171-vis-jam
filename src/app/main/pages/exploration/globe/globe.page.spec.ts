@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ExplorationPage } from './exploration.page';
+import { GlobePage } from './globe.page';
 
-describe('ExplorationPage', () => {
-  let component: ExplorationPage;
-  let fixture: ComponentFixture<ExplorationPage>;
+describe('GlobePage', () => {
+  let component: GlobePage;
+  let fixture: ComponentFixture<GlobePage>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [ExplorationPage]
+      imports: [GlobePage]
     });
-    fixture = TestBed.createComponent(ExplorationPage);
+    fixture = TestBed.createComponent(GlobePage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

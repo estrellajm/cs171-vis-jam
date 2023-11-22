@@ -10,25 +10,19 @@ const routes: Routes = [
   },
   {
     path: 'exploration',
-    loadComponent: () =>
-      import('./main/pages/exploration/exploration.page').then(
-        (m) => m.ExplorationPage
+    loadChildren: () =>
+      import('./main/pages/exploration/exploration.module').then(
+        (m) => m.ExplorationModule
       ),
+
+
     data: { animation: 1 },
-  },
-  {
-    path: 'correlation',
-    loadComponent: () =>
-      import('./main/pages/correlation/correlation.page').then(
-        (m) => m.CorrelationPage
-      ),
-    data: { animation: 2 },
   },
   {
     path: 'credits',
     loadComponent: () =>
       import('./main/pages/credits/credits.page').then((m) => m.CreditsPage),
-    data: { animation: 3 },
+    data: { animation: 2 },
   },
   { path: '', redirectTo: '/welcome', pathMatch: 'full' }, // redirect to `welcome`
   { path: '**', redirectTo: '/welcome' },

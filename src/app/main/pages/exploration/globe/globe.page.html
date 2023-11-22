@@ -1,0 +1,108 @@
+<div class="flex h-screen bg-blue-900 text-white">
+  <!-- Sidebar -->
+  <div
+    class="w-20 h-screen bg-[#03093C] flex flex-col items-center justify-center"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="12"
+      height="99"
+      viewBox="0 0 12 99"
+      fill="none"
+    >
+      <circle cx="6" cy="35" r="5.5" stroke="white" />
+      <circle cx="6" cy="6" r="6" fill="white" />
+      <circle cx="6" cy="64" r="5.5" stroke="white" />
+      <circle cx="6" cy="93" r="5.5" stroke="white" />
+    </svg>
+  </div>
+  <div></div>
+  <div class="flex flex-col">
+    <div class="p-8 space-y-4">
+      <a
+        class="flex gap-2 items-center underline underline-offset-4"
+        routerLink="/exploration"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 20 20"
+          fill="none"
+          transform="rotate(180)"
+        >
+          <path d="M1 9L10 18L19 9" stroke="white" stroke-width="1.5" />
+          <path d="M10 0V18" stroke="white" stroke-width="1.5" />
+        </svg>
+        Education
+      </a>
+      <div class="font-bold text-xs">
+        CS 171 FINAL PROJECT | FALL 2023 | Global Benchmarking
+      </div>
+      <h1 class="text-4xl font-bold">Economy</h1>
+      <p class="text-xl">
+        Explore various indicators to understand the Economy across the globe.
+      </p>
+      <div>
+        <label for="indicator" class="block text-sm font-medium"
+          >GDP Per Capita</label
+        >
+        <select
+          id="indicator"
+          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-none rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        >
+          <!-- Options -->
+        </select>
+      </div>
+      <div>
+        <label for="year" class="block text-sm font-medium">2018</label>
+        <select
+          id="year"
+          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-none rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        >
+          <!-- Options -->
+        </select>
+      </div>
+      <div class="pt-8">
+        <h2 class="text-2xl font-semibold">TOP 10 RANKINGS</h2>
+        <!-- Rankings could be dynamically generated -->
+        <ul class="mt-4">
+          <!-- Repeat for each ranking -->
+          <li class="flex justify-between items-center py-2">
+            <span class="text-sm">USA</span>
+            <span
+              class="bg-green-500 h-2 rounded-full"
+              style="width: 70%"
+            ></span>
+          </li>
+          <!-- ...other rankings -->
+        </ul>
+      </div>
+    </div>
+    <div class="mt-auto p-8">
+      <a
+        class="flex gap-2 items-center underline underline-offset-4"
+        routerLink="/credits"
+      >
+        <svg
+          class="mt-1"
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 20 20"
+          fill="none"
+        >
+          <path d="M1 9L10 18L19 9" stroke="white" stroke-width="1.5" />
+          <path d="M10 0V18" stroke="white" stroke-width="1.5" />
+        </svg>
+        Credits
+      </a>
+    </div>
+  </div>
+  <!-- Main content -->
+  <div class="w-3/4">
+    <div class="relative h-full">
+      <!-- TODO: Globe D3 -->
+    </div>
+  </div>
+</div>
