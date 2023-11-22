@@ -12,7 +12,7 @@ const routes: Routes = [
   {
     path: 'exploration',
     loadChildren: () =>
-      import('./main/pages/exploration/exploration.module').then(
+      import('./main/pages/exploration/exploration.root.module').then(
         (m) => m.ExplorationModule
       ),
     data: { animation: 1 },
