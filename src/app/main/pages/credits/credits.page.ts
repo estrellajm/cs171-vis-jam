@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { RouterModule } from '@angular/router';
 import { User } from '@interfaces/user.interface';
 import { Observable } from 'rxjs';
 // import { WD_INDICATORS } from 'src/assets/wd_indicators';
@@ -8,7 +9,7 @@ import { Observable } from 'rxjs';
 @Component({
   selector: 'app-credits',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './credits.page.html',
   styleUrls: ['./credits.page.scss'],
 })
