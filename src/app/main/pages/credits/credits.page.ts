@@ -1,11 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { Component } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { User } from '@interfaces/user.interface';
-import { Observable } from 'rxjs';
-// import { WD_INDICATORS } from 'src/assets/wd_indicators';
 
 @Component({
   selector: 'app-credits',
@@ -15,22 +12,25 @@ import { Observable } from 'rxjs';
   styleUrls: ['./credits.page.scss'],
 })
 export class CreditsPage {
-  users$: Observable<User[]>;
-  firestore: Firestore = inject(Firestore);
-  ourData: string = '';
+  users: User[] = [
+    {
+      firstName: 'Jose',
+      lastName: 'Estrella',
+      email: 'joe714@g.harvard.edu',
+    },
+    {
+      firstName: 'Aleksejs',
+      lastName: 'Nazarovs',
+      email: 'aln755@g.harvard.edu',
+    },
+    {
+      firstName: 'Mohamed',
+      lastName: 'Kassem',
+      email: 'mok206@g.harvard.edu',
+    },
+  ];
 
-  constructor(private sanitizer: DomSanitizer) {
-    const userCollection = collection(this.firestore, 'users');
-    this.users$ = collectionData(userCollection) as Observable<User[]>;
-  }
-
-  ngOnInit() {
-    this.initialConvertion();
-  }
-  initialConvertion() {
-    // const convertedData = WD_INDICATORS;
-    // console.log(convertedData);
-  }
+  constructor(private sanitizer: DomSanitizer) {}
 
   makeFirstCharBold(name: string): SafeHtml {
     if (!name) return '';
