@@ -46,9 +46,4 @@ export class AppComponent {
       outlet.activatedRouteData['animation']
     );
   }
-
-  explore() {
-    // Your exploration logic here
-    console.log('Explore button clicked!');
-  }
 }
