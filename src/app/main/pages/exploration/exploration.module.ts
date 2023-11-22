@@ -13,24 +13,26 @@ const routes: Routes = [
         loadComponent: () =>
           import('./globe/globe.page').then((m) => m.GlobePage),
       },
-      // {
-      //   path: 'environment',
-      //   loadComponent: () =>
-      //     import('./main/pages/welcome/welcome.page').then((m) => m.WelcomePage),
-      //   data: { animation: 1 },
-      // },
-      // {
-      //   path: 'education',
-      //   loadComponent: () =>
-      //     import('./main/pages/welcome/welcome.page').then((m) => m.WelcomePage),
-      //   data: { animation: 2 },
-      // },
-      // {
-      //   path: 'correlation',
-      //   loadComponent: () =>
-      //     import('./main/pages/welcome/welcome.page').then((m) => m.WelcomePage),
-      //   data: { animation: 3 },
-      // },
+      {
+        path: 'environment',
+        loadComponent: () =>
+          import('./globe/globe.page').then((m) => m.GlobePage),
+        data: { animation: 1 },
+      },
+      {
+        path: 'education',
+        loadComponent: () =>
+          import('./globe/globe.page').then((m) => m.GlobePage),
+        data: { animation: 2 },
+      },
+      {
+        path: 'correlation',
+        loadComponent: () =>
+          import('./correlation/correlation.page').then(
+            (m) => m.CorrelationPage
+          ),
+        data: { animation: 3 },
+      },
     ],
   },
   { path: '', redirectTo: '/welcome', pathMatch: 'full' }, // redirect to `welcome`
