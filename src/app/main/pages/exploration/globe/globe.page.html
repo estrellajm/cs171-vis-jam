@@ -1,9 +1,9 @@
 <div class="flex h-screen bg-blue-900 text-white">
-  <div class="flex flex-col">
+  <div class="flex flex-col" *ngIf="path$ | async as path">
     <div class="p-8 space-y-4">
       <a
         class="flex gap-2 items-center underline underline-offset-4"
-        routerLink="/welcome"
+        routerLink="/{{getPreviousPath(path.previous)}}"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -16,12 +16,12 @@
           <path d="M1 9L10 18L19 9" stroke="white" stroke-width="1.5" />
           <path d="M10 0V18" stroke="white" stroke-width="1.5" />
         </svg>
-        Welcome
+        {{ path.previous | titlecase }}
       </a>
       <div class="font-bold text-xs">
         CS 171 FINAL PROJECT | FALL 2023 | Global Benchmarking
       </div>
-      <h1 class="text-4xl font-bold">Economy</h1>
+      <h1 class="text-4xl font-bold">{{title | titlecase}}</h1>
       <p class="text-xl">
         Explore various indicators to understand the Economy across the globe.
       </p>
@@ -64,7 +64,7 @@
     <div class="mt-auto p-8">
       <a
         class="flex gap-2 items-center underline underline-offset-4"
-        routerLink="/exploration/correlation"
+        routerLink="/exploration/{{path.next}}"
       >
         <svg
           class="mt-1"
@@ -77,7 +77,7 @@
           <path d="M1 9L10 18L19 9" stroke="white" stroke-width="1.5" />
           <path d="M10 0V18" stroke="white" stroke-width="1.5" />
         </svg>
-        Correlation
+        {{ path.next | titlecase }}
       </a>
     </div>
   </div>
