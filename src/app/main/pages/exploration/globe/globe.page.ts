@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-globe',
@@ -9,4 +9,16 @@ import { RouterModule } from '@angular/router';
   templateUrl: './globe.page.html',
   styleUrls: ['./globe.page.scss'],
 })
-export class GlobePage {}
+export class GlobePage {
+  data: any;
+
+  route = inject(ActivatedRoute);
+
+  ngOnInit() {
+    this.route.data.subscribe((data) => {
+      console.log(data['data'][0]);
+      
+      this.data = data['data'];
+    });
+  }
+}

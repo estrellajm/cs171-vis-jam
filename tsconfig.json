@@ -12,6 +12,8 @@
     "noImplicitThis": false,
     "noFallthroughCasesInSwitch": true,
     "strictPropertyInitialization": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
     "sourceMap": true,
     "declaration": false,
     "downlevelIteration": true,
@@ -23,8 +25,9 @@
     "useDefineForClassFields": false,
     "paths": {
       "@interfaces/*": ["./src/app/core/interfaces/*"],
-
-      "app/*": ["./src/app/*"],
+      "@services/*": ["./src/app/core/services/*"],
+      "@resolvers/*": ["./src/app/core/resolvers/*"],
+      "@assets/*": ["./src/assets/*"]
     },
     "lib": ["ES2022", "dom"]
   },
