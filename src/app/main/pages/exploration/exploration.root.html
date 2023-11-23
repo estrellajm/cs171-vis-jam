@@ -3,18 +3,26 @@
   <div
     class="w-16 h-screen bg-[#03093C] flex flex-col items-center justify-center"
   >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="12"
-      height="99"
-      viewBox="0 0 12 99"
-      fill="none"
+    <div
+      class="flex flex-col items-center justify-center h-screen bg-[#03093C] gap-4"
     >
-      <circle cx="6" cy="35" r="5.5" stroke="white" />
-      <circle cx="6" cy="6" r="6" fill="white" />
-      <circle cx="6" cy="64" r="5.5" stroke="white" />
-      <circle cx="6" cy="93" r="5.5" stroke="white" />
-    </svg>
+      <button
+        *ngFor="let route of routes"
+        class="w-4 h-4 rounded-full border border-white cursor-pointer"
+        routerLink="/exploration/{{route.route}}"
+        routerLinkActive="bg-white"
+        (mouseover)="showTooltip($event, route.title)"
+        (mouseout)="hideTooltip()"
+      ></button>
+    </div>
+    <!-- Tooltip -->
+    <div
+      *ngIf="isTooltipVisible"
+      [ngStyle]="tooltipStyle"
+      class="absolute z-10 px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm"
+    >
+      {{ tooltipContent }}
+    </div>
   </div>
   <!-- Main Content -->
   <router-outlet></router-outlet>
