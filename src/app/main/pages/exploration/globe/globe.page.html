@@ -1,6 +1,9 @@
-<div class="flex h-screen bg-blue-900 text-white">
-  <div class="flex flex-col" *ngIf="path$ | async as path">
-    <div class="p-8 space-y-4">
+<div>
+  <div
+    class="flex flex-col w-3/4 bg-[#0D1779] h-screen text-white"
+    *ngIf="path$ | async as path"
+  >
+    <div class="p-8">
       <a
         class="flex gap-2 items-center underline underline-offset-4"
         routerLink="/{{getPreviousPath(path.previous)}}"
@@ -18,18 +21,20 @@
         </svg>
         {{ path.previous | titlecase }}
       </a>
-      <div class="font-bold text-xs">
-        CS 171 FINAL PROJECT | FALL 2023 | Global Benchmarking
+      <div class="mt-5 mb-10 space-y-5">
+        <div class="font-bold text-xs">
+          CS 171 FINAL PROJECT | FALL 2023 | Global Benchmarking
+        </div>
+        <h1 class="text-5xl">{{title | titlecase}}</h1>
+        <p class="text-lg">
+          Explore various indicators to understand the Economy across the globe.
+        </p>
       </div>
-      <h1 class="text-4xl">{{title | titlecase}}</h1>
-      <p class="text-xl">
-        Explore various indicators to understand the Economy across the globe.
-      </p>
       <div>
         <div class="relative mt-2">
           <button
             type="button"
-            class="max-w-[330px] relative w-full rounded-full bg-white py-1.5 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
+            class="max-w-[330px] relative w-full rounded-full bg-white py-3 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
             aria-haspopup="listbox"
             aria-expanded="true"
             aria-labelledby="listbox-label"
@@ -57,7 +62,7 @@
           </button>
           <ul
             *ngIf="showCategoryDropdown"
-            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm transition ease-in duration-100 opacity-100"
+            class="max-w-[330px] absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm transition ease-in duration-100 opacity-100"
             tabindex="-1"
             role="listbox"
             aria-labelledby="listbox-label"
@@ -102,7 +107,7 @@
         <div class="relative mt-2">
           <button
             type="button"
-            class="relative w-full rounded-full bg-white py-1.5 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
+            class="max-w-[330px] relative w-full rounded-full bg-white py-3 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
             aria-haspopup="listbox"
             aria-expanded="true"
             aria-labelledby="listbox-label"
@@ -130,7 +135,7 @@
           </button>
           <ul
             *ngIf="showYearDropdown"
-            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm transition ease-in duration-100 opacity-100"
+            class="max-w-[330px] absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm transition ease-in duration-100 opacity-100"
             tabindex="-1"
             role="listbox"
             aria-labelledby="listbox-label"
@@ -203,7 +208,7 @@
       </a>
     </div>
   </div>
-  <div class="w-3/4">
+  <div>
     <div class="relative h-full">
       <!-- TODO: Globe D3 -->
     </div>
