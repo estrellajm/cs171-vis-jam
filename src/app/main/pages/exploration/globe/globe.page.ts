@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Country } from '@interfaces/country.interface';
 import { Observable, map } from 'rxjs';
@@ -16,10 +16,13 @@ export class GlobePage {
   data: Country[];
   title: string;
   path$: Observable<{ previous: string; next: string }>;
-  category$: Observable<string[]>;
+  categories$: Observable<string[]>;
+  years$: Observable<number[]>;
 
   selectedCategory: string = 'Year';
   showCategoryDropdown: boolean = false;
+  selectedYear: number = 2018;
+  showYearDropdown: boolean = false;
   routes = {
     economy: {
       previous: 'welcome',
@@ -42,8 +45,15 @@ export class GlobePage {
       this.path$ = this.route.data.pipe(
         map((data: any) => this.routes[data['path'] as RouteKey])
       );
-      this.category$ = this.route.data.pipe(
+      this.categories$ = this.route.data.pipe(
         map((data: any) => Object.keys(data['data'][0][data['path']][0]).sort())
+      );
+      this.years$ = this.route.data.pipe(
+        map((data) =>
+          data['data'][0][data['path']]
+            .map((item: { Year: any }) => item.Year)
+            .reverse()
+        )
       );
       this.title = data['path'];
       this.data = data['data'];
@@ -58,5 +68,16 @@ export class GlobePage {
   changeSelectedCategory(newSelectedCategory: string) {
     this.selectedCategory = newSelectedCategory;
     this.showCategoryDropdown = false;
+  }
+  changeSelectedYear(newSelectedYear: number) {
+    this.selectedYear = newSelectedYear;
+    this.showYearDropdown = false;
+  }
+
+  closeDropdown() {
+    console.log('asdd');
+
+    this.showCategoryDropdown = false;
+    this.showYearDropdown = false;
   }
 }
