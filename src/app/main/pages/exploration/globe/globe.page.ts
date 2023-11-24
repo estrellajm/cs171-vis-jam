@@ -16,7 +16,10 @@ export class GlobePage {
   data: Country[];
   title: string;
   path$: Observable<{ previous: string; next: string }>;
+  category$: Observable<string[]>;
 
+  selectedCategory: string = 'Year';
+  showCategoryDropdown: boolean = false;
   routes = {
     economy: {
       previous: 'welcome',
@@ -39,6 +42,9 @@ export class GlobePage {
       this.path$ = this.route.data.pipe(
         map((data: any) => this.routes[data['path'] as RouteKey])
       );
+      this.category$ = this.route.data.pipe(
+        map((data: any) => Object.keys(data['data'][0][data['path']][0]).sort())
+      );
       this.title = data['path'];
       this.data = data['data'];
     });
@@ -47,5 +53,10 @@ export class GlobePage {
   getPreviousPath(previous: string): string {
     if (previous === 'welcome') return 'welcome';
     return `exploration/${previous}`;
+  }
+
+  changeSelectedCategory(newSelectedCategory: string) {
+    this.selectedCategory = newSelectedCategory;
+    this.showCategoryDropdown = false;
   }
 }
