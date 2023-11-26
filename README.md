@@ -5,6 +5,23 @@ https://cs171-vis-jam.web.app/
 
 Visit the link above to view the live server.
 
+## Run Locally
+To start this project locally, you need to have the following
+- Node
+- Angular (optionally you can use the `npx` command)
+
+
+Once you confirm that you have the project above installed, in the root of the project run 
+```
+ng serve
+``` 
+> **Optionally:** If you only have NodeJS installed, `npx ng serve`
+
+Then visit 
+```
+http://localhost:4200/
+```
+
 ## Git Commands
 
 To switch to a new branch
