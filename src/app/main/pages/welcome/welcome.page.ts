@@ -19,7 +19,7 @@ export class WelcomePage {
 
   private addStars() {
     const container = this.el.nativeElement.querySelector(
-      '.h-screen.bg-black.bg-globe-pattern'
+      '.stars'
     );
     for (let i = 0; i < 500; i++) {
       // Number of stars

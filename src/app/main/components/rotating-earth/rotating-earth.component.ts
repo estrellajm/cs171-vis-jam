@@ -21,8 +21,6 @@ interface DataSet {
   styleUrls: ['./rotating-earth.component.scss'],
 })
 export class RotatingEarthComponent {
-  @ViewChild('mapDiv') mapDiv: ElementRef;
-
   sortDataFunc: any;
   ascending: boolean = true;
   colors = ['#fddbc7', '#f4a582', '#d6604d', '#b2182b'];
@@ -59,7 +57,7 @@ export class RotatingEarthComponent {
   }
 
   initMainPage(allDataArray: any[]) {
-    this.initVis('mapDiv', allDataArray[0], allDataArray[1]);
+    this.initVis('rotating-globe', allDataArray[0], allDataArray[1]);
   }
 
   initVis(parentElement: string, airportData: any, geoData: any) {
@@ -67,17 +65,16 @@ export class RotatingEarthComponent {
     vis.parentElement = parentElement;
     vis.airportData = airportData;
     vis.geoData = geoData;
-    vis.margin = { top: 20, right: 20, bottom: 20, left: 200 };
-    vis.width = vis.margin.left - vis.margin.right + window.innerWidth - 600;
-    vis.height = vis.margin.top - vis.margin.bottom + window.innerHeight;
+    vis.margin = { top: 20, right: 20, bottom: 20, left: 20 };
+    vis.width = window.innerWidth;
+    vis.height = window.innerHeight;
 
     // init drawing area
     vis.svg = d3
-      .select('#' + vis.parentElement)
+      .select(`#${vis.parentElement}`)
       .append('svg')
-      .attr('width', vis.width)
-      .attr('height', vis.height)
-      .attr('transform', `translate (${vis.margin.left}, ${vis.margin.top})`);
+      .attr('width', vis.width - 20)
+      .attr('height', vis.height - 20)
 
     // projection
     vis.projection = d3
