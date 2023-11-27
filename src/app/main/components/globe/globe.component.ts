@@ -66,15 +66,16 @@ export class GlobeEarthComponent {
     vis.airportData = airportData;
     vis.geoData = geoData;
     vis.margin = { top: 20, right: 20, bottom: 20, left: 20 };
-    vis.width = window.innerWidth;
+    vis.width = vis.margin.left - vis.margin.right + 500;
     vis.height = window.innerHeight;
+    // vis.height = vis.margin.top - vis.margin.bottom + 500;
 
     // init drawing area
     vis.svg = d3
       .select(`#${vis.parentElement}`)
       .append('svg')
-      .attr('width', vis.width - 20)
-      .attr('height', vis.height - 20)
+      .attr('width', vis.width)
+      .attr('height', vis.height);
 
     // projection
     vis.projection = d3
@@ -101,6 +102,30 @@ export class GlobeEarthComponent {
       .attr('class', 'country')
       .attr('d', vis.path)
       .attr('fill', 'transparent');
+
+    let m0: any[], o0: number[];
+
+    vis.svg.attr('cursor', 'grab')
+    vis.svg.call(
+      d3
+        .drag()
+        .on('start', function (event) {
+          let lastRotationParams = vis.projection.rotate();
+          m0 = [event.x, event.y];
+          o0 = [-lastRotationParams[0], -lastRotationParams[1]];
+          d3.select(this).attr('cursor', 'grabbing');
+        })
+        .on('drag', function (event) {
+          if (m0) {
+            let m1 = [event.x, event.y],
+              o1 = [o0[0] + (m0[0] - m1[0]) / 4, o0[1] + (m1[1] - m0[1]) / 4];
+            vis.projection.rotate([-o1[0], -o1[1]]);
+          }
+        })
+        .on('end', function () {
+          d3.select(this).attr('cursor', 'grab'); 
+        })
+    );
 
     vis.startRotation();
     vis.wrangleData();
@@ -134,7 +159,7 @@ export class GlobeEarthComponent {
 
   startRotation() {
     let vis = this;
-    let velocity = [0.01, 0, 0];
+    let velocity = [0.0, 0, 0];
     let then = Date.now();
 
     d3.timer(function () {

@@ -1,4 +1,4 @@
-<div class="relative">
+<div class="flex right-0">
   <div
     class="flex flex-col w-3/4 bg-[#0D1779] min-h-screen text-white"
     *ngIf="path$ | async as path"
@@ -31,7 +31,7 @@
         </p>
       </div>
       <div>
-        <div class="relative mt-2">
+        <div class="mt-2">
           <button
             type="button"
             class="max-w-[330px] relative w-full rounded-full bg-white py-3 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
@@ -208,9 +208,7 @@
       </a>
     </div>
   </div>
-  <div>
-    <div class="absolute h-full">
-      <app-globe-component></app-globe-component>
-    </div>
+  <div class="w-full flex justify-end">
+    <app-globe-component></app-globe-component>
   </div>
 </div>
