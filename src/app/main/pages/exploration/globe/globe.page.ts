@@ -3,12 +3,13 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Country } from '@interfaces/country.interface';
 import { Observable, map } from 'rxjs';
+import { GlobeEarthComponent } from 'src/app/main/components/globe/globe.component';
 
 type RouteKey = 'economy' | 'education' | 'environment';
 @Component({
-  selector: 'app-globe',
+  selector: 'app-globe-page',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, GlobeEarthComponent],
   templateUrl: './globe.page.html',
   styleUrls: ['./globe.page.scss'],
 })
