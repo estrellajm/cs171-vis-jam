@@ -14,7 +14,7 @@ export class WelcomePage {
   constructor(private renderer: Renderer2, private el: ElementRef) {}
 
   ngAfterViewInit() {
-    this.addStars();
+    // this.addStars();
   }
 
   private addStars() {
