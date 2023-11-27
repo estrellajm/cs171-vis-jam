@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Renderer2 } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { RotatingEarthComponent } from '../../components/rotating-earth/rotating-earth.component';
 
 @Component({
   selector: 'app-welcome',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, RotatingEarthComponent],
   templateUrl: './welcome.page.html',
   styleUrls: ['./welcome.page.scss'],
 })
