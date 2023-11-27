@@ -45,7 +45,7 @@ export class RotatingEarthComponent {
   ngOnInit() {
     let promises = [
       d3.json('assets/data/wd_indicators.json'),
-      d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'),
+      d3.json('assets/data/world-atlas.json'),
     ];
     Promise.all(promises)
       .then((data) => {
