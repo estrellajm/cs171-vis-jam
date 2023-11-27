@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { ScatterEarthComponent } from 'src/app/main/components/scatter/scatter.component';
 
 @Component({
   selector: 'app-correlation',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ScatterEarthComponent],
   templateUrl: './correlation.page.html',
   styleUrls: ['./correlation.page.scss'],
 })
