@@ -1,167 +1,102 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
-import * as topojson from 'topojson-client';
-
-interface DateObj {
-  Date: Date;
-  Amount: number;
-}
-
-interface DataSet {
-  key: string | number;
-  value: number;
-}
 
 @Component({
   selector: 'app-globe-component',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './globe.component.html',
-  styleUrls: ['./globe.component.scss'],
+  template: `<div id="globe-data"></div>`,
 })
-export class GlobeEarthComponent {
-  sortDataFunc: any;
-  ascending: boolean = true;
-  colors = ['#fddbc7', '#f4a582', '#d6604d', '#b2182b'];
-
-  parentElement: any;
-  geoData: any;
-  wdData: any;
-
-  svg: any;
-  projection: any;
-  tooltip: any;
-  countryInfo: any;
-  margin: any;
-  width: any;
-  height: any;
-  path: any;
-  world: any;
-  countries: any;
-  connections: any;
-  airports: any;
-
-  dragStart: number = 0;
-  rotateStart: number = 0;
-
+export class GlobeEarthComponent implements OnInit {
   ngOnInit() {
-    let promises = [
-      d3.csv('assets/data/wd_indicators.csv'),
-      d3.json('assets/data/world-atlas.json'),
-    ];
-    Promise.all(promises)
-      .then((data) => {
-        this.initMainPage(data);
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
+    d3.json('assets/world.json').then((data) => {
+      this.initGlobe('globe-data', data);
+    });
   }
 
-  initMainPage(allDataArray: any[]) {
-    this.initVis('rotating-globe', allDataArray[0], allDataArray[1]);
-  }
+  private initGlobe(parentElement: string, data: any): void {
+    let width = 500;
+    const height = 500;
+    const sensitivity = 50;
 
-  initVis(parentElement: string, wdData: any, geoData: any) {
-    let vis = this;
-    vis.parentElement = parentElement;
-    vis.wdData = wdData;
-    vis.geoData = geoData;
-    vis.margin = { top: 20, right: 20, bottom: 20, left: 20 };
-    vis.width = vis.margin.left - vis.margin.right + 500;
-    vis.height = window.innerHeight;
-
-    // init drawing area
-    vis.svg = d3
-      .select(`#${vis.parentElement}`)
-      .append('svg')
-      .attr('width', vis.width)
-      .attr('height', vis.height);
-
-    // projection
-    vis.projection = d3
+    const projection = d3
       .geoOrthographic()
-      .translate([vis.width / 2, vis.height / 2]);
+      .scale(250)
+      .center([0, 0])
+      .rotate([0, 0])
+      .translate([width / 2, height / 2]);
 
-    vis.path = d3.geoPath().projection(vis.projection);
+    const initialScale = projection.scale();
+    let path = d3.geoPath().projection(projection);
 
-    vis.svg
-      .append('path')
-      .datum({ type: 'Sphere' })
-      .attr('class', 'sphere')
-      .attr('d', vis.path)
+    const svg = d3
+      .select(`#${parentElement}`)
+      .append('svg')
+      .attr('width', width)
+      .attr('height', height);
+
+    const globe = svg
+      .append('circle')
       .attr('fill', '#070b5d')
-      .attr('stroke', 'none');
+      .attr('stroke', '#000')
+      .attr('stroke-width', '0.2')
+      .attr('cx', width / 2)
+      .attr('cy', height / 2)
+      .attr('r', initialScale);
 
-    vis.world = topojson.feature(vis.geoData, vis.geoData.objects.countries);
+    svg
+      .call(
+        d3.drag().on('drag', (event) => {
+          const rotate = projection.rotate();
+          const k = sensitivity / projection.scale();
+          projection.rotate([
+            rotate[0] + event.dx * k,
+            rotate[1] - event.dy * k,
+          ]);
+          path = d3.geoPath().projection(projection);
+          svg.selectAll('path').attr('d', path as any);
+        }) as any
+      )
+      .call(
+        d3.zoom().on('zoom', (event) => {
+          if (event.transform.k > 0.3) {
+            projection.scale(initialScale * event.transform.k);
+            path = d3.geoPath().projection(projection);
+            svg.selectAll('path').attr('d', path as any);
+            globe.attr('r', projection.scale());
+          } else {
+            event.transform.k = 0.3;
+          }
+        }) as any
+      );
 
-    vis.countries = vis.svg
-      .selectAll('.country')
-      .data(vis.world.features)
+    let map = svg.append('g');
+
+    map
+      .append('g')
+      .attr('class', 'countries')
+      .selectAll('path')
+      .data(data.features)
       .enter()
       .append('path')
-      .attr('class', 'country')
-      .attr('d', vis.path)
-      .attr('fill', 'transparent');
+      .attr(
+        'class',
+        (d: any) => 'country_' + d.properties.name.replace(' ', '_')
+      )
+      .attr('d', path as any)
+      .attr('fill', '#09119F')
+      .style('stroke', 'black')
+      .style('stroke-width', 0.5)
+      .style('opacity', 0.8);
 
-    // show grab hand
-    vis.svg.attr('cursor', 'grab');
-
-    // Draggable globe
-    let drag = d3
-      .drag()
-      .on('start', function (event) {
-        let [longitude] = vis.projection.rotate();
-        vis.rotateStart = longitude; // Ensured to be a number
-        vis.dragStart = event.x; // Ensured to be a number
-        d3.select(this).attr('cursor', 'grabbing');
-      })
-      .on('drag', function (event) {
-        if (
-          typeof vis.dragStart === 'number' &&
-          typeof vis.rotateStart === 'number'
-        ) {
-          let dx = (event.x - vis.dragStart) * 0.2; // Reduced sensitivity
-          let longitude = vis.rotateStart + dx; // Adjusted for smoother rotation
-
-          vis.projection.rotate([longitude, 0]); // Lock latitude to 0
-          vis.svg.selectAll('.country').attr('d', vis.path);
-        }
-      })
-      .on('end', function () {
-        vis.dragStart = 0; // Reset to a number
-        d3.select(this).attr('cursor', 'grab');
-      });
-
-    vis.svg.call(drag);
-
-    vis.wrangleData();
-  }
-
-  wrangleData() {
-    let vis = this;
-
-    vis.countryInfo = {};
-    vis.geoData.objects.countries.geometries.forEach((d: any) => {
-      let randomCountryValue = Math.random() * 4;
-      vis.countryInfo[d.properties.name] = {
-        name: d.properties.name,
-        category: 'category_' + Math.floor(randomCountryValue),
-        color: vis.colors[Math.floor(randomCountryValue)],
-        value: (randomCountryValue / 4) * 100,
-      };
-    });
-
-    vis.updateVis();
-  }
-
-  updateVis() {
-    let vis = this;
-
-    vis.countries
-      .attr('fill', '#09119f')
-      .attr('stroke', '#000566')
-      .attr('stroke-width', '1px');
+    // rotate
+    // d3.timer(function (elapsed) {
+    //   const rotate = projection.rotate();
+    //   const k = sensitivity / projection.scale();
+    //   projection.rotate([rotate[0] + 1 * k, rotate[1]]);
+    //   path = d3.geoPath().projection(projection);
+    //   svg.selectAll('path').attr('d', path as any);
+    // }, 200);
   }
 }

@@ -6,8 +6,7 @@ import * as d3 from 'd3';
   selector: 'app-rotating-earth',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './rotating-earth.component.html',
-  styleUrls: ['./rotating-earth.component.scss'],
+  template: `<div id="rotating-globe"></div>`,
 })
 export class RotatingEarthComponent implements OnInit {
   ngOnInit() {
