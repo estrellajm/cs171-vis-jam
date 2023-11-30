@@ -44,7 +44,7 @@ export class GlobeEarthComponent {
 
   ngOnInit() {
     let promises = [
-      d3.json('assets/data/wd_indicators.json'),
+      d3.csv('assets/data/wd_indicators.csv'),
       d3.json('assets/data/world-atlas.json'),
     ];
     Promise.all(promises)
@@ -127,7 +127,7 @@ export class GlobeEarthComponent {
         })
     );
 
-    vis.startRotation();
+    // vis.startRotation();
     vis.wrangleData();
   }
 
