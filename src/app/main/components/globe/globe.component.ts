@@ -6,7 +6,7 @@ import * as d3 from 'd3';
   selector: 'jam-globe-component',
   standalone: true,
   imports: [CommonModule],
-  template: `<div id="globe-data"></div>`,
+  template: `<div id="globe-data" class="border w-full"></div>`,
 })
 export class GlobeEarthComponent implements OnInit {
   ngOnInit() {
