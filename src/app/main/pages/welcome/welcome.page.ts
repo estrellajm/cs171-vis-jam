@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { RotatingEarthComponent } from '../../components/rotating-earth/rotating-earth.component';
 
 @Component({
-  selector: 'app-welcome',
+  selector: 'jam-welcome',
   standalone: true,
   imports: [CommonModule, RouterModule, RotatingEarthComponent],
   templateUrl: './welcome.page.html',
@@ -18,9 +18,7 @@ export class WelcomePage {
   }
 
   private addStars() {
-    const container = this.el.nativeElement.querySelector(
-      '.stars'
-    );
+    const container = this.el.nativeElement.querySelector('.stars');
     for (let i = 0; i < 500; i++) {
       // Number of stars
       const star = this.renderer.createElement('div');

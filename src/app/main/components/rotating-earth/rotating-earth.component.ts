@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 
 @Component({
-  selector: 'app-rotating-earth',
+  selector: 'jam-rotating-earth',
   standalone: true,
   imports: [CommonModule],
   template: `<div id="rotating-globe"></div>`,

@@ -4,7 +4,7 @@ import { RouterOutlet } from '@angular/router';
 import { slider } from './slider';
 
 @Component({
-  selector: 'app-root',
+  selector: 'jam-root',
   animations: [
     // <-- add your animations here
     // fader,

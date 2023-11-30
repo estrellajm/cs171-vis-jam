@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 
 @Component({
-  selector: 'app-globe-component',
+  selector: 'jam-globe-component',
   standalone: true,
   imports: [CommonModule],
   template: `<div id="globe-data"></div>`,

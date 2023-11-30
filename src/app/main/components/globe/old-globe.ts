@@ -14,7 +14,7 @@ interface DataSet {
 }
 
 @Component({
-  selector: 'app-globe-component',
+  selector: 'jam-globe-component',
   standalone: true,
   imports: [CommonModule],
   template: `<div id="globe-oldd"></div>`,

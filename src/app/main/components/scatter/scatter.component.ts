@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import * as d3 from 'd3';
-import * as topojson from 'topojson-client';
 
 interface DateObj {
   Date: Date;
@@ -14,7 +13,7 @@ interface DataSet {
 }
 
 @Component({
-  selector: 'app-scatter',
+  selector: 'jam-scatter',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './scatter.component.html',

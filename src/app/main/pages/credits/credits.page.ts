@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { User } from '@interfaces/user.interface';
 
 @Component({
-  selector: 'app-credits',
+  selector: 'jam-credits',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './credits.page.html',

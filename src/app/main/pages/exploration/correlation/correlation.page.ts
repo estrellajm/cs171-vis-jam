@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { ScatterEarthComponent } from 'src/app/main/components/scatter/scatter.component';
 
 @Component({
-  selector: 'app-correlation',
+  selector: 'jam-correlation',
   standalone: true,
   imports: [CommonModule, RouterModule, ScatterEarthComponent],
   templateUrl: './correlation.page.html',

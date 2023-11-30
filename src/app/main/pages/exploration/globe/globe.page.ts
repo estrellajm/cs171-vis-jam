@@ -7,7 +7,7 @@ import { GlobeEarthComponent } from 'src/app/main/components/globe/globe.compone
 
 type RouteKey = 'economy' | 'education' | 'environment';
 @Component({
-  selector: 'app-globe-page',
+  selector: 'jam-globe-page',
   standalone: true,
   imports: [CommonModule, RouterModule, GlobeEarthComponent],
   templateUrl: './globe.page.html',
