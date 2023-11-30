@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 
@@ -27,7 +27,7 @@ export class GlobeEarthComponent {
 
   parentElement: any;
   geoData: any;
-  airportData: any;
+  wdData: any;
 
   svg: any;
   projection: any;
@@ -41,6 +41,9 @@ export class GlobeEarthComponent {
   countries: any;
   connections: any;
   airports: any;
+
+  dragStart: number = 0;
+  rotateStart: number = 0;
 
   ngOnInit() {
     let promises = [
@@ -60,15 +63,14 @@ export class GlobeEarthComponent {
     this.initVis('rotating-globe', allDataArray[0], allDataArray[1]);
   }
 
-  initVis(parentElement: string, airportData: any, geoData: any) {
+  initVis(parentElement: string, wdData: any, geoData: any) {
     let vis = this;
     vis.parentElement = parentElement;
-    vis.airportData = airportData;
+    vis.wdData = wdData;
     vis.geoData = geoData;
     vis.margin = { top: 20, right: 20, bottom: 20, left: 20 };
     vis.width = vis.margin.left - vis.margin.right + 500;
     vis.height = window.innerHeight;
-    // vis.height = vis.margin.top - vis.margin.bottom + 500;
 
     // init drawing area
     vis.svg = d3
@@ -103,31 +105,37 @@ export class GlobeEarthComponent {
       .attr('d', vis.path)
       .attr('fill', 'transparent');
 
-    let m0: any[], o0: number[];
+    // show grab hand
+    vis.svg.attr('cursor', 'grab');
 
-    vis.svg.attr('cursor', 'grab')
-    vis.svg.call(
-      d3
-        .drag()
-        .on('start', function (event) {
-          let lastRotationParams = vis.projection.rotate();
-          m0 = [event.x, event.y];
-          o0 = [-lastRotationParams[0], -lastRotationParams[1]];
-          d3.select(this).attr('cursor', 'grabbing');
-        })
-        .on('drag', function (event) {
-          if (m0) {
-            let m1 = [event.x, event.y],
-              o1 = [o0[0] + (m0[0] - m1[0]) / 4, o0[1] + (m1[1] - m0[1]) / 4];
-            vis.projection.rotate([-o1[0], -o1[1]]);
-          }
-        })
-        .on('end', function () {
-          d3.select(this).attr('cursor', 'grab'); 
-        })
-    );
+    // Draggable globe
+    let drag = d3
+      .drag()
+      .on('start', function (event) {
+        let [longitude] = vis.projection.rotate();
+        vis.rotateStart = longitude; // Ensured to be a number
+        vis.dragStart = event.x; // Ensured to be a number
+        d3.select(this).attr('cursor', 'grabbing');
+      })
+      .on('drag', function (event) {
+        if (
+          typeof vis.dragStart === 'number' &&
+          typeof vis.rotateStart === 'number'
+        ) {
+          let dx = (event.x - vis.dragStart) * 0.2; // Reduced sensitivity
+          let longitude = vis.rotateStart + dx; // Adjusted for smoother rotation
 
-    // vis.startRotation();
+          vis.projection.rotate([longitude, 0]); // Lock latitude to 0
+          vis.svg.selectAll('.country').attr('d', vis.path);
+        }
+      })
+      .on('end', function () {
+        vis.dragStart = 0; // Reset to a number
+        d3.select(this).attr('cursor', 'grab');
+      });
+
+    vis.svg.call(drag);
+
     vis.wrangleData();
   }
 
@@ -155,27 +163,5 @@ export class GlobeEarthComponent {
       .attr('fill', '#09119f')
       .attr('stroke', '#000566')
       .attr('stroke-width', '1px');
-  }
-
-  startRotation() {
-    let vis = this;
-    let velocity = [0.0, 0, 0];
-    let then = Date.now();
-
-    d3.timer(function () {
-      let now = Date.now();
-      let delta = now - then;
-      then = now;
-
-      // Update the projection's rotation
-      vis.projection.rotate([
-        vis.projection.rotate()[0] + velocity[0] * delta, // Rotate around the x-axis
-        vis.projection.rotate()[1] + velocity[1] * delta, // Rotate around the y-axis
-        vis.projection.rotate()[2] + velocity[2] * delta, // Rotate around the z-axis
-      ]);
-
-      // Redraw the map
-      vis.svg.selectAll('.country').attr('d', vis.path);
-    });
   }
 }
