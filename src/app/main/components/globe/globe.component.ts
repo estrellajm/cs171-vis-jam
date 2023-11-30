@@ -52,7 +52,7 @@ export class GlobeEarthComponent implements OnInit {
           const k = sensitivity / projection.scale();
           projection.rotate([
             rotate[0] + event.dx * k,
-            rotate[1] - event.dy * k,
+            rotate[1] /** allow Y rotation "rotate[1] - event.dy * k," */,
           ]);
           path = d3.geoPath().projection(projection);
           svg.selectAll('path').attr('d', path as any);
@@ -89,14 +89,5 @@ export class GlobeEarthComponent implements OnInit {
       .style('stroke', 'black')
       .style('stroke-width', 0.5)
       .style('opacity', 0.8);
-
-    // rotate
-    // d3.timer(function (elapsed) {
-    //   const rotate = projection.rotate();
-    //   const k = sensitivity / projection.scale();
-    //   projection.rotate([rotate[0] + 1 * k, rotate[1]]);
-    //   path = d3.geoPath().projection(projection);
-    //   svg.selectAll('path').attr('d', path as any);
-    // }, 200);
   }
 }
