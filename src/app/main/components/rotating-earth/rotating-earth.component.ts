@@ -26,7 +26,7 @@ export class RotatingEarthComponent {
   colors = ['#fddbc7', '#f4a582', '#d6604d', '#b2182b'];
 
   parentElement: any;
-  geoData: any;
+  data: any;
   airportData: any;
 
   svg: any;
@@ -43,28 +43,17 @@ export class RotatingEarthComponent {
   airports: any;
 
   ngOnInit() {
-    let promises = [
-      d3.json('assets/data/wd_indicators.json'),
-      d3.json('assets/data/world-atlas.json'),
-    ];
-    Promise.all(promises)
-      .then((data) => {
-        this.initMainPage(data);
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
+    d3.json('assets/data/world-atlas.json').then((data) => {
+      this.initVis('rotating-globe', data);
+    });
   }
 
-  initMainPage(allDataArray: any[]) {
-    this.initVis('rotating-globe', allDataArray[0], allDataArray[1]);
-  }
+  initVis(parentElement: string, data: any) {
+    console.log('Loaded data:', data); // Add this line
 
-  initVis(parentElement: string, airportData: any, geoData: any) {
     let vis = this;
     vis.parentElement = parentElement;
-    vis.airportData = airportData;
-    vis.geoData = geoData;
+    vis.data = data;
     vis.margin = { top: 20, right: 20, bottom: 20, left: 20 };
     vis.width = window.innerWidth;
     vis.height = window.innerHeight;
@@ -74,7 +63,7 @@ export class RotatingEarthComponent {
       .select(`#${vis.parentElement}`)
       .append('svg')
       .attr('width', vis.width - 20)
-      .attr('height', vis.height - 20)
+      .attr('height', vis.height - 20);
 
     // projection
     vis.projection = d3
@@ -91,7 +80,7 @@ export class RotatingEarthComponent {
       .attr('fill', '#070b5d')
       .attr('stroke', 'none');
 
-    vis.world = topojson.feature(vis.geoData, vis.geoData.objects.countries);
+    vis.world = topojson.feature(vis.data, vis.data.objects.countries);
 
     vis.countries = vis.svg
       .selectAll('.country')
@@ -102,15 +91,24 @@ export class RotatingEarthComponent {
       .attr('d', vis.path)
       .attr('fill', 'transparent');
 
-    vis.startRotation();
     vis.wrangleData();
+
+    /**
+     * Rotating the Earth causes the following warning
+     * [Violation] 'requestAnimationFrame' handler took <N>ms
+     *
+     * It also makes the animated transition very laggy and not smooth
+     *
+     * Will leave this off for now
+     */
+    // vis.startRotation();
   }
 
   wrangleData() {
     let vis = this;
 
     vis.countryInfo = {};
-    vis.geoData.objects.countries.geometries.forEach((d: any) => {
+    vis.data.objects.countries.geometries.forEach((d: any) => {
       let randomCountryValue = Math.random() * 4;
       vis.countryInfo[d.properties.name] = {
         name: d.properties.name,
@@ -134,23 +132,29 @@ export class RotatingEarthComponent {
 
   startRotation() {
     let vis = this;
-    let velocity = [0.01, 0, 0];
-    let then = Date.now();
+    let velocity = [0.01, 0, 0]; // Adjust this to control rotation speed
+    let then = performance.now(); // Use performance.now for higher accuracy
 
-    d3.timer(function () {
-      let now = Date.now();
+    function animate(now: any) {
+      // Calculate time difference
       let delta = now - then;
       then = now;
 
-      // Update the projection's rotation
-      vis.projection.rotate([
-        vis.projection.rotate()[0] + velocity[0] * delta, // Rotate around the x-axis
-        vis.projection.rotate()[1] + velocity[1] * delta, // Rotate around the y-axis
-        vis.projection.rotate()[2] + velocity[2] * delta, // Rotate around the z-axis
-      ]);
+      // Update the projection's rotation, using a more efficient calculation
+      let rotation = vis.projection.rotate();
+      rotation[0] += velocity[0] * delta;
+      rotation[1] += velocity[1] * delta;
+      rotation[2] += velocity[2] * delta;
+      vis.projection.rotate(rotation);
 
       // Redraw the map
       vis.svg.selectAll('.country').attr('d', vis.path);
-    });
+
+      // Continue the animation loop
+      requestAnimationFrame(animate);
+    }
+
+    // Start the animation loop
+    requestAnimationFrame(animate);
   }
 }
