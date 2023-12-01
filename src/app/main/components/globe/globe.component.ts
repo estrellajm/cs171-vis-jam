@@ -50,54 +50,6 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
       .attr('width', width)
       .attr('height', height);
 
-    d3.select(`#${parentElement}`);
-
-    // Select the parent element where the button will be appended
-    var parentEl = d3.select(`#${parentElement}`);
-
-    // Ensure the parent element is positioned relatively
-    parentEl.style('position', 'relative');
-
-    // Assume zoom is the d3.zoom() behavior attached to your SVG
-    var zoom = d3
-      .zoom()
-      // your zoom configuration here
-      .on('zoom', zoomed);
-
-    // Function to handle zooming
-    function zoomed(event: any) {
-      svg.attr('transform', event.transform);
-    }
-
-    // Append a button, set its text, and style it for top-left positioning
-    var resetButton = parentEl
-      .append('button')
-      .text('Reset Rotation')
-      .style('position', 'absolute')
-      .style('top', '10px')
-      .style('left', '10px')
-      .on('click', () => {
-        // Reset projection
-        projection = d3
-          .geoOrthographic()
-          .scale(250)
-          .center([0, 0])
-          .rotate([0, 0])
-          .translate([width / 2, height / 2]);
-
-        // Redraw the globe and paths
-        path = d3.geoPath().projection(projection);
-        svg.selectAll('path').attr('d', path as any);
-        globe.attr('r', projection.scale());
-
-        // Reset zoom
-        svg
-          /** transition and duration might be smooth, but start at full page width */
-          // .transition()
-          // .duration(500)
-          .call(zoom.transform as any, d3.zoomIdentity); // Reset zoom
-      });
-
     const globe = svg
       .append('circle')
       .attr('fill', '#070b5d')
@@ -152,5 +104,54 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
       .style('stroke', 'black')
       .style('stroke-width', 0.5)
       .style('opacity', 0.8);
+
+    /** Code below is for the Reset Rotation */
+    // Select the parent element where the button will be appended
+    var parentEl = d3.select(`#${parentElement}`);
+
+    // Ensure the parent element is positioned relatively
+    parentEl.style('position', 'relative');
+
+    // Assume zoom is the d3.zoom() behavior attached to your SVG
+    var zoom = d3
+      .zoom()
+      // your zoom configuration here
+      .on('zoom', zoomed);
+
+    // Function to handle zooming
+    function zoomed(event: any) {
+      svg.attr('transform', event.transform);
+    }
+
+    // Append a button, set its text, and style it for top-left positioning
+    var resetButton = parentEl
+      .append('button')
+      .text('Reset Rotation')
+      .style('position', 'absolute')
+      .style('top', '10px')
+      .style('left', '10px')
+      .on('click', () => {
+        // Reset projection
+        projection = d3
+          .geoOrthographic()
+          .scale(250)
+          .center([0, 0])
+          .rotate([0, 0])
+          .translate([width / 2, height / 2]);
+
+        // Redraw the globe and paths
+        path = d3.geoPath().projection(projection);
+        svg.selectAll('path').attr('d', path as any);
+        globe.attr('r', projection.scale());
+
+        // Reset zoom
+        svg
+          /** transition and duration might be smooth, but start at full page width */
+          // .transition()
+          // .duration(500)
+          .call(zoom.transform as any, d3.zoomIdentity); // Reset zoom
+      });
   }
+
+  private addResetRotation() {}
 }
