@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "cs171-vis-jam": {
+      "hosting": {
+        "cs171-vis-jam": [
+          "cs171-vis-jam"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "cs171-vis-jam"
+  }
+}
