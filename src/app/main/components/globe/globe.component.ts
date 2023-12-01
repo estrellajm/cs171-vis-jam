@@ -34,7 +34,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     const height = container.offsetHeight;
     const sensitivity = 50;
 
-    const projection = d3
+    let projection = d3
       .geoOrthographic()
       .scale(250)
       .center([0, 0])
@@ -58,22 +58,44 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     // Ensure the parent element is positioned relatively
     parentEl.style('position', 'relative');
 
+    // Assume zoom is the d3.zoom() behavior attached to your SVG
+    var zoom = d3
+      .zoom()
+      // your zoom configuration here
+      .on('zoom', zoomed);
+
+    // Function to handle zooming
+    function zoomed(event: any) {
+      svg.attr('transform', event.transform);
+    }
+
     // Append a button, set its text, and style it for top-left positioning
     var resetButton = parentEl
       .append('button')
       .text('Reset Rotation')
-      .style('position', 'absolute') // position relative to parentElement
-      .style('top', '10px') // padding from the top
-      .style('left', '10px') // padding from the left
+      .style('position', 'absolute')
+      .style('top', '10px')
+      .style('left', '10px')
       .on('click', () => {
-        const rotate = projection.rotate();
-        const k = sensitivity / projection.scale();
-        projection.rotate([
-          rotate[0] = 0,
-          rotate[1] = 0,
-        ]);
+        // Reset projection
+        projection = d3
+          .geoOrthographic()
+          .scale(250)
+          .center([0, 0])
+          .rotate([0, 0])
+          .translate([width / 2, height / 2]);
+
+        // Redraw the globe and paths
         path = d3.geoPath().projection(projection);
         svg.selectAll('path').attr('d', path as any);
+        globe.attr('r', projection.scale());
+
+        // Reset zoom
+        svg
+          /** transition and duration might be smooth, but start at full page width */
+          // .transition()
+          // .duration(500)
+          .call(zoom.transform as any, d3.zoomIdentity); // Reset zoom
       });
 
     const globe = svg
