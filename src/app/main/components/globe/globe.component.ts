@@ -3,6 +3,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  Input,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -15,11 +16,13 @@ import * as d3 from 'd3';
   template: `<div #globeContainer id="globe-data" class="w-full h-full"></div>`,
 })
 export class GlobeEarthComponent implements OnInit, AfterViewInit {
+  @Input() data: any;
   @ViewChild('globeContainer') globeContainer: ElementRef;
 
   ngOnInit() {}
 
   ngAfterViewInit() {
+    console.log(this.data);
     d3.json('assets/world.json').then((data) => {
       this.initGlobe('globe-data', data, this.globeContainer.nativeElement);
     });
