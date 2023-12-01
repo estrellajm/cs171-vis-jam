@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
-
+// TODO: remove duplicate
 @Component({
   selector: 'jam-rotating-earth',
   standalone: true,

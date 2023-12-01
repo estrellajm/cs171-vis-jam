@@ -1,6 +1,6 @@
-<div class="flex right-0">
+<div class="flex">
   <div
-    class="flex flex-col w-3/4 bg-[#0D1779] min-h-screen text-white"
+    class="flex flex-col bg-[#0D1779] h-screen text-white"
     *ngIf="path$ | async as path"
   >
     <div class="p-8">
@@ -208,7 +208,7 @@
       </a>
     </div>
   </div>
-  <div class="w-full flex justify-end">
-    <jam-globe-component></jam-globe-component>
+  <div class="w-full flex items-center justify-center">
+    <jam-globe-component class="w-full h-full" [data]="data"></jam-globe-component>
   </div>
 </div>

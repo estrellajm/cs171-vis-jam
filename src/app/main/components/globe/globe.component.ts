@@ -1,26 +1,42 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import * as d3 from 'd3';
 
 @Component({
   selector: 'jam-globe-component',
   standalone: true,
   imports: [CommonModule],
-  template: `<div id="globe-data"></div>`,
+  template: `<div #globeContainer id="globe-data" class="w-full h-full"></div>`,
 })
-export class GlobeEarthComponent implements OnInit {
-  ngOnInit() {
+export class GlobeEarthComponent implements OnInit, AfterViewInit {
+  @Input() data: any;
+  @ViewChild('globeContainer') globeContainer: ElementRef;
+
+  ngOnInit() {}
+
+  ngAfterViewInit() {
     d3.json('assets/world.json').then((data) => {
-      this.initGlobe('globe-data', data);
+      this.initGlobe('globe-data', data, this.globeContainer.nativeElement);
     });
   }
 
-  private initGlobe(parentElement: string, data: any): void {
-    let width = 500;
-    const height = 500;
+  private initGlobe(
+    parentElement: string,
+    data: any,
+    container: HTMLElement
+  ): void {
+    const width = container.offsetWidth;
+    const height = container.offsetHeight;
     const sensitivity = 50;
 
-    const projection = d3
+    let projection = d3
       .geoOrthographic()
       .scale(250)
       .center([0, 0])
@@ -53,6 +69,7 @@ export class GlobeEarthComponent implements OnInit {
           projection.rotate([
             rotate[0] + event.dx * k,
             rotate[1] - event.dy * k,
+            // rotate[1] /** disable Y rotation */,
           ]);
           path = d3.geoPath().projection(projection);
           svg.selectAll('path').attr('d', path as any);
@@ -90,13 +107,53 @@ export class GlobeEarthComponent implements OnInit {
       .style('stroke-width', 0.5)
       .style('opacity', 0.8);
 
-    // rotate
-    // d3.timer(function (elapsed) {
-    //   const rotate = projection.rotate();
-    //   const k = sensitivity / projection.scale();
-    //   projection.rotate([rotate[0] + 1 * k, rotate[1]]);
-    //   path = d3.geoPath().projection(projection);
-    //   svg.selectAll('path').attr('d', path as any);
-    // }, 200);
+    /** Code below is for the Reset Rotation */
+    // Select the parent element where the button will be appended
+    var parentEl = d3.select(`#${parentElement}`);
+
+    // Ensure the parent element is positioned relatively
+    parentEl.style('position', 'relative');
+
+    // Assume zoom is the d3.zoom() behavior attached to your SVG
+    var zoom = d3
+      .zoom()
+      // your zoom configuration here
+      .on('zoom', zoomed);
+
+    // Function to handle zooming
+    function zoomed(event: any) {
+      svg.attr('transform', event.transform);
+    }
+
+    // Append a button, set its text, and style it for top-left positioning
+    var resetButton = parentEl
+      .append('button')
+      .text('Reset Rotation')
+      .style('position', 'absolute')
+      .style('top', '10px')
+      .style('left', '10px')
+      .on('click', () => {
+        // Reset projection
+        projection = d3
+          .geoOrthographic()
+          .scale(250)
+          .center([0, 0])
+          .rotate([0, 0])
+          .translate([width / 2, height / 2]);
+
+        // Redraw the globe and paths
+        path = d3.geoPath().projection(projection);
+        svg.selectAll('path').attr('d', path as any);
+        globe.attr('r', projection.scale());
+
+        // Reset zoom
+        svg
+          /** transition and duration might be smooth, but start at full page width */
+          // .transition()
+          // .duration(500)
+          .call(zoom.transform as any, d3.zoomIdentity); // Reset zoom
+      });
   }
+
+  private addResetRotation() {}
 }
