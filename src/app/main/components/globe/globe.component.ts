@@ -1,23 +1,37 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import * as d3 from 'd3';
 
 @Component({
   selector: 'jam-globe-component',
   standalone: true,
   imports: [CommonModule],
-  template: `<div id="globe-data" class="border w-full"></div>`,
+  template: `<div #globeContainer id="globe-data" class="w-full h-full"></div>`,
 })
-export class GlobeEarthComponent implements OnInit {
-  ngOnInit() {
+export class GlobeEarthComponent implements OnInit, AfterViewInit {
+  @ViewChild('globeContainer') globeContainer: ElementRef;
+
+  ngOnInit() {}
+
+  ngAfterViewInit() {
     d3.json('assets/world.json').then((data) => {
-      this.initGlobe('globe-data', data);
+      this.initGlobe('globe-data', data, this.globeContainer.nativeElement);
     });
   }
 
-  private initGlobe(parentElement: string, data: any): void {
-    let width = 500;
-    const height = 500;
+  private initGlobe(
+    parentElement: string,
+    data: any,
+    container: HTMLElement
+  ): void {
+    const width = container.offsetWidth;
+    const height = container.offsetHeight;
     const sensitivity = 50;
 
     const projection = d3
@@ -36,6 +50,32 @@ export class GlobeEarthComponent implements OnInit {
       .attr('width', width)
       .attr('height', height);
 
+    d3.select(`#${parentElement}`);
+
+    // Select the parent element where the button will be appended
+    var parentEl = d3.select(`#${parentElement}`);
+
+    // Ensure the parent element is positioned relatively
+    parentEl.style('position', 'relative');
+
+    // Append a button, set its text, and style it for top-left positioning
+    var resetButton = parentEl
+      .append('button')
+      .text('Reset Rotation')
+      .style('position', 'absolute') // position relative to parentElement
+      .style('top', '10px') // padding from the top
+      .style('left', '10px') // padding from the left
+      .on('click', () => {
+        const rotate = projection.rotate();
+        const k = sensitivity / projection.scale();
+        projection.rotate([
+          rotate[0] = 0,
+          rotate[1] = 0,
+        ]);
+        path = d3.geoPath().projection(projection);
+        svg.selectAll('path').attr('d', path as any);
+      });
+
     const globe = svg
       .append('circle')
       .attr('fill', '#070b5d')
@@ -52,7 +92,8 @@ export class GlobeEarthComponent implements OnInit {
           const k = sensitivity / projection.scale();
           projection.rotate([
             rotate[0] + event.dx * k,
-            rotate[1] /** allow Y rotation "rotate[1] - event.dy * k," */,
+            rotate[1] - event.dy * k,
+            // rotate[1] /** disable Y rotation */,
           ]);
           path = d3.geoPath().projection(projection);
           svg.selectAll('path').attr('d', path as any);
