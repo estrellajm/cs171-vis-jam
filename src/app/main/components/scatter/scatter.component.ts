@@ -55,8 +55,6 @@ export class ScatterEarthComponent {
     let promises = [d3.json('assets/data/wd_indicators.json')];
     Promise.all(promises)
       .then((data) => {
-        console.log(data);
-
         this.initMainPage(data);
       })
       .catch(function (err) {
@@ -206,8 +204,6 @@ export class ScatterEarthComponent {
         }
       }
     }
-
-    console.log(vis.displayData);
 
     vis.updateVis();
   }
