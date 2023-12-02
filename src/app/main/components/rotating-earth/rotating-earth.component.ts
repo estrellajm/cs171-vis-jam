@@ -20,7 +20,6 @@ export class RotatingEarthComponent implements OnInit {
   private initGlobe(parentElement: string, data: any): void {
     let width = 500;
     const height = 500;
-    const sensitivity = 50;
 
     const projection = d3
       .geoOrthographic()
@@ -46,32 +45,6 @@ export class RotatingEarthComponent implements OnInit {
       .attr('cx', width / 2)
       .attr('cy', height / 2)
       .attr('r', initialScale);
-
-    // svg
-    //   .call(
-    //     d3.drag().on('drag', (event) => {
-    //       const rotate = projection.rotate();
-    //       const k = sensitivity / projection.scale();
-    //       projection.rotate([
-    //         rotate[0] + event.dx * k,
-    //         rotate[1] - event.dy * k,
-    //       ]);
-    //       path = d3.geoPath().projection(projection);
-    //       svg.selectAll('path').attr('d', path as any);
-    //     }) as any
-    //   )
-    //   .call(
-    //     d3.zoom().on('zoom', (event) => {
-    //       if (event.transform.k > 0.3) {
-    //         projection.scale(initialScale * event.transform.k);
-    //         path = d3.geoPath().projection(projection);
-    //         svg.selectAll('path').attr('d', path as any);
-    //         globe.attr('r', projection.scale());
-    //       } else {
-    //         event.transform.k = 0.3;
-    //       }
-    //     }) as any
-    //   );
 
     let map = svg.append('g');
 
