@@ -1,12 +1,22 @@
 import { CommonModule } from '@angular/common';
 import {
+  Overlay,
+  OverlayRef,
+  ConnectedPosition,
+  OverlayConfig,
+} from '@angular/cdk/overlay';
+import { ComponentPortal } from '@angular/cdk/portal';
+import {
   AfterViewInit,
   Component,
   ElementRef,
   Input,
   OnInit,
   ViewChild,
+  ViewContainerRef,
 } from '@angular/core';
+import { TooltipComponent } from './tooltip/tooltip.component'; // Assume you have a TooltipComponent
+
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 
@@ -20,22 +30,35 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
   @Input() data: any;
   @ViewChild('globeContainer') globeContainer: ElementRef;
 
+  private overlayRef: OverlayRef;
+
+  constructor(
+    private overlay: Overlay,
+    private viewContainerRef: ViewContainerRef
+  ) {}
+
   ngOnInit() {}
 
-  ngAfterViewInit() {
-    d3.json('assets/world.json').then((data) => {
-      this.initGlobe('globe-data', data, this.globeContainer.nativeElement);
-    });
+  async ngAfterViewInit() {
+    const geoData = (await d3.json(
+      'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
+    )) as any;
+
+    this.initGlobe('globe-data', geoData, this.globeContainer.nativeElement);
   }
 
   private async initGlobe(
     parentElement: string,
-    data: any,
+    geoData: any,
     container: HTMLElement
   ): Promise<void> {
     const width = container.offsetWidth;
     const height = container.offsetHeight;
     const sensitivity = 50;
+
+    /** get geoData */
+
+    const world = topojson.feature(geoData, geoData.objects.countries) as any;
 
     let projection = d3
       .geoOrthographic()
@@ -72,7 +95,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
 
     const countries = svg
       .selectAll('.country')
-      .data(data.features)
+      .data(world.features)
       .enter()
       .append('path')
       .attr(
@@ -91,11 +114,6 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
       .append('div')
       .attr('class', 'tooltip')
       .style('opacity', 0);
-
-    /** get geoData */
-    const geoData = (await d3.json(
-      'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
-    )) as any;
 
     let countryInfo: any = {};
     geoData.objects.countries.geometries.forEach((d: any) => {
@@ -117,112 +135,113 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
       })
       .attr('stroke', '#000566') // Set the stroke color for the country borders
       .attr('stroke-width', '1px')
-      .on('click', (event: PointerEvent, d: any) => {
-        const countryName = d.properties.name;
-        console.log('Country Clicked', countryInfo[countryName]);
-      })
-      .on('mouseover', function (event: PointerEvent, d: any) {
-        // Highlight the country path
-        d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
+      // .on('click', (event: PointerEvent, d: any) => {
+      //   const countryName = d.properties.name;
+      //   console.log('Country Clicked', countryInfo[countryName]);
+      //   this.showTooltip(event, countryInfo[countryName]);
+      // });
+    .on('mouseover', function (event: PointerEvent, d: any) {
+      // Highlight the country path
+      d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
 
-        let countryName = d.properties.name;
-        let dataPoint = countryInfo[countryName]
-          ? countryInfo[countryName].value.toFixed(2)
-          : 'N/A';
-        let year = '2018';
+      let countryName = d.properties.name;
+      let dataPoint = countryInfo[countryName]
+        ? countryInfo[countryName].value.toFixed(2)
+        : 'N/A';
+      let year = '2018';
 
-        let tooltipOffsetX = 10; // Horizontal offset from the cursor position
-        let tooltipOffsetY = 20;
+      let tooltipOffsetX = 10; // Horizontal offset from the cursor position
+      let tooltipOffsetY = 20;
 
-        const dummyData = [
-          { year: new Date(2000, 0, 1), value: 30 },
-          { year: new Date(2001, 0, 1), value: 50 },
-          { year: new Date(2002, 0, 1), value: 45 },
-          { year: new Date(2003, 0, 1), value: 70 },
-          { year: new Date(2004, 0, 1), value: 60 },
-          { year: new Date(2005, 0, 1), value: 90 },
-        ];
+      const dummyData = [
+        { year: new Date(2000, 0, 1), value: 30 },
+        { year: new Date(2001, 0, 1), value: 50 },
+        { year: new Date(2002, 0, 1), value: 45 },
+        { year: new Date(2003, 0, 1), value: 70 },
+        { year: new Date(2004, 0, 1), value: 60 },
+        { year: new Date(2005, 0, 1), value: 90 },
+      ];
 
-        // Show the tooltip
-        tooltip
-          .style('position', 'absolute')
-          .style('opacity', 1)
-          .style('left', event.pageX + tooltipOffsetX + 'px')
-          .style('top', event.pageY + tooltipOffsetY + 'px')
-          .style('width', '379px')
-          // .style('height', '280px')
-          .style('flex-shrink', 0)
-          .style('border-radius', '12px')
-          .style('background', '#FFF')
-          .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
-            <div style="padding: 20px;">
-                <div style="display: flex; justify-content: space-between;">
-                    <h2>${countryName}</h2>
-                    <h2>${year}</h2>
-                </div>
-                <p class='data-point'>Data Point</p>
-                <p class='value'>Value</p>
-                <svg id="timeseries-chart" width="325" height="100"></svg>
-            </div>
-        `);
+      // Show the tooltip
+      tooltip
+        .style('position', 'absolute')
+        .style('opacity', 1)
+        .style('left', event.pageX + tooltipOffsetX + 'px')
+        .style('top', event.pageY + tooltipOffsetY + 'px')
+        .style('width', '379px')
+        // .style('height', '280px')
+        .style('flex-shrink', 0)
+        .style('border-radius', '12px')
+        .style('background', '#FFF')
+        .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
+          <div style="padding: 20px;">
+              <div style="display: flex; justify-content: space-between;">
+                  <h2>${countryName}</h2>
+                  <h2>${year}</h2>
+              </div>
+              <p class='data-point'>Data Point</p>
+              <p class='value'>Value</p>
+              <svg id="timeseries-chart" width="325" height="100"></svg>
+          </div>
+      `);
 
-        const svg = d3.select('#timeseries-chart');
+      const svg = d3.select('#timeseries-chart');
 
-        // Set the dimensions and margins of the graph
-        const margin = { top: 10, right: 10, bottom: 20, left: 30 },
-          width = +svg.attr('width') - margin.left - margin.right,
-          height = +svg.attr('height') - margin.top - margin.bottom;
+      // Set the dimensions and margins of the graph
+      const margin = { top: 10, right: 10, bottom: 20, left: 30 },
+        width = +svg.attr('width') - margin.left - margin.right,
+        height = +svg.attr('height') - margin.top - margin.bottom;
 
-        // Append the SVG object to the body of the tooltip
-        const chart = svg
-          .append('g')
-          .attr('transform', `translate(${margin.left},${margin.top})`);
+      // Append the SVG object to the body of the tooltip
+      const chart = svg
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
 
-        // Add X scale and axis
-        const x = d3
-          .scaleTime()
-          .domain(d3.extent(dummyData, (d: any) => d.year) as any)
-          .range([0, width]);
+      // Add X scale and axis
+      const x = d3
+        .scaleTime()
+        .domain(d3.extent(dummyData, (d: any) => d.year) as any)
+        .range([0, width]);
 
-        chart
-          .append('g')
-          .attr('transform', `translate(0, ${height})`)
-          .call(d3.axisBottom(x).ticks(6))
-          .attr('color', '#BABABA')
-          .selectAll('line')
-          .attr('stroke-width', 1);
+      chart
+        .append('g')
+        .attr('transform', `translate(0, ${height})`)
+        .call(d3.axisBottom(x).ticks(6))
+        .attr('color', '#BABABA')
+        .selectAll('line')
+        .attr('stroke-width', 1);
 
-        // Add Y scale
-        const y = d3
-          .scaleLinear()
-          .domain([0, d3.max(dummyData, (d) => d.value)] as any)
-          .range([height, 0]);
+      // Add Y scale
+      const y = d3
+        .scaleLinear()
+        .domain([0, d3.max(dummyData, (d) => d.value)] as any)
+        .range([height, 0]);
 
-        // Add the line
-        chart
-          .append('path')
-          .datum(dummyData)
-          .attr('fill', 'none')
-          .attr('stroke', '#09119F')
-          .attr('stroke-width', 4)
-          .attr('stroke-linejoin', 'round')
-          .attr('stroke-linecap', 'round')
-          .attr(
-            'd',
-            d3
-              .line()
-              .curve(d3.curveBasis) // This creates the curved corners in the line
-              .x((d: any) => x(d.year))
-              .y((d: any) => y(d.value)) as any
-          );
-      })
-      .on('mouseout', function (event, d) {
-        // Hide the tooltip
-        d3.select(this)
-          .attr('stroke', '#000566') // Set the stroke color for the country borders
-          .attr('stroke-width', '1px');
-        tooltip.style('opacity', 0).style('left', '0px').style('top', '0px');
-      });
+      // Add the line
+      chart
+        .append('path')
+        .datum(dummyData)
+        .attr('fill', 'none')
+        .attr('stroke', '#09119F')
+        .attr('stroke-width', 4)
+        .attr('stroke-linejoin', 'round')
+        .attr('stroke-linecap', 'round')
+        .attr(
+          'd',
+          d3
+            .line()
+            .curve(d3.curveBasis) // This creates the curved corners in the line
+            .x((d: any) => x(d.year))
+            .y((d: any) => y(d.value)) as any
+        );
+    })
+    .on('mouseout', function (event, d) {
+      // Hide the tooltip
+      d3.select(this)
+        .attr('stroke', '#000566') // Set the stroke color for the country borders
+        .attr('stroke-width', '1px');
+      tooltip.style('opacity', 0).style('left', '0px').style('top', '0px');
+    });
 
     /** Code below adds 'drag' and 'zoom' */
     svg
@@ -295,6 +314,77 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
           // .duration(500)
           .call(zoom.transform as any, d3.zoomIdentity); // Reset zoom
       });
+  }
+
+  // Assuming you have a method to create and return a position strategy
+  getPositionStrategy(x: number, y: number) {
+    return this.overlay
+      .position()
+      .flexibleConnectedTo({ x, y })
+      .withPositions([
+        {
+          originX: 'center',
+          originY: 'bottom',
+          overlayX: 'center',
+          overlayY: 'top',
+          offsetY: -10,
+        },
+      ]);
+  }
+
+  showTooltip(event: MouseEvent, country: any) {
+    // Close any existing tooltip overlays
+    this.hideTooltip();
+
+    // Use the event coordinates to set up the initial position strategy
+    const positionStrategy = this.getPositionStrategy(
+      event.clientX,
+      event.clientY
+    );
+
+    // Create the overlay with the initial position strategy
+    const overlayConfig = new OverlayConfig({
+      positionStrategy,
+      hasBackdrop: false,
+      panelClass: 'tooltip-panel',
+      scrollStrategy: this.overlay.scrollStrategies.reposition(),
+      height: '400px',
+      width: '600px',
+    });
+
+    this.overlayRef = this.overlay.create(overlayConfig);
+
+    // Attach the TooltipComponent to the overlay
+    const tooltipPortal = new ComponentPortal(
+      TooltipComponent,
+      this.viewContainerRef
+    );
+    const tooltipRef = this.overlayRef.attach(tooltipPortal);
+    tooltipRef.instance.text = country.name;
+
+    // // Function to update the position of the tooltip
+    // const updatePosition = (e: MouseEvent) => {
+    //   // Update the position strategy with the new mouse position
+    //   this.overlayRef.updatePositionStrategy(
+    //     this.getPositionStrategy(e.clientX, e.clientY)
+    //   );
+    //   // Manually trigger an update of the overlay's position
+    //   this.overlayRef.updatePosition();
+    // };
+
+    // // Add mouse move listener to update the tooltip position
+    // window.addEventListener('mousemove', updatePosition);
+
+    // // Subscribe to the overlay's disposal to remove the event listener
+    // this.overlayRef.detachments().subscribe(() => {
+    //   window.removeEventListener('mousemove', updatePosition);
+    // });
+  }
+
+  hideTooltip() {
+    if (this.overlayRef) {
+      this.overlayRef.detach();
+    }
   }
 
   private addResetRotation() {}
