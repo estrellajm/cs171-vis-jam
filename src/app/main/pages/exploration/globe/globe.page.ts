@@ -20,7 +20,7 @@ export class GlobePage {
   categories$: Observable<string[]>;
   years$: Observable<number[]>;
 
-  selectedCategory: string = 'Year';
+  selectedCategory: string = 'CO2 emissions (kg per 2015 US$ of GDP)';
   showCategoryDropdown: boolean = false;
   selectedYear: number = 2018;
   showYearDropdown: boolean = false;
