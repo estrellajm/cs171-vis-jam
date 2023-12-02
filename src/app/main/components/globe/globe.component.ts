@@ -8,6 +8,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
+import * as topojson from 'topojson-client';
 
 @Component({
   selector: 'jam-globe-component',
@@ -27,11 +28,11 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private initGlobe(
+  private async initGlobe(
     parentElement: string,
     data: any,
     container: HTMLElement
-  ): void {
+  ): Promise<void> {
     const width = container.offsetWidth;
     const height = container.offsetHeight;
     const sensitivity = 50;
@@ -46,6 +47,12 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     const initialScale = projection.scale();
     let path = d3.geoPath().projection(projection);
 
+    const colorScale = d3
+      .scaleLinear()
+      .domain([0, 1]) // Assuming the value is normalized between 0 and 1
+      .range(['rgba(36, 212, 166, 0.2)', 'rgba(36, 212, 166, 1)'] as any);
+
+    /** Globe Init */
     const svg = d3
       .select(`#${parentElement}`)
       .append('svg')
@@ -61,6 +68,159 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
       .attr('cy', height / 2)
       .attr('r', initialScale);
 
+    /** Code below add the countries */
+
+    const countries = svg
+      .selectAll('.country')
+      .data(data.features)
+      .enter()
+      .append('path')
+      .attr(
+        'class',
+        (d: any) => 'country_' + d.properties.name.replace(' ', '_')
+      )
+      .attr('class', 'country')
+      .attr('d', path as any)
+      .attr('fill', '#09119F')
+      .style('stroke', 'black')
+      .style('stroke-width', 0.5)
+      .style('opacity', 0.8);
+
+    const tooltip = d3
+      .select('body')
+      .append('div')
+      .attr('class', 'tooltip')
+      .style('opacity', 0);
+
+    /** get geoData */
+    const geoData = (await d3.json(
+      'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
+    )) as any;
+
+    let countryInfo: any = {};
+    geoData.objects.countries.geometries.forEach((d: any) => {
+      let randomValue = Math.random(); // Normalized value between 0 and 1
+      countryInfo[d.properties.name] = {
+        name: d.properties.name,
+        value: randomValue,
+        color: colorScale(randomValue), // Assign color based on the value
+      };
+    });
+
+    /** fill map color */
+    countries
+      .attr('fill', (d: any) => {
+        let countryName = d.properties.name;
+        return countryInfo[countryName]
+          ? countryInfo[countryName].color
+          : 'transparent';
+      })
+      .attr('stroke', '#000566') // Set the stroke color for the country borders
+      .attr('stroke-width', '1px')
+      .on('click', function (event: any, d: any) {
+        // Highlight the country path
+        d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
+
+        let countryName = d.properties.name;
+        let dataPoint = countryInfo[countryName]
+          ? countryInfo[countryName].value.toFixed(2)
+          : 'N/A';
+        let year = '2018';
+
+        let tooltipOffsetX = 10; // Horizontal offset from the cursor position
+        let tooltipOffsetY = 20;
+
+        const dummyData = [
+          { year: new Date(2000, 0, 1), value: 30 },
+          { year: new Date(2001, 0, 1), value: 50 },
+          { year: new Date(2002, 0, 1), value: 45 },
+          { year: new Date(2003, 0, 1), value: 70 },
+          { year: new Date(2004, 0, 1), value: 60 },
+          { year: new Date(2005, 0, 1), value: 90 },
+        ];
+
+        // Show the tooltip
+        tooltip
+          .style('position', 'absolute')
+          .style('opacity', 1)
+          .style('left', event.pageX + tooltipOffsetX + 'px')
+          .style('top', event.pageY + tooltipOffsetY + 'px')
+          .style('width', '379px')
+          // .style('height', '280px')
+          .style('flex-shrink', 0)
+          .style('border-radius', '12px')
+          .style('background', '#FFF')
+          .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <h2>${countryName}</h2>
+                    <h2>${year}</h2>
+                </div>
+                <p class='data-point'>Data Point</p>
+                <p class='value'>Value</p>
+                <svg id="timeseries-chart" width="325" height="100"></svg>
+            </div>
+        `);
+
+        const svg = d3.select('#timeseries-chart');
+
+        // Set the dimensions and margins of the graph
+        const margin = { top: 10, right: 10, bottom: 20, left: 30 },
+          width = +svg.attr('width') - margin.left - margin.right,
+          height = +svg.attr('height') - margin.top - margin.bottom;
+
+        // Append the SVG object to the body of the tooltip
+        const chart = svg
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        // Add X scale and axis
+        const x = d3
+          .scaleTime()
+          .domain(d3.extent(dummyData, (d: any) => d.year) as any)
+          .range([0, width]);
+
+        chart
+          .append('g')
+          .attr('transform', `translate(0, ${height})`)
+          .call(d3.axisBottom(x).ticks(6))
+          .attr('color', '#BABABA')
+          .selectAll('line')
+          .attr('stroke-width', 1);
+
+        // Add Y scale
+        const y = d3
+          .scaleLinear()
+          .domain([0, d3.max(dummyData, (d) => d.value)] as any)
+          .range([height, 0]);
+
+        // Add the line
+        chart
+          .append('path')
+          .datum(dummyData)
+          .attr('fill', 'none')
+          .attr('stroke', '#09119F')
+          .attr('stroke-width', 4)
+          .attr('stroke-linejoin', 'round')
+          .attr('stroke-linecap', 'round')
+          .attr(
+            'd',
+            d3
+              .line()
+              .curve(d3.curveBasis) // This creates the curved corners in the line
+              .x((d: any) => x(d.year))
+              .y((d: any) => y(d.value)) as any
+          );
+      })
+      // .on('mouseout', function (event, d) {
+      //   // Hide the tooltip
+      //   d3.select(this)
+      //     .attr('stroke', '#000566') // Set the stroke color for the country borders
+      //     .attr('stroke-width', '1px');
+      //   tooltip.style('opacity', 0).style('left', '0px').style('top', '0px');
+      // });
+
+    /** Code below adds 'drag' and 'zoom' */
     svg
       .call(
         d3.drag().on('drag', (event) => {
@@ -88,34 +248,13 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
         }) as any
       );
 
-    let map = svg.append('g');
-
-    map
-      .append('g')
-      .attr('class', 'countries')
-      .selectAll('path')
-      .data(data.features)
-      .enter()
-      .append('path')
-      .attr(
-        'class',
-        (d: any) => 'country_' + d.properties.name.replace(' ', '_')
-      )
-      .attr('d', path as any)
-      .attr('fill', '#09119F')
-      .style('stroke', 'black')
-      .style('stroke-width', 0.5)
-      .style('opacity', 0.8);
-
-    /** Code below is for the Reset Rotation */
+    /** --- Code below is for the Reset Rotation --- **/
     // Select the parent element where the button will be appended
-    var parentEl = d3.select(`#${parentElement}`);
-
+    let parentEl = d3.select(`#${parentElement}`);
     // Ensure the parent element is positioned relatively
     parentEl.style('position', 'relative');
-
     // Assume zoom is the d3.zoom() behavior attached to your SVG
-    var zoom = d3
+    let zoom = d3
       .zoom()
       // your zoom configuration here
       .on('zoom', zoomed);
@@ -124,9 +263,8 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     function zoomed(event: any) {
       svg.attr('transform', event.transform);
     }
-
     // Append a button, set its text, and style it for top-left positioning
-    var resetButton = parentEl
+    let resetButton = parentEl
       .append('button')
       .text('Reset Rotation')
       .style('position', 'absolute')
