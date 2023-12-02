@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
-// TODO: remove duplicate
+import * as topojson from 'topojson-client';
+
 @Component({
   selector: 'jam-rotating-earth',
   standalone: true,
@@ -10,8 +11,9 @@ import * as d3 from 'd3';
 })
 export class RotatingEarthComponent implements OnInit {
   ngOnInit() {
-    d3.json('assets/world.json').then((data) => {
-      this.initGlobe('rotating-globe', data);
+    d3.json('assets/data/world.json').then((data: any) => {
+      const world = topojson.feature(data, data.objects.countries);
+      this.initGlobe('rotating-globe', world);
     });
   }
 
@@ -91,12 +93,13 @@ export class RotatingEarthComponent implements OnInit {
       .style('opacity', 0.8);
 
     // rotate
-    d3.timer(function (elapsed) {
-      const rotate = projection.rotate();
-      const k = sensitivity / projection.scale();
-      projection.rotate([rotate[0] + 1 * k, rotate[1]]);
-      path = d3.geoPath().projection(projection);
-      svg.selectAll('path').attr('d', path as any);
-    }, 200);
+    /** BUG: Code below is causing '[Violation] 'setTimeout' handler took 66ms' */
+    // d3.timer(function (elapsed) {
+    //   const rotate = projection.rotate();
+    //   const k = sensitivity / projection.scale();
+    //   projection.rotate([rotate[0] + 1 * k, rotate[1]]);
+    //   path = d3.geoPath().projection(projection);
+    //   svg.selectAll('path').attr('d', path as any);
+    // }, 200);
   }
 }
