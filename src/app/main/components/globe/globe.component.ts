@@ -110,14 +110,18 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     /** fill map color */
     countries
       .attr('fill', (d: any) => {
-        let countryName = d.properties.name;
+        const countryName = d.properties.name;
         return countryInfo[countryName]
           ? countryInfo[countryName].color
           : 'transparent';
       })
       .attr('stroke', '#000566') // Set the stroke color for the country borders
       .attr('stroke-width', '1px')
-      .on('click', function (event: any, d: any) {
+      .on('click', (event: PointerEvent, d: any) => {
+        const countryName = d.properties.name;
+        console.log('Country Clicked', countryInfo[countryName]);
+      })
+      .on('mouseover', function (event: PointerEvent, d: any) {
         // Highlight the country path
         d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
 
@@ -212,13 +216,13 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
               .y((d: any) => y(d.value)) as any
           );
       })
-      // .on('mouseout', function (event, d) {
-      //   // Hide the tooltip
-      //   d3.select(this)
-      //     .attr('stroke', '#000566') // Set the stroke color for the country borders
-      //     .attr('stroke-width', '1px');
-      //   tooltip.style('opacity', 0).style('left', '0px').style('top', '0px');
-      // });
+      .on('mouseout', function (event, d) {
+        // Hide the tooltip
+        d3.select(this)
+          .attr('stroke', '#000566') // Set the stroke color for the country borders
+          .attr('stroke-width', '1px');
+        tooltip.style('opacity', 0).style('left', '0px').style('top', '0px');
+      });
 
     /** Code below adds 'drag' and 'zoom' */
     svg
