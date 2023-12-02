@@ -37,7 +37,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
   ngOnInit() {}
 
   async ngAfterViewInit() {
-    const geoData = (await d3.json('assets/world.json')) as any;
+    const geoData = (await d3.json('assets/data/world.json')) as any;
 
     this.initGlobe('globe-data', geoData, this.globeContainer.nativeElement);
   }

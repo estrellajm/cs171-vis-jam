@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Country } from '@interfaces/country.interface';
-import { WD_INDICATORS } from '@assets/archieve/wd_indicators'; // Adjust the path as needed
+import { WD_INDICATORS } from '@assets/data/wd_indicators'; // Adjust the path as needed
 
 @Injectable({
   providedIn: 'root',
