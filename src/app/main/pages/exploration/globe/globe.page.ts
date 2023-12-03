@@ -1,30 +1,55 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Country } from '@interfaces/country.interface';
-import { Observable, map } from 'rxjs';
+import { Observable, lastValueFrom, map } from 'rxjs';
 import { GlobeEarthComponent } from 'src/app/main/components/globe/globe.component';
 
 type RouteKey = 'economy' | 'education' | 'environment';
 @Component({
   selector: 'jam-globe-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, GlobeEarthComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    GlobeEarthComponent,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './globe.page.html',
   styleUrls: ['./globe.page.scss'],
 })
 export class GlobePage {
+  categoryForm: FormGroup;
+
   title: string;
   data: Country[];
   path$: Observable<{ previous: string; next: string }>;
-  
+
   selectedCategory: string = 'GDP per capita (constant 2015 US$)';
   showCategoryDropdown: boolean = false;
   categories$: Observable<string[]>;
+  selectedCategoryControl = new FormControl('ddd');
+  options = ['Option 1', 'Option 2', 'Option 3'];
 
   selectedYear: number = 2018;
   showYearDropdown: boolean = false;
   years$: Observable<number[]>;
+
+  fb = inject(FormBuilder);
+  constructor() {
+    this.categoryForm = this.fb.group({
+      selectedCategory: '',
+      selectedYear: 2018,
+    });
+  }
 
   routes = {
     economy: {
@@ -61,7 +86,14 @@ export class GlobePage {
         )
       );
       this.title = data['path'];
-      this.data = {...data['data'], year: this.selectedYear};
+      this.data = { ...data['data'], year: this.selectedYear };
+    });
+
+    // Subscribe to categories$ and set the first element of the array to the form
+    this.categories$.subscribe((categories) => {
+      if (categories && categories.length > 0) {
+        this.categoryForm.patchValue({ selectedCategory: categories[0] });
+      }
     });
   }
 
@@ -71,7 +103,7 @@ export class GlobePage {
   }
 
   changeSelectedCategory(newSelectedCategory: string) {
-    this.selectedCategory = newSelectedCategory;
+    this.categoryForm.patchValue({ selectedCategory: newSelectedCategory });
     this.showCategoryDropdown = false;
   }
   changeSelectedYear(newSelectedYear: number) {
@@ -80,8 +112,6 @@ export class GlobePage {
   }
 
   closeDropdown() {
-    console.log('asdd');
-
     this.showCategoryDropdown = false;
     this.showYearDropdown = false;
   }
