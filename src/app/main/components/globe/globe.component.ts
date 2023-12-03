@@ -14,6 +14,7 @@ import { TooltipComponent } from './tooltip/tooltip.component'; // Assume you ha
 
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'jam-globe-component',
@@ -21,10 +22,11 @@ import * as topojson from 'topojson-client';
   imports: [CommonModule],
   template: `<div #globeContainer id="globe-data" class="w-full h-full"></div>`,
 })
-export class GlobeEarthComponent implements OnInit, AfterViewInit {
+export class GlobeEarthComponent implements AfterViewInit {
   @Input() data: any;
   @Input() title: string;
   @Input() selectedCategory: string;
+  @Input() selectedValues$: Observable<any>;
   @ViewChild('globeContainer') globeContainer: ElementRef;
 
   private overlayRef: OverlayRef;
@@ -34,15 +36,12 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     private viewContainerRef: ViewContainerRef
   ) {}
 
-  ngOnInit() {}
-
   async ngAfterViewInit() {
     this.initGlobe();
-  }
-
-  ngOnChanges() {
-    // console.log(this.data);
-    // console.log(this.selectedCategory);
+    /** below will listen for changes in the selected values */
+    this.selectedValues$.subscribe((a) => {
+      console.log(a);
+    });
   }
 
   private initGlobe(): void {
@@ -197,9 +196,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     countries
       .attr('fill', (d: any) => {
         const countryName = d.properties.name;
-        return worldData[countryName]
-          ? worldData[countryName].color
-          : 'black';
+        return worldData[countryName] ? worldData[countryName].color : 'black';
       })
       .attr('stroke', '#000566') // Set the stroke color for the country borders
       .attr('stroke-width', '1px')

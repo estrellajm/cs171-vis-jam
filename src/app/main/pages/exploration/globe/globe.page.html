@@ -112,7 +112,7 @@
               (click)="showYearDropdown = !showYearDropdown"
             >
               <span class="block truncate text-2xl font-bold text-[#09119F]">
-                {{selectedYear}}
+                {{categoryForm.value.selectedYear}}
               </span>
               <span
                 class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
@@ -148,12 +148,12 @@
               >
                 <span
                   class="block truncate"
-                  [ngClass]="{'font-semibold': year === selectedYear}"
+                  [ngClass]="{'font-semibold': year === categoryForm.value.selectedYear}"
                 >
                   {{year}}
                 </span>
                 <span
-                  *ngIf="year === selectedYear"
+                  *ngIf="year === categoryForm.value.selectedYear"
                   class="absolute inset-y-0 right-0 flex items-center pr-4 hover:text-white"
                 >
                   <svg
@@ -212,7 +212,8 @@
       class="w-full h-full"
       [data]="data"
       [title]="title"
-      [selectedCategory]="selectedCategory"
+      [selectedCategory]="categoryForm.value.category"
+      [selectedValues$]="categoryForm.valueChanges"
     ></jam-globe-component>
   </div>
 </div>

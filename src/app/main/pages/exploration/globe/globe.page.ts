@@ -33,17 +33,14 @@ export class GlobePage {
   data: Country[];
   path$: Observable<{ previous: string; next: string }>;
 
-  selectedCategory: string = 'GDP per capita (constant 2015 US$)';
-  showCategoryDropdown: boolean = false;
   categories$: Observable<string[]>;
-  selectedCategoryControl = new FormControl('ddd');
-  options = ['Option 1', 'Option 2', 'Option 3'];
+  showCategoryDropdown: boolean = false;
 
-  selectedYear: number = 2018;
-  showYearDropdown: boolean = false;
   years$: Observable<number[]>;
+  showYearDropdown: boolean = false;
 
   fb = inject(FormBuilder);
+
   constructor() {
     this.categoryForm = this.fb.group({
       selectedCategory: '',
@@ -86,7 +83,10 @@ export class GlobePage {
         )
       );
       this.title = data['path'];
-      this.data = { ...data['data'], year: this.selectedYear };
+      this.data = {
+        ...data['data'],
+        year: this.categoryForm.value.selectedCategory,
+      };
     });
 
     // Subscribe to categories$ and set the first element of the array to the form
@@ -107,7 +107,7 @@ export class GlobePage {
     this.showCategoryDropdown = false;
   }
   changeSelectedYear(newSelectedYear: number) {
-    this.selectedYear = newSelectedYear;
+    this.categoryForm.patchValue({ selectedYear: newSelectedYear });
     this.showYearDropdown = false;
   }
 
