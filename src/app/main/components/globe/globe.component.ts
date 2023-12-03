@@ -41,34 +41,19 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
   }
 
   ngOnChanges() {
-    console.log(this.data);
-    console.log(this.selectedCategory);
+    // console.log(this.data);
+    // console.log(this.selectedCategory);
   }
 
   private initGlobe(): void {
     const ng = this;
-    const worldData: any = {};
     const width = this.globeContainer.nativeElement.offsetWidth;
     const height = this.globeContainer.nativeElement.offsetHeight;
     const sensitivity = 50;
     const parentElement = 'globe-data';
     const geoData = this.data.world;
 
-    /** will only return relevant data */
-    for (let country of ng.data.countries) {
-      worldData[country.country] = country[ng.title].map(
-        (c: any) => c[ng.selectedCategory]
-      );
-      /** If we want to country code as well  */
-      // worldData[country.country] = {
-      //   code: country.code,
-      //   [ng.title]: country[ng.title].map((c: any) => c[ng.selectedCategory]),
-      // };
-    }
-
-    /** get geoData */
-    const world = topojson.feature(geoData, geoData.objects.countries) as any;
-
+    /** INITIALIZATIONS */
     let projection = d3
       .geoOrthographic()
       .scale(250)
@@ -78,11 +63,6 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
 
     const initialScale = projection.scale();
     let path = d3.geoPath().projection(projection);
-
-    const colorScale = d3
-      .scaleLinear()
-      .domain([0, 1]) // Assuming the value is normalized between 0 and 1
-      .range(['rgba(36, 212, 166, 0.2)', 'rgba(36, 212, 166, 1)'] as any);
 
     /** Globe Init */
     const svg = d3
@@ -99,6 +79,85 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
       .attr('cx', width / 2)
       .attr('cy', height / 2)
       .attr('r', initialScale);
+
+    const getMaxAverage = (data: any, key: string) => {
+      const countryAverages: any = {};
+
+      data.forEach((country: any) => {
+        const values = country[ng.title]
+          .map((econ: any) => econ[key])
+          .filter((val: any) => val !== null); // TODO: Ask the Team. Currently filtering null
+        const sum = values.reduce((acc: number, val: number) => acc + val, 0);
+        const average = values.length > 0 ? sum / values.length : 0;
+        countryAverages[country.country] = average;
+      });
+      const averages: number[] = [
+        ...Object.values(countryAverages),
+      ] as number[];
+      const minAverage = Math.min(...averages);
+      const maxAverage = Math.max(...averages);
+      return { countryAverages, maxAverage };
+    };
+
+    const { countryAverages, maxAverage } = getMaxAverage(
+      ng.data.countries,
+      ng.selectedCategory
+    );
+
+    // console.log('Average GDP per Capita per Country:', countryAverages);
+    // console.log('Highest Average GDP per Capita:', maxAverage);
+
+    const colorScale = d3
+      .scaleLinear()
+      .domain([0, maxAverage / 10]) // Assuming the value is normalized between 0 and 1
+      .range(['rgba(36, 212, 166, 0.2)', 'rgba(36, 212, 166, 1)'] as any);
+
+    /** Code below is to sort */
+    // // Convert the countryGDP object into an array of [country, gdp] pairs
+    // const countryGDPArray = Object.entries(countryAverages);
+
+    // // Sort the array by GDP value in descending order
+    // const sortedCountryGDPArray = countryGDPArray.sort(
+    //   (a: any, b: any) => b[1] - a[1]
+    // );
+
+    // // console.log(sortedCountryGDPArray);
+
+    const twoDecimalPlaces = (val: number | null): number | null => {
+      if (!val) return null;
+      return +val.toFixed(2);
+    };
+    function transformData(data: any, selectedCategory: string) {
+      // console.log(data);
+      
+      const years: any = {};
+      data.map((cat: any) => {
+        years[cat.Year] = twoDecimalPlaces(cat[selectedCategory]);
+      });
+      return years;
+    }
+
+    /** DATA PROCESSING */
+    const worldData: any = {};
+    for (let d of ng.data.countries) {
+      const name = d.country;
+      const code = d.code;
+      const selectedCategory = ng.selectedCategory;
+      const average = twoDecimalPlaces(countryAverages[name]) ?? 0;
+      const color = colorScale(average);
+
+      worldData[d.country] = {
+        name,
+        code,
+        average,
+        color,
+        selectedCategory,
+        [ng.title]: transformData(d[ng.title], selectedCategory),
+      };
+    }
+
+    /** get geoData */
+    const world = topojson.feature(geoData, geoData.objects.countries) as any;
 
     /** Add the countries */
     const countries = svg
@@ -236,144 +295,127 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
      *
      */
 
-    let countryInfo: any = {};
-    geoData.objects.countries.geometries.slice(0, 5).forEach((d: any) => {
-      let randomValue = Math.random(); // Normalized value between 0 and 1
-      let countryName = d.properties.name;
-
-      // console.log(countryName);
-
-      const category = worldData[countryName];
-      // console.log(category);
-
-      countryInfo[countryName] = {
-        name: countryName,
-        value: randomValue,
-        color: colorScale(randomValue), // Assign color based on the value
-        // [ng.selectedCategory]: ng.data.find((c) => c.country === countryName)[
-        //   ng.selectedCategory
-        // ],
-      };
-    });
-
     /** fill map color */
     countries
       .attr('fill', (d: any) => {
         const countryName = d.properties.name;
-        return countryInfo[countryName]
-          ? countryInfo[countryName].color
+        return worldData[countryName]
+          ? worldData[countryName].color
           : 'transparent';
       })
       .attr('stroke', '#000566') // Set the stroke color for the country borders
       .attr('stroke-width', '1px')
-      // .on('click', (event: PointerEvent, d: any) => {
-      //   const countryName = d.properties.name;
-      //   console.log('Country Clicked', countryInfo[countryName]);
-      //   this.showTooltip(event, countryInfo[countryName]);
-      // });
-      .on('mouseover', function (event: PointerEvent, d: any) {
-        // Highlight the country path
-        d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
-
+      .on('click', (event: PointerEvent, d: any) => {
         let countryName = d.properties.name;
-        const country = countryInfo[countryName];
-
-        let year = '2018';
-        let tooltipOffsetX = 10; // Horizontal offset from the cursor position
-        let tooltipOffsetY = 20;
-
-        // Show the tooltip
-        tooltip
-          .style('position', 'absolute')
-          .style('opacity', 1)
-          .style('left', event.pageX + tooltipOffsetX + 'px')
-          .style('top', event.pageY + tooltipOffsetY + 'px')
-          .style('width', '379px')
-          .style('flex-shrink', 0)
-          .style('border-radius', '12px')
-          .style('background', '#FFF')
-          .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
-          <div style="padding: 20px;">
-              <div style="display: flex; justify-content: space-between;">
-                  <h2>${countryName}</h2>
-                  <h2>${ng.selectedCategory}</h2>
-              </div>
-              <p class='data-point'>Data Point</p>
-              <p class='value'>Value</p>
-              <svg id="timeseries-chart" width="325" height="100"></svg>
-          </div>
-      `);
-
-        const svg = d3.select('#timeseries-chart');
-
-        // Set the dimensions and margins of the graph
-        const margin = { top: 10, right: 10, bottom: 20, left: 30 },
-          width = +svg.attr('width') - margin.left - margin.right,
-          height = +svg.attr('height') - margin.top - margin.bottom;
-
-        // Append the SVG object to the body of the tooltip
-        const chart = svg
-          .append('g')
-          .attr('transform', `translate(${margin.left},${margin.top})`);
-
+        const country = worldData[countryName];
         console.log(country);
-        console.log(country[ng.title]);
 
-        // Add X scale and axis
-        const x = d3
-          .scaleTime()
-          .domain(
-            d3.extent(country[ng.title], (d: any) => {
-              console.log(d);
-              console.log(ng.selectedCategory);
-
-              return d[ng.selectedCategory];
-            }) as any
-          )
-          .range([0, width]);
-
-        chart
-          .append('g')
-          .attr('transform', `translate(0, ${height})`)
-          .call(d3.axisBottom(x).ticks(6))
-          .attr('color', '#BABABA')
-          .selectAll('line')
-          .attr('stroke-width', 1);
-
-        // Add Y scale
-        const y = d3
-          .scaleLinear()
-          .domain([
-            0,
-            d3.max(country[ng.title], (d: any) => d[ng.selectedCategory]),
-          ] as any)
-          .range([height, 0]);
-
-        // Add the line
-        chart
-          .append('path')
-          .datum(country[ng.title])
-          .attr('fill', 'none')
-          .attr('stroke', '#09119F')
-          .attr('stroke-width', 4)
-          .attr('stroke-linejoin', 'round')
-          .attr('stroke-linecap', 'round')
-          .attr(
-            'd',
-            d3
-              .line()
-              .curve(d3.curveBasis) // This creates the curved corners in the line
-              .x((d: any) => x(d.year))
-              .y((d: any) => y(d.value)) as any
-          );
-      })
-      .on('mouseout', function (event, d) {
-        // Hide the tooltip
-        d3.select(this)
-          .attr('stroke', '#000566') // Set the stroke color for the country borders
-          .attr('stroke-width', '1px');
-        tooltip.style('opacity', 0).style('left', '0px').style('top', '0px');
+        // const countryName = d.properties.name;
+        // console.log('Country Clicked', worldData[countryName]);
+        // this.showTooltip(event, worldData[countryName]);
       });
+    // .on('mouseover', function (event: PointerEvent, d: any) {
+    //   // Highlight the country path
+    //   d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
+
+    //   let countryName = d.properties.name;
+    //   const country = worldData[countryName];
+
+    //   const tooltipOffsetX = 10; // Horizontal offset from the cursor position
+    //   const tooltipOffsetY = 20;
+
+    //   // Show the tooltip
+    //   tooltip
+    //     .style('position', 'absolute')
+    //     .style('opacity', 1)
+    //     .style('left', event.pageX + tooltipOffsetX + 'px')
+    //     .style('top', event.pageY + tooltipOffsetY + 'px')
+    //     .style('width', '379px')
+    //     .style('flex-shrink', 0)
+    //     .style('border-radius', '12px')
+    //     .style('background', '#FFF')
+    //     .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
+    //     <div style="padding: 20px;">
+    //         <div style="display: flex; justify-content: space-between;">
+    //             <h2>${countryName}</h2>
+    //             <h2>${ng.selectedCategory}</h2>
+    //         </div>
+    //         <p class='data-point'>Data Point</p>
+    //         <p class='value'>Value</p>
+    //         <svg id="timeseries-chart" width="325" height="100"></svg>
+    //     </div>
+    // `);
+
+    //   const svg = d3.select('#timeseries-chart');
+
+    //   // Set the dimensions and margins of the graph
+    //   const margin = { top: 10, right: 10, bottom: 20, left: 30 },
+    //     width = +svg.attr('width') - margin.left - margin.right,
+    //     height = +svg.attr('height') - margin.top - margin.bottom;
+
+    //   // Append the SVG object to the body of the tooltip
+    //   const chart = svg
+    //     .append('g')
+    //     .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    //   console.log(country);
+    //   console.log(country[ng.title]);
+
+    //   // Add X scale and axis
+    //   const x = d3
+    //     .scaleTime()
+    //     .domain(
+    //       d3.extent(country[ng.title], (d: any) => {
+    //         console.log(d);
+    //         console.log(ng.selectedCategory);
+
+    //         return d[ng.selectedCategory];
+    //       }) as any
+    //     )
+    //     .range([0, width]);
+
+    //   chart
+    //     .append('g')
+    //     .attr('transform', `translate(0, ${height})`)
+    //     .call(d3.axisBottom(x).ticks(6))
+    //     .attr('color', '#BABABA')
+    //     .selectAll('line')
+    //     .attr('stroke-width', 1);
+
+    //   // Add Y scale
+    //   const y = d3
+    //     .scaleLinear()
+    //     .domain([
+    //       0,
+    //       d3.max(country[ng.title], (d: any) => d[ng.selectedCategory]),
+    //     ] as any)
+    //     .range([height, 0]);
+
+    //   // Add the line
+    //   chart
+    //     .append('path')
+    //     .datum(country[ng.title])
+    //     .attr('fill', 'none')
+    //     .attr('stroke', '#09119F')
+    //     .attr('stroke-width', 4)
+    //     .attr('stroke-linejoin', 'round')
+    //     .attr('stroke-linecap', 'round')
+    //     .attr(
+    //       'd',
+    //       d3
+    //         .line()
+    //         .curve(d3.curveBasis) // This creates the curved corners in the line
+    //         .x((d: any) => x(d.year))
+    //         .y((d: any) => y(d.value)) as any
+    //     );
+    // })
+    // .on('mouseout', function (event, d) {
+    //   // Hide the tooltip
+    //   d3.select(this)
+    //     .attr('stroke', '#000566') // Set the stroke color for the country borders
+    //     .attr('stroke-width', '1px');
+    //   tooltip.style('opacity', 0).style('left', '0px').style('top', '0px');
+    // });
 
     /** Code below adds 'drag' and 'zoom' */
     svg

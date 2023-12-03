@@ -14,16 +14,18 @@ type RouteKey = 'economy' | 'education' | 'environment';
   styleUrls: ['./globe.page.scss'],
 })
 export class GlobePage {
-  data: Country[];
   title: string;
+  data: Country[];
   path$: Observable<{ previous: string; next: string }>;
-  categories$: Observable<string[]>;
-  years$: Observable<number[]>;
-
+  
   selectedCategory: string = 'GDP per capita (constant 2015 US$)';
   showCategoryDropdown: boolean = false;
+  categories$: Observable<string[]>;
+
   selectedYear: number = 2018;
   showYearDropdown: boolean = false;
+  years$: Observable<number[]>;
+
   routes = {
     economy: {
       previous: 'welcome',
