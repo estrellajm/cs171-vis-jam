@@ -43,8 +43,8 @@ export class GlobePage {
 
   constructor() {
     this.categoryForm = this.fb.group({
-      selectedCategory: '',
-      selectedYear: 2018,
+      category: '',
+      year: 2018,
     });
   }
 
@@ -92,7 +92,7 @@ export class GlobePage {
     // Subscribe to categories$ and set the first element of the array to the form
     this.categories$.subscribe((categories) => {
       if (categories && categories.length > 0) {
-        this.categoryForm.patchValue({ selectedCategory: categories[0] });
+        this.categoryForm.patchValue({ category: categories[0] });
       }
     });
   }
@@ -102,12 +102,12 @@ export class GlobePage {
     return `exploration/${previous}`;
   }
 
-  changeSelectedCategory(newSelectedCategory: string) {
-    this.categoryForm.patchValue({ selectedCategory: newSelectedCategory });
+  changeCategory(newCategory: string) {
+    this.categoryForm.patchValue({ selectedCategory: newCategory });
     this.showCategoryDropdown = false;
   }
-  changeSelectedYear(newSelectedYear: number) {
-    this.categoryForm.patchValue({ selectedYear: newSelectedYear });
+  changeYear(newYear: number) {
+    this.categoryForm.patchValue({ selectedYear: newYear });
     this.showYearDropdown = false;
   }
 

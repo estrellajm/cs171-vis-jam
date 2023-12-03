@@ -25,7 +25,7 @@ import { Observable } from 'rxjs';
 export class GlobeEarthComponent implements AfterViewInit {
   @Input() data: any;
   @Input() title: string;
-  @Input() selectedCategory: string;
+  @Input() selectedValues: any;
   @Input() selectedValues$: Observable<any>;
   @ViewChild('globeContainer') globeContainer: ElementRef;
 
@@ -98,14 +98,13 @@ export class GlobeEarthComponent implements AfterViewInit {
       const averages: number[] = [
         ...Object.values(countryAverages),
       ] as number[];
-      const minAverage = Math.min(...averages);
       const maxAverage = Math.max(...averages);
       return { countryAverages, maxAverage };
     };
 
     const { countryAverages, maxAverage } = getMaxAverage(
       ng.data.countries,
-      ng.selectedCategory
+      ng.selectedValues.category
     );
 
     // console.log('Average GDP per Capita per Country:', countryAverages);
@@ -131,12 +130,12 @@ export class GlobeEarthComponent implements AfterViewInit {
       if (!val) return null;
       return +val.toFixed(2);
     };
-    function transformData(data: any, selectedCategory: string) {
+    function transformData(data: any, category: string) {
       // console.log(data);
 
       const years: any = {};
       data.map((cat: any) => {
-        years[cat.Year] = twoDecimalPlaces(cat[selectedCategory]);
+        years[cat.Year] = twoDecimalPlaces(cat[category]);
       });
       return years;
     }
@@ -146,8 +145,8 @@ export class GlobeEarthComponent implements AfterViewInit {
     for (let d of ng.data.countries) {
       const name = d.country;
       const code = d.code;
-      const year = ng.data.year;
-      const selectedCategory = ng.selectedCategory;
+      const year = ng.selectedValues.year;
+      const category = ng.selectedValues.category;
       const average = twoDecimalPlaces(countryAverages[name]) ?? 0;
       const color = colorScale(average);
 
@@ -157,8 +156,8 @@ export class GlobeEarthComponent implements AfterViewInit {
         year,
         average,
         color,
-        selectedCategory,
-        [ng.title]: transformData(d[ng.title], selectedCategory),
+        category,
+        [ng.title]: transformData(d[ng.title], category),
       };
     }
 
@@ -223,8 +222,11 @@ export class GlobeEarthComponent implements AfterViewInit {
         const tooltipOffsetY = 20;
 
         const formatValue = (val: any) => {
-          const dollars = ['GDP per capita (constant 2015 US$)'];
-          if (dollars.includes(country.selectedCategory))
+          const dollars = [
+            'GDP per capita (constant 2015 US$)',
+            'Final consumption expenditure per capita (constant 2015 US$)',
+          ];
+          if (dollars.includes(country.category))
             return new Intl.NumberFormat('en-US', {
               style: 'currency',
               currency: 'USD',
@@ -250,7 +252,7 @@ export class GlobeEarthComponent implements AfterViewInit {
                       country.year
                     }</h2>
                 </div>
-                <p class='data-point'>${ng.selectedCategory}</p>
+                <p class='data-point'>${ng.selectedValues.category}</p>
                 <p class='font-bold text-[#09119F]'>${formatValue(
                   country.average
                 )}</p>

@@ -41,7 +41,7 @@
             (click)="showCategoryDropdown = !showCategoryDropdown"
           >
             <span class="block truncate text-2xl font-bold text-[#09119F]">
-              {{categoryForm.value.selectedCategory}}
+              {{categoryForm.value.category}}
             </span>
             <span
               class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
@@ -73,16 +73,16 @@
               class="text-gray-900 relative select-none py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white cursor-pointer"
               id="listbox-option-0"
               role="option"
-              (click)="changeSelectedCategory(category)"
+              (click)="changeCategory(category)"
             >
               <span
                 class="block truncate"
-                [ngClass]="{'font-semibold': category === categoryForm.value.selectedCategory}"
+                [ngClass]="{'font-semibold': category === categoryForm.value.category}"
               >
                 {{category}}
               </span>
               <span
-                *ngIf="category === categoryForm.value.selectedCategory"
+                *ngIf="category === categoryForm.value.category"
                 class="absolute inset-y-0 right-0 flex items-center pr-4 hover:text-white"
               >
                 <svg
@@ -101,7 +101,7 @@
             </li>
           </ul>
         </div>
-        <div *ngIf="categoryForm.value.selectedCategory === 'Year'">
+        <div *ngIf="categoryForm.value.category === 'Year'">
           <div class="relative mt-2">
             <button
               type="button"
@@ -112,7 +112,7 @@
               (click)="showYearDropdown = !showYearDropdown"
             >
               <span class="block truncate text-2xl font-bold text-[#09119F]">
-                {{categoryForm.value.selectedYear}}
+                {{categoryForm.value.year}}
               </span>
               <span
                 class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
@@ -144,16 +144,16 @@
                 class="text-gray-900 relative select-none py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white cursor-pointer"
                 id="listbox-option-0"
                 role="option"
-                (click)="changeSelectedYear(year)"
+                (click)="changeYear(year)"
               >
                 <span
                   class="block truncate"
-                  [ngClass]="{'font-semibold': year === categoryForm.value.selectedYear}"
+                  [ngClass]="{'font-semibold': year === categoryForm.value.year}"
                 >
                   {{year}}
                 </span>
                 <span
-                  *ngIf="year === categoryForm.value.selectedYear"
+                  *ngIf="year === categoryForm.value.year"
                   class="absolute inset-y-0 right-0 flex items-center pr-4 hover:text-white"
                 >
                   <svg
@@ -212,7 +212,7 @@
       class="w-full h-full"
       [data]="data"
       [title]="title"
-      [selectedCategory]="categoryForm.value.category"
+      [selectedValues]="categoryForm.value"
       [selectedValues$]="categoryForm.valueChanges"
     ></jam-globe-component>
   </div>
