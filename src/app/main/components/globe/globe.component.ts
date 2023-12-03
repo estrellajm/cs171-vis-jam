@@ -6,15 +6,14 @@ import {
   Component,
   ElementRef,
   Input,
-  OnInit,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
 import { TooltipComponent } from './tooltip/tooltip.component'; // Assume you have a TooltipComponent
 
 import * as d3 from 'd3';
-import * as topojson from 'topojson-client';
 import { Observable } from 'rxjs';
+import * as topojson from 'topojson-client';
 
 @Component({
   selector: 'jam-globe-component',
@@ -123,8 +122,7 @@ export class GlobeEarthComponent implements AfterViewInit {
     // const sortedCountryGDPArray = countryGDPArray.sort(
     //   (a: any, b: any) => b[1] - a[1]
     // );
-
-    // // console.log(sortedCountryGDPArray);
+// // console.log(sortedCountryGDPArray);
 
     const twoDecimalPlaces = (val: number | null): number | null => {
       if (!val) return null;
