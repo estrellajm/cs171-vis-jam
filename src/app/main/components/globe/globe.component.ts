@@ -224,7 +224,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
 
         const tooltipOffsetX = 10; // Horizontal offset from the cursor position
         const tooltipOffsetY = 20;
-        
+
         const formatValue = (val: any) => {
           const dollars = ['GDP per capita (constant 2015 US$)'];
           if (dollars.includes(country.selectedCategory))
@@ -246,7 +246,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
           .style('border-radius', '12px')
           .style('background', '#FFF')
           .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
-            <div class="p-5 space-y-3">
+            <div class="p-5 space-y-1">
                 <div class="flex justify-between">
                     <h2 class="font-bold text-[#09119F] text-xl">${countryName}</h2>
                     <h2  class="font-bold text-[#09119F] text-xl">${
