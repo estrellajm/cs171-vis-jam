@@ -22,7 +22,7 @@ import * as topojson from 'topojson-client';
   template: `<div #globeContainer id="globe-data" class="w-full h-full"></div>`,
 })
 export class GlobeEarthComponent implements OnInit, AfterViewInit {
-  @Input() data: any[];
+  @Input() data: any;
   @Input() title: string;
   @Input() selectedCategory: string;
   @ViewChild('globeContainer') globeContainer: ElementRef;
@@ -37,20 +37,34 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
   ngOnInit() {}
 
   async ngAfterViewInit() {
-    const geoData = (await d3.json('assets/data/world.json')) as any;
-
-    this.initGlobe('globe-data', geoData, this.globeContainer.nativeElement);
+    this.initGlobe();
   }
 
-  private async initGlobe(
-    parentElement: string,
-    geoData: any,
-    container: HTMLElement
-  ): Promise<void> {
+  ngOnChanges() {
+    console.log(this.data);
+    console.log(this.selectedCategory);
+  }
+
+  private initGlobe(): void {
     const ng = this;
-    const width = container.offsetWidth;
-    const height = container.offsetHeight;
+    const worldData: any = {};
+    const width = this.globeContainer.nativeElement.offsetWidth;
+    const height = this.globeContainer.nativeElement.offsetHeight;
     const sensitivity = 50;
+    const parentElement = 'globe-data';
+    const geoData = this.data.world;
+
+    /** will only return relevant data */
+    for (let country of ng.data.countries) {
+      worldData[country.country] = country[ng.title].map(
+        (c: any) => c[ng.selectedCategory]
+      );
+      /** If we want to country code as well  */
+      // worldData[country.country] = {
+      //   code: country.code,
+      //   [ng.title]: country[ng.title].map((c: any) => c[ng.selectedCategory]),
+      // };
+    }
 
     /** get geoData */
     const world = topojson.feature(geoData, geoData.objects.countries) as any;
@@ -86,8 +100,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
       .attr('cy', height / 2)
       .attr('r', initialScale);
 
-    /** Code below add the countries */
-
+    /** Add the countries */
     const countries = svg
       .selectAll('.country')
       .data(world.features)
@@ -104,14 +117,15 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
       .style('stroke-width', 0.5)
       .style('opacity', 0.8);
 
+    /** Create the tooltip div */
     const tooltip = d3
       .select('body')
       .append('div')
       .attr('class', 'tooltip')
       .style('opacity', 0);
 
-    let undefinedCount = 0;
-    let definedCount = 0;
+    /** Draw the legend */
+    ng.legend({ svg, height, width });
 
     /***#
      *
@@ -145,60 +159,66 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     const array1 = geoData.objects.countries.geometries.map(
       (c: any) => c.properties.name
     );
-    const array2 = ng.data.map((c) => c.country);
-
+    const array2 = ng.data.countries.map((c: any) => c.country);
     const differences = findDifferences(array1, array2);
-    
-
-
 
     function normalizeCountryName(name: any) {
-      return name.toLowerCase()
-          .replace(/\./g, '') // Remove periods
-          .replace(/[^a-z\s]/g, '') // Remove punctuation
-          .replace(/\b(islands?|isle|is)\b/g, 'is') // Standardize 'Islands' abbreviation
-          .replace(/\b(republic|rep)\b/g, 'rep') // Standardize 'Republic' abbreviation
-          .replace(/\bdemocratic\b/g, 'dem') // Standardize 'Democratic' abbreviation
-          .replace(/\bthe\b/g, '') // Remove 'The' prefix
-          .replace(/\s+/g, ' ') // Collapse multiple spaces to a single space
-          .trim(); // Remove leading/trailing spaces
-  }
-  
-  function findSimilarAndUniqueCountries(worldArray: any, dataArray: any) {
+      return name
+        .toLowerCase()
+        .replace(/\./g, '') // Remove periods
+        .replace(/[^a-z\s]/g, '') // Remove punctuation
+        .replace(/\b(islands?|isle|is)\b/g, 'is') // Standardize 'Islands' abbreviation
+        .replace(/\b(republic|rep)\b/g, 'rep') // Standardize 'Republic' abbreviation
+        .replace(/\bdemocratic\b/g, 'dem') // Standardize 'Democratic' abbreviation
+        .replace(/\bthe\b/g, '') // Remove 'The' prefix
+        .replace(/\s+/g, ' ') // Collapse multiple spaces to a single space
+        .trim(); // Remove leading/trailing spaces
+    }
+
+    function findSimilarAndUniqueCountries(worldArray: any, dataArray: any) {
       const normalizedData = dataArray.map(normalizeCountryName);
       let matches: any = {};
       let uniqueInWorld: any = [];
       let uniqueInData = normalizedData.slice(); // Start with a copy of normalized data array
-  
-      worldArray.forEach((country: any) => {
-          const normalizedCountry = normalizeCountryName(country);
-          const indexInData = normalizedData.findIndex((dataCountry: any) => dataCountry === normalizedCountry || dataCountry.includes(normalizedCountry) || normalizedCountry.includes(dataCountry));
-          
-          if (indexInData > -1) {
-              // If a match is found, add to matches and remove from uniqueInData
-              matches[country] = dataArray[indexInData];
-              uniqueInData.splice(indexInData, 1);
-          } else {
-              // If no match is found, add to uniqueInWorld
-              uniqueInWorld.push(country);
-          }
-      });
-  
-      return {
-          similar: matches,
-          uniqueInWorld: uniqueInWorld,
-          uniqueInData: uniqueInData.map((name: any, index: any) => dataArray[index]) // Map back to original names
-      };
-  }
-  
 
-  // console.log('GeoData from World:', differences.uniqueInFirst);
-  // console.log('Data from Team:', differences.uniqueInSecond);
-  const results = findSimilarAndUniqueCountries(differences.uniqueInFirst, differences.uniqueInSecond);
-  
-  console.log('Similar countries:', results.similar);
-  console.log('Unique in world array:', results.uniqueInWorld);
-  console.log('Unique in data array:', results.uniqueInData);
+      worldArray.forEach((country: any) => {
+        const normalizedCountry = normalizeCountryName(country);
+        const indexInData = normalizedData.findIndex(
+          (dataCountry: any) =>
+            dataCountry === normalizedCountry ||
+            dataCountry.includes(normalizedCountry) ||
+            normalizedCountry.includes(dataCountry)
+        );
+
+        if (indexInData > -1) {
+          // If a match is found, add to matches and remove from uniqueInData
+          matches[country] = dataArray[indexInData];
+          uniqueInData.splice(indexInData, 1);
+        } else {
+          // If no match is found, add to uniqueInWorld
+          uniqueInWorld.push(country);
+        }
+      });
+
+      return {
+        similar: matches,
+        uniqueInWorld: uniqueInWorld,
+        uniqueInData: uniqueInData.map(
+          (name: any, index: any) => dataArray[index]
+        ), // Map back to original names
+      };
+    }
+
+    // console.log('GeoData from World:', differences.uniqueInFirst);
+    // console.log('Data from Team:', differences.uniqueInSecond);
+    const results = findSimilarAndUniqueCountries(
+      differences.uniqueInFirst,
+      differences.uniqueInSecond
+    );
+
+    // console.log('Similar countries:', results.similar);
+    // console.log('Unique in world array:', results.uniqueInWorld);
+    // console.log('Unique in data array:', results.uniqueInData);
 
     /****#
      *
@@ -215,18 +235,16 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
      *
      *
      */
+
     let countryInfo: any = {};
     geoData.objects.countries.geometries.slice(0, 5).forEach((d: any) => {
       let randomValue = Math.random(); // Normalized value between 0 and 1
       let countryName = d.properties.name;
 
-      console.log(countryName);
+      // console.log(countryName);
 
-      const category = ng.data.find((c) => c.country === d.countryName);
-      console.log(category);
-
-      if (category === undefined) undefinedCount++;
-      if (category !== undefined) definedCount++;
+      const category = worldData[countryName];
+      // console.log(category);
 
       countryInfo[countryName] = {
         name: countryName,
@@ -237,9 +255,6 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
         // ],
       };
     });
-
-    console.log(undefinedCount);
-    console.log(definedCount);
 
     /** fill map color */
     countries
@@ -261,9 +276,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
         d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
 
         let countryName = d.properties.name;
-        const country = ng.data.find((c) => c.country === countryName);
-        console.log(countryInfo[d.properties.name]);
-        console.log(ng.data);
+        const country = countryInfo[countryName];
 
         let year = '2018';
         let tooltipOffsetX = 10; // Horizontal offset from the cursor position
@@ -507,4 +520,66 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
   }
 
   private addResetRotation() {}
+
+  private legend(earth: { svg: any; height: number; width: number }) {
+    /** LEGEND */
+    const legendWidth = 200;
+    const legendHeight = 10;
+    const legendPosition = {
+      x: earth.width - legendWidth - 20,
+      y: earth.height - legendHeight - 20,
+    };
+
+    // Create a legend group
+    const legend = earth.svg
+      .append('g')
+      .attr('class', 'legend')
+      .attr('transform', `translate(${legendPosition.x}, ${legendPosition.y})`);
+
+    // Draw the legend gradient rectangles
+    const defs = earth.svg.append('defs');
+    const gradient = defs
+      .append('linearGradient')
+      .attr('id', 'gradient')
+      .attr('x1', '0%')
+      .attr('x2', '100%')
+      .attr('y1', '0%')
+      .attr('y2', '0%');
+
+    // Define the start of the gradient (0% opacity)
+    gradient
+      .append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', 'rgba(36, 212, 166, 0.2)');
+
+    // Define the end of the gradient (100% opacity)
+    gradient
+      .append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', 'rgba(36, 212, 166, 1)');
+
+    // Draw the legend rectangle and fill it with the gradient
+    legend
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', legendWidth)
+      .attr('height', legendHeight)
+      .style('fill', 'url(#gradient)');
+
+    // Add legend min/max labels
+    legend
+      .append('text')
+      .attr('x', 0)
+      .attr('y', legendHeight + 15)
+      .style('text-anchor', 'start')
+      .text('Low');
+
+    legend
+      .append('text')
+      .attr('x', legendWidth)
+      .attr('y', legendHeight + 15)
+      .style('text-anchor', 'end')
+      .text('High');
+  }
 }

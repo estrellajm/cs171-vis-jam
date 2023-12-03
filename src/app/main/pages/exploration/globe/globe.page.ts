@@ -20,7 +20,7 @@ export class GlobePage {
   categories$: Observable<string[]>;
   years$: Observable<number[]>;
 
-  selectedCategory: string = 'CO2 emissions (kg per 2015 US$ of GDP)';
+  selectedCategory: string = 'GDP per capita (constant 2015 US$)';
   showCategoryDropdown: boolean = false;
   selectedYear: number = 2018;
   showYearDropdown: boolean = false;
@@ -47,11 +47,13 @@ export class GlobePage {
         map((data: any) => this.routes[data['path'] as RouteKey])
       );
       this.categories$ = this.route.data.pipe(
-        map((data: any) => Object.keys(data['data'][0][data['path']][0]).sort())
+        map((data: any) =>
+          Object.keys(data['data'].countries[0][data['path']][0]).sort()
+        )
       );
       this.years$ = this.route.data.pipe(
         map((data) =>
-          data['data'][0][data['path']]
+          data['data'].countries[0][data['path']]
             .map((item: { Year: any }) => item.Year)
             .reverse()
         )
