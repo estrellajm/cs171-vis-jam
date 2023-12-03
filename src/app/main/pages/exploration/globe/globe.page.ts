@@ -61,7 +61,7 @@ export class GlobePage {
         )
       );
       this.title = data['path'];
-      this.data = data['data'];
+      this.data = {...data['data'], year: this.selectedYear};
     });
   }
 

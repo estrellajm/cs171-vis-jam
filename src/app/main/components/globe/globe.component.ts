@@ -53,6 +53,11 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     const parentElement = 'globe-data';
     const geoData = this.data.world;
 
+    /** Use the function below to compare the data
+     * between the world and dataset
+     */
+    // this.compareDataToWorld();
+
     /** INITIALIZATIONS */
     let projection = d3
       .geoOrthographic()
@@ -129,7 +134,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     };
     function transformData(data: any, selectedCategory: string) {
       // console.log(data);
-      
+
       const years: any = {};
       data.map((cat: any) => {
         years[cat.Year] = twoDecimalPlaces(cat[selectedCategory]);
@@ -142,6 +147,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     for (let d of ng.data.countries) {
       const name = d.country;
       const code = d.code;
+      const year = ng.data.year;
       const selectedCategory = ng.selectedCategory;
       const average = twoDecimalPlaces(countryAverages[name]) ?? 0;
       const color = colorScale(average);
@@ -149,6 +155,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
       worldData[d.country] = {
         name,
         code,
+        year,
         average,
         color,
         selectedCategory,
@@ -186,115 +193,6 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
     /** Draw the legend */
     ng.legend({ svg, height, width });
 
-    /***#
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     */
-    function findDifferences(array1: any, array2: any) {
-      const uniqueInFirst = array1
-        .filter((element: any) => !array2.includes(element))
-        .sort();
-      const uniqueInSecond = array2
-        .filter((element: any) => !array1.includes(element))
-        .sort();
-
-      return {
-        uniqueInFirst,
-        uniqueInSecond,
-      };
-    }
-
-    const array1 = geoData.objects.countries.geometries.map(
-      (c: any) => c.properties.name
-    );
-    const array2 = ng.data.countries.map((c: any) => c.country);
-    const differences = findDifferences(array1, array2);
-
-    function normalizeCountryName(name: any) {
-      return name
-        .toLowerCase()
-        .replace(/\./g, '') // Remove periods
-        .replace(/[^a-z\s]/g, '') // Remove punctuation
-        .replace(/\b(islands?|isle|is)\b/g, 'is') // Standardize 'Islands' abbreviation
-        .replace(/\b(republic|rep)\b/g, 'rep') // Standardize 'Republic' abbreviation
-        .replace(/\bdemocratic\b/g, 'dem') // Standardize 'Democratic' abbreviation
-        .replace(/\bthe\b/g, '') // Remove 'The' prefix
-        .replace(/\s+/g, ' ') // Collapse multiple spaces to a single space
-        .trim(); // Remove leading/trailing spaces
-    }
-
-    function findSimilarAndUniqueCountries(worldArray: any, dataArray: any) {
-      const normalizedData = dataArray.map(normalizeCountryName);
-      let matches: any = {};
-      let uniqueInWorld: any = [];
-      let uniqueInData = normalizedData.slice(); // Start with a copy of normalized data array
-
-      worldArray.forEach((country: any) => {
-        const normalizedCountry = normalizeCountryName(country);
-        const indexInData = normalizedData.findIndex(
-          (dataCountry: any) =>
-            dataCountry === normalizedCountry ||
-            dataCountry.includes(normalizedCountry) ||
-            normalizedCountry.includes(dataCountry)
-        );
-
-        if (indexInData > -1) {
-          // If a match is found, add to matches and remove from uniqueInData
-          matches[country] = dataArray[indexInData];
-          uniqueInData.splice(indexInData, 1);
-        } else {
-          // If no match is found, add to uniqueInWorld
-          uniqueInWorld.push(country);
-        }
-      });
-
-      return {
-        similar: matches,
-        uniqueInWorld: uniqueInWorld,
-        uniqueInData: uniqueInData.map(
-          (name: any, index: any) => dataArray[index]
-        ), // Map back to original names
-      };
-    }
-
-    // console.log('GeoData from World:', differences.uniqueInFirst);
-    // console.log('Data from Team:', differences.uniqueInSecond);
-    const results = findSimilarAndUniqueCountries(
-      differences.uniqueInFirst,
-      differences.uniqueInSecond
-    );
-
-    // console.log('Similar countries:', results.similar);
-    // console.log('Unique in world array:', results.uniqueInWorld);
-    // console.log('Unique in data array:', results.uniqueInData);
-
-    /****#
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     */
-
     /** fill map color */
     countries
       .attr('fill', (d: any) => {
@@ -310,112 +208,121 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
         const country = worldData[countryName];
         console.log(country);
 
-        // const countryName = d.properties.name;
-        // console.log('Country Clicked', worldData[countryName]);
         // this.showTooltip(event, worldData[countryName]);
+      })
+      .on('mouseover', function (event: PointerEvent, d: any) {
+        // Highlight the country path
+        d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
+
+        let countryName = d.properties.name;
+        const country = worldData[countryName];
+
+        if (!country) return;
+
+        const tooltipOffsetX = 10; // Horizontal offset from the cursor position
+        const tooltipOffsetY = 20;
+        console.log(country.selectedCategory);
+
+        const formatValue = (val: any) => {
+          const dollars = ['GDP per capita (constant 2015 US$)'];
+          if (dollars.includes(country.selectedCategory))
+            return new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: 'USD',
+            }).format(val);
+          return val;
+        };
+
+        // Show the tooltip
+        tooltip
+          .style('position', 'absolute')
+          .style('opacity', 1)
+          .style('left', event.pageX + tooltipOffsetX + 'px')
+          .style('top', event.pageY + tooltipOffsetY + 'px')
+          .style('width', '379px')
+          .style('flex-shrink', 0)
+          .style('border-radius', '12px')
+          .style('background', '#FFF')
+          .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
+            <div class="p-5 space-y-3">
+                <div class="flex justify-between">
+                    <h2 class="font-bold text-[#09119F] text-xl">${countryName}</h2>
+                    <h2  class="font-bold text-[#09119F] text-xl">${
+                      country.year
+                    }</h2>
+                </div>
+                <p class='data-point'>${ng.selectedCategory}</p>
+                <p class='font-bold text-[#09119F]'>${formatValue(
+                  country.average
+                )}</p>
+                <svg id="timeseries-chart" width="325" height="100"></svg>
+            </div>
+          `);
+
+        const svg = d3.select('#timeseries-chart');
+
+        // Set the dimensions and margins of the graph
+        const margin = { top: 10, right: 10, bottom: 20, left: 30 },
+          width = +svg.attr('width') - margin.left - margin.right,
+          height = +svg.attr('height') - margin.top - margin.bottom;
+
+        // Append the SVG object to the body of the tooltip
+        const chart = svg
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        const arrayOfObjects = Object.entries(country[ng.title]).map(
+          ([year, value]) => ({
+            year: new Date(+year, 0, 1),
+            value: value ?? 0,
+          })
+        );
+
+        // Add X scale and axis
+        const x = d3
+          .scaleTime()
+          .domain(d3.extent(arrayOfObjects, (d) => d.year) as any)
+          .range([0, width]);
+
+        chart
+          .append('g')
+          .attr('transform', `translate(0, ${height})`)
+          .call(d3.axisBottom(x).ticks(6))
+          .attr('color', '#BABABA')
+          .selectAll('line')
+          .attr('stroke-width', 1);
+
+        // Add Y scale
+        const y = d3
+          .scaleLinear()
+          .domain([0, d3.max(arrayOfObjects, (d: any) => d.value)] as any)
+          .range([height, 0]);
+
+        // Add the line
+        chart
+          .append('path')
+          .datum(arrayOfObjects)
+          .attr('fill', 'none')
+          .attr('stroke', '#09119F')
+          .attr('stroke-width', 4)
+          .attr('stroke-linejoin', 'round')
+          .attr('stroke-linecap', 'round')
+          .attr(
+            'd',
+            d3
+              .line()
+              .curve(d3.curveBasis) // This creates the curved corners in the line
+              .x((d: any) => x(d.year))
+              .y((d: any) => y(d.value)) as any
+          );
+      })
+      .on('mouseout', function (event, d) {
+        // Hide the tooltip
+        d3.select(this)
+          .attr('stroke', '#000566') // Set the stroke color for the country borders
+          .attr('stroke-width', '1px');
+        tooltip.style('opacity', 0).style('left', '0px').style('top', '0px');
       });
-    // .on('mouseover', function (event: PointerEvent, d: any) {
-    //   // Highlight the country path
-    //   d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
-
-    //   let countryName = d.properties.name;
-    //   const country = worldData[countryName];
-
-    //   const tooltipOffsetX = 10; // Horizontal offset from the cursor position
-    //   const tooltipOffsetY = 20;
-
-    //   // Show the tooltip
-    //   tooltip
-    //     .style('position', 'absolute')
-    //     .style('opacity', 1)
-    //     .style('left', event.pageX + tooltipOffsetX + 'px')
-    //     .style('top', event.pageY + tooltipOffsetY + 'px')
-    //     .style('width', '379px')
-    //     .style('flex-shrink', 0)
-    //     .style('border-radius', '12px')
-    //     .style('background', '#FFF')
-    //     .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
-    //     <div style="padding: 20px;">
-    //         <div style="display: flex; justify-content: space-between;">
-    //             <h2>${countryName}</h2>
-    //             <h2>${ng.selectedCategory}</h2>
-    //         </div>
-    //         <p class='data-point'>Data Point</p>
-    //         <p class='value'>Value</p>
-    //         <svg id="timeseries-chart" width="325" height="100"></svg>
-    //     </div>
-    // `);
-
-    //   const svg = d3.select('#timeseries-chart');
-
-    //   // Set the dimensions and margins of the graph
-    //   const margin = { top: 10, right: 10, bottom: 20, left: 30 },
-    //     width = +svg.attr('width') - margin.left - margin.right,
-    //     height = +svg.attr('height') - margin.top - margin.bottom;
-
-    //   // Append the SVG object to the body of the tooltip
-    //   const chart = svg
-    //     .append('g')
-    //     .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    //   console.log(country);
-    //   console.log(country[ng.title]);
-
-    //   // Add X scale and axis
-    //   const x = d3
-    //     .scaleTime()
-    //     .domain(
-    //       d3.extent(country[ng.title], (d: any) => {
-    //         console.log(d);
-    //         console.log(ng.selectedCategory);
-
-    //         return d[ng.selectedCategory];
-    //       }) as any
-    //     )
-    //     .range([0, width]);
-
-    //   chart
-    //     .append('g')
-    //     .attr('transform', `translate(0, ${height})`)
-    //     .call(d3.axisBottom(x).ticks(6))
-    //     .attr('color', '#BABABA')
-    //     .selectAll('line')
-    //     .attr('stroke-width', 1);
-
-    //   // Add Y scale
-    //   const y = d3
-    //     .scaleLinear()
-    //     .domain([
-    //       0,
-    //       d3.max(country[ng.title], (d: any) => d[ng.selectedCategory]),
-    //     ] as any)
-    //     .range([height, 0]);
-
-    //   // Add the line
-    //   chart
-    //     .append('path')
-    //     .datum(country[ng.title])
-    //     .attr('fill', 'none')
-    //     .attr('stroke', '#09119F')
-    //     .attr('stroke-width', 4)
-    //     .attr('stroke-linejoin', 'round')
-    //     .attr('stroke-linecap', 'round')
-    //     .attr(
-    //       'd',
-    //       d3
-    //         .line()
-    //         .curve(d3.curveBasis) // This creates the curved corners in the line
-    //         .x((d: any) => x(d.year))
-    //         .y((d: any) => y(d.value)) as any
-    //     );
-    // })
-    // .on('mouseout', function (event, d) {
-    //   // Hide the tooltip
-    //   d3.select(this)
-    //     .attr('stroke', '#000566') // Set the stroke color for the country borders
-    //     .attr('stroke-width', '1px');
-    //   tooltip.style('opacity', 0).style('left', '0px').style('top', '0px');
-    // });
 
     /** Code below adds 'drag' and 'zoom' */
     svg
@@ -623,5 +530,85 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
       .attr('y', legendHeight + 15)
       .style('text-anchor', 'end')
       .text('High');
+  }
+
+  private compareDataToWorld() {
+    function findDifferences(array1: any, array2: any) {
+      const uniqueInFirst = array1
+        .filter((element: any) => !array2.includes(element))
+        .sort();
+      const uniqueInSecond = array2
+        .filter((element: any) => !array1.includes(element))
+        .sort();
+
+      return {
+        uniqueInFirst,
+        uniqueInSecond,
+      };
+    }
+
+    const array1 = this.data.world.objects.countries.geometries.map(
+      (c: any) => c.properties.name
+    );
+    const array2 = this.data.countries.map((c: any) => c.country);
+    const differences = findDifferences(array1, array2);
+
+    const normalizeCountryName = (name: any) => {
+      return name
+        .toLowerCase()
+        .replace(/\./g, '') // Remove periods
+        .replace(/[^a-z\s]/g, '') // Remove punctuation
+        .replace(/\b(islands?|isle|is)\b/g, 'is') // Standardize 'Islands' abbreviation
+        .replace(/\b(republic|rep)\b/g, 'rep') // Standardize 'Republic' abbreviation
+        .replace(/\bdemocratic\b/g, 'dem') // Standardize 'Democratic' abbreviation
+        .replace(/\bthe\b/g, '') // Remove 'The' prefix
+        .replace(/\s+/g, ' ') // Collapse multiple spaces to a single space
+        .trim(); // Remove leading/trailing spaces
+    };
+
+    const findSimilarAndUniqueCountries = (worldArray: any, dataArray: any) => {
+      const normalizedData = dataArray.map(normalizeCountryName);
+      let matches: any = {};
+      let uniqueInWorld: any = [];
+      let uniqueInData = normalizedData.slice(); // Start with a copy of normalized data array
+
+      worldArray.forEach((country: any) => {
+        const normalizedCountry = normalizeCountryName(country);
+        const indexInData = normalizedData.findIndex(
+          (dataCountry: any) =>
+            dataCountry === normalizedCountry ||
+            dataCountry.includes(normalizedCountry) ||
+            normalizedCountry.includes(dataCountry)
+        );
+
+        if (indexInData > -1) {
+          // If a match is found, add to matches and remove from uniqueInData
+          matches[country] = dataArray[indexInData];
+          uniqueInData.splice(indexInData, 1);
+        } else {
+          // If no match is found, add to uniqueInWorld
+          uniqueInWorld.push(country);
+        }
+      });
+
+      return {
+        similar: matches,
+        uniqueInWorld: uniqueInWorld,
+        uniqueInData: uniqueInData.map(
+          (name: any, index: any) => dataArray[index]
+        ), // Map back to original names
+      };
+    };
+
+    console.log('GeoData from World:', differences.uniqueInFirst);
+    console.log('Data from Team:', differences.uniqueInSecond);
+    const results = findSimilarAndUniqueCountries(
+      differences.uniqueInFirst,
+      differences.uniqueInSecond
+    );
+
+    console.log('Similar countries:', results.similar);
+    console.log('Unique in world array:', results.uniqueInWorld);
+    console.log('Unique in data array:', results.uniqueInData);
   }
 }
