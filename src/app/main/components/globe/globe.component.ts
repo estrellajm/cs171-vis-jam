@@ -199,7 +199,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
         const countryName = d.properties.name;
         return worldData[countryName]
           ? worldData[countryName].color
-          : 'transparent';
+          : 'black';
       })
       .attr('stroke', '#000566') // Set the stroke color for the country borders
       .attr('stroke-width', '1px')
@@ -208,9 +208,12 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
         const country = worldData[countryName];
         console.log(country);
 
-        // this.showTooltip(event, worldData[countryName]);
+        // TODO: Open popup with web data
       })
       .on('mouseover', function (event: PointerEvent, d: any) {
+        // TODO: extract tooltip to component
+        // this.showTooltip(event, worldData[countryName]);
+
         // Highlight the country path
         d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
 
@@ -221,8 +224,7 @@ export class GlobeEarthComponent implements OnInit, AfterViewInit {
 
         const tooltipOffsetX = 10; // Horizontal offset from the cursor position
         const tooltipOffsetY = 20;
-        console.log(country.selectedCategory);
-
+        
         const formatValue = (val: any) => {
           const dollars = ['GDP per capita (constant 2015 US$)'];
           if (dollars.includes(country.selectedCategory))
