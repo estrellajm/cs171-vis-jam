@@ -469,7 +469,10 @@ export class GlobeEarthComponent implements AfterViewInit {
         vis.tooltip
           .style('opacity', 0)
           .style('left', '0px')
-          .style('top', '0px');
+          .style('top', '0px')
+          .style('width', '0')
+          .style('height', '0')
+          .html(``);
       });
   }
 }
