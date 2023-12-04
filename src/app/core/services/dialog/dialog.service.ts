@@ -11,6 +11,9 @@ export class DialogService {
 
   openDialog(country: any): void {
     const dialogRef = this.dialog.open(RadarComponent, {
+      height: '90%', // 90% of the viewport height
+      width: '90vw', // 90% of the viewport width
+
       data: country,
     });
 

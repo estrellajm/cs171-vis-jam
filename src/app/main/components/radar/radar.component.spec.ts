@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RadarComponent } from './radar.component';
+import { RadarComponent } from './radar.data';
 
 describe('RadarComponent', () => {
   let component: RadarComponent;
@@ -8,7 +8,7 @@ describe('RadarComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [RadarComponent]
+      declarations: [RadarComponent],
     });
     fixture = TestBed.createComponent(RadarComponent);
     component = fixture.componentInstance;

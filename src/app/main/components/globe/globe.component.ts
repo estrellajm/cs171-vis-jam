@@ -44,6 +44,50 @@ export class GlobeEarthComponent implements AfterViewInit {
     this.selectedValues$.subscribe((a) => {
       console.log(a);
     });
+
+    this.autoOpenDialog();
+  }
+
+  autoOpenDialog() {
+    const cc = {
+      name: 'United States',
+      code: 'USA',
+      year: 2018,
+      average: 0.37,
+      color: 'rgb(36, 212, 166)',
+      category: 'CO2 emissions (kg per 2015 US$ of GDP)',
+      environment: {
+        '1960': null,
+        '1983': null,
+        '1997': 0.46,
+        '1998': 0.44,
+        '1999': 0.42,
+        '2000': 0.42,
+        '2001': 0.41,
+        '2002': 0.4,
+        '2003': 0.39,
+        '2004': 0.38,
+        '2005': 0.37,
+        '2006': 0.35,
+        '2007': 0.35,
+        '2008': 0.34,
+        '2009': 0.32,
+        '2010': 0.33,
+        '2011': 0.31,
+        '2012': 0.29,
+        '2013': 0.29,
+        '2014': 0.29,
+        '2015': 0.27,
+        '2016': 0.26,
+        '2017': 0.25,
+        '2018': 0.26,
+        '2019': 0.24,
+        '2020': 0.22,
+        '2021': null,
+        '2022': null,
+      },
+    };
+    this.dialogService.openDialog(cc);
   }
 
   private initGlobe(): void {
@@ -62,7 +106,7 @@ export class GlobeEarthComponent implements AfterViewInit {
     /** INITIALIZATIONS */
     let projection = d3
       .geoOrthographic()
-      .scale(250)
+      .scale(width / 2)
       .center([0, 0])
       .rotate([100, 0])
       .translate([width / 2, height / 2]);
@@ -92,7 +136,7 @@ export class GlobeEarthComponent implements AfterViewInit {
       data.forEach((country: any) => {
         const values = country[ng.title]
           .map((econ: any) => econ[key])
-          .filter((val: any) => val !== null); // TODO: Ask the Team. Currently filtering null
+          .filter((val: any) => val !== null);
         const sum = values.reduce((acc: number, val: number) => acc + val, 0);
         const average = values.length > 0 ? sum / values.length : 0;
         countryAverages[country.country] = average;

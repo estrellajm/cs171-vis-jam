@@ -1,15 +1,9 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RadarComponent } from './radar.component';
-
-
+import { NgModule } from '@angular/core';
+import { RadarComponent } from './radar.data';
 
 @NgModule({
-  declarations: [
-    RadarComponent
-  ],
-  imports: [
-    CommonModule
-  ]
+  declarations: [RadarComponent],
+  imports: [CommonModule],
 })
-export class RadarModule { }
+export class RadarModule {}
