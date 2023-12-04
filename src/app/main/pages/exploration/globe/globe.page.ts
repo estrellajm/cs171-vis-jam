@@ -77,7 +77,7 @@ export class GlobePage {
       this.years$ = this.route.data.pipe(
         map((data) =>
           data['data'].countries[0][data['path']]
-            .map((item: { Year: any }) => item.Year)
+            .map((item: { year: any }) => item.year)
             .reverse()
         )
       );
