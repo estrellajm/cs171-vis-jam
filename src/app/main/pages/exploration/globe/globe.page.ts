@@ -102,11 +102,11 @@ export class GlobePage {
   }
 
   changeCategory(newCategory: string) {
-    this.categoryForm.patchValue({ selectedCategory: newCategory });
+    this.categoryForm.patchValue({ category: newCategory });
     this.showCategoryDropdown = false;
   }
   changeYear(newYear: number) {
-    this.categoryForm.patchValue({ selectedYear: newYear });
+    this.categoryForm.patchValue({ year: newYear });
     this.showYearDropdown = false;
   }
 

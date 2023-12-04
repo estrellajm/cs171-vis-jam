@@ -68,10 +68,18 @@ export class GlobeEarthComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.loadData();
+    this.selectedValues$.subscribe((change) => {
+      console.log(change);
+      this.variable = change.category;
+      this.year = change.year;
+      this.wrangleData();
+    });
   }
 
   initVis() {
     let vis = this;
+    vis.variable = vis.selectedValues.category;
+    vis.year = 2018;
 
     vis.margin = { top: 0, right: 0, bottom: 0, left: 0 };
     vis.width =
@@ -133,51 +141,47 @@ export class GlobeEarthComponent implements AfterViewInit {
     const initialScale = vis.projection.scale();
 
     // Define Zoom Behavior
-    const zoom = d3.zoom()
-        .on('zoom', (event) => {
-            // Check if the zoom scale is above the minimum threshold
-            if (event.transform.k > 0.3) {
-                // Update the projection scale based on zoom level
-                vis.projection.scale(initialScale * event.transform.k);
+    const zoom = d3.zoom().on('zoom', (event) => {
+      // Check if the zoom scale is above the minimum threshold
+      if (event.transform.k > 0.3) {
+        // Update the projection scale based on zoom level
+        vis.projection.scale(initialScale * event.transform.k);
 
-                // Update the path generator with the new projection
-                vis.path = d3.geoPath().projection(vis.projection);
+        // Update the path generator with the new projection
+        vis.path = d3.geoPath().projection(vis.projection);
 
-                // Apply the updated path to all country elements
-                vis.svg.selectAll('path')
-                    .attr('d', vis.path);
+        // Apply the updated path to all country elements
+        vis.svg.selectAll('path').attr('d', vis.path);
 
-                // Optionally, update the radius of the globe if it's a sphere
-                // vis.svg.select('.sphere').attr('r', vis.projection.scale());
-            } else {
-                // Prevent zooming out too much
-                event.transform.k = 0.3;
+        // Optionally, update the radius of the globe if it's a sphere
+        // vis.svg.select('.sphere').attr('r', vis.projection.scale());
+      } else {
+        // Prevent zooming out too much
+        event.transform.k = 0.3;
+      }
+    });
+
+    vis.svg
+      .call(
+        d3
+          .drag()
+          .on('start', function (event) {
+            var lastRotationParams = vis.projection.rotate();
+            m0 = [event.x, event.y];
+            o0 = [-lastRotationParams[0], -lastRotationParams[1]];
+          })
+          .on('drag', function (event) {
+            if (m0) {
+              var m1 = [event.x, event.y],
+                o1 = [o0[0] + (m0[0] - m1[0]) / 4, o0[1] + (m1[1] - m0[1]) / 4];
+              vis.projection.rotate([-o1[0], -o1[1]]);
             }
-        });
 
-
-    // Apply Zoom Behavior to the SVG
-    vis.svg.call(zoom);
-
-    vis.svg.call(
-      d3
-        .drag()
-        .on('start', function (event) {
-          var lastRotationParams = vis.projection.rotate();
-          m0 = [event.x, event.y];
-          o0 = [-lastRotationParams[0], -lastRotationParams[1]];
-        })
-        .on('drag', function (event) {
-          if (m0) {
-            var m1 = [event.x, event.y],
-              o1 = [o0[0] + (m0[0] - m1[0]) / 4, o0[1] + (m1[1] - m0[1]) / 4];
-            vis.projection.rotate([-o1[0], -o1[1]]);
-          }
-
-          // Update the map (countries and graticule)
-          vis.svg.selectAll('.country').attr('d', vis.path);
-        })
-    );
+            // Update the map (countries and graticule)
+            vis.svg.selectAll('.country').attr('d', vis.path);
+          })
+      )
+      .call(zoom);
 
     const legendWidth = 200;
     const legendHeight = 10;
@@ -249,9 +253,6 @@ export class GlobeEarthComponent implements AfterViewInit {
 
   wrangleData() {
     let vis = this;
-
-    vis.variable = vis.selectedValues.category; // getSelectedValues('varSelector')[0];
-    vis.year = 2018; // getSelectedValues('yearSelector').map(year => +year);
 
     vis.countryInfo = {};
     vis.radarRawData = {};
