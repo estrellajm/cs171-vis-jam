@@ -220,7 +220,7 @@ export class GlobeEarthComponent implements AfterViewInit {
   wrangleData() {
     let vis = this;
 
-    vis.variable = 'Literacy rate (% of population 15+)'; // getSelectedValues('varSelector')[0];
+    vis.variable = vis.selectedValues.category; // getSelectedValues('varSelector')[0];
     vis.year = 2018; // getSelectedValues('yearSelector').map(year => +year);
 
     vis.countryInfo = {};
@@ -244,19 +244,16 @@ export class GlobeEarthComponent implements AfterViewInit {
           }
         }
       });
-      console.log(vis.year);
-      
+
       vis.countryInfo[d.country] = {
         value: history[vis.year],
         color: vis.colorScale(history[vis.year]),
         history: history,
       };
 
-      console.log(vis.countryInfo);
-      
+      // console.log(history);
+      // console.log(vis.countryInfo);
     });
-
-    console.log(vis.radarRawData);
 
     // define variables for which it is better to have smaller value
     let ascending = [
@@ -292,24 +289,22 @@ export class GlobeEarthComponent implements AfterViewInit {
       }
     }
 
-    console.log(vis.radarData);
-
     vis.updateVis();
   }
 
   updateVis() {
     let vis = this;
-    console.log(vis.radarData);
+
     vis.colorScale.domain(
       d3.extent(Object.values(vis.countryInfo), (d: any) => d.value)
     );
-    console.log(d3.max(Object.values(vis.countryInfo), (d: any) => d.value));
+    // console.log(d3.max(Object.values(vis.countryInfo), (d: any) => d.value));
     vis.countries
       .attr('fill', (d: any) => {
         let countryName = d.properties.name;
         return vis.countryInfo[countryName]
           ? vis.colorScale(vis.countryInfo[countryName].value)
-          : 'transparent';
+          : 'black';
       })
       .attr('stroke', '#000566') // Set the stroke color for the country borders
       .attr('stroke-width', '1px')
@@ -339,6 +334,23 @@ export class GlobeEarthComponent implements AfterViewInit {
           let tooltipOffsetX = 10;
           let tooltipOffsetY = 20;
 
+          const formatValue = (val: any) => {
+            return new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: 'USD',
+            }).format(val);
+            // const dollars = [
+            //   'GDP per capita (constant 2015 US$)',
+            //   'Final consumption expenditure per capita (constant 2015 US$)',
+            // ];
+            // if (dollars.includes(vis.variable))
+            //   return new Intl.NumberFormat('en-US', {
+            //     style: 'currency',
+            //     currency: 'USD',
+            //   }).format(val);
+            // return val;
+          };
+
           // Show the tooltip
           vis.tooltip
             .style('position', 'absolute')
@@ -351,16 +363,20 @@ export class GlobeEarthComponent implements AfterViewInit {
             .style('border-radius', '12px')
             .style('background', '#FFF')
             .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
-                    <div style="padding: 20px;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <h2>${countryName}</h2>
-                            <h2>${vis.year}</h2>
-                        </div>
-                        <p class='data-point'>${vis.variable}</p>
-                        <p class='value'>${dataPoint.value}</p>
-                        <svg id="timeseries-chart" width="325" height="100"></svg>
-                    </div>
-                `);
+              <div class="p-5 space-y-1">
+                <div class="flex justify-between">
+                  <h2 class="font-bold text-[#09119F] text-xl">${countryName}</h2>
+                  <h2 class="font-bold text-[#09119F] text-xl">
+                    ${vis.year}
+                  </h2>
+                </div>
+                <p class='data-point'>${vis.variable}</p>
+                <p class='font-bold text-[#09119F]'>${formatValue(
+                  dataPoint.value
+                )}</p>
+                <svg id="timeseries-chart" width="325" height="100"></svg>
+              </div>
+            `);
 
           const svg = d3.select('#timeseries-chart');
 
@@ -406,8 +422,6 @@ export class GlobeEarthComponent implements AfterViewInit {
             .selectAll('line')
             .attr('stroke-width', 1);
 
-            console.log(filteredHistory);
-            
           // Add the line
           chart
             .append('path')
