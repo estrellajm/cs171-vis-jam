@@ -20,6 +20,7 @@ export class RotatingEarthComponent implements OnInit {
   private initGlobe(parentElement: string, data: any): void {
     let width = 500;
     const height = 500;
+    const sensitivity = 50
 
     const projection = d3
       .geoOrthographic()
@@ -64,12 +65,12 @@ export class RotatingEarthComponent implements OnInit {
 
     // rotate
     /** BUG: Code below is causing '[Violation] 'setTimeout' handler took 66ms' */
-    // d3.timer(function (elapsed) {
-    //   const rotate = projection.rotate();
-    //   const k = sensitivity / projection.scale();
-    //   projection.rotate([rotate[0] + 1 * k, rotate[1]]);
-    //   path = d3.geoPath().projection(projection);
-    //   svg.selectAll('path').attr('d', path as any);
-    // }, 200);
+    d3.timer(function (elapsed) {
+      const rotate = projection.rotate();
+      const k = sensitivity / projection.scale();
+      projection.rotate([rotate[0] + 1 * k, rotate[1]]);
+      path = d3.geoPath().projection(projection);
+      svg.selectAll('path').attr('d', path as any);
+    }, 200);
   }
 }
