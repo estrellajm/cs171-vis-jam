@@ -11,7 +11,7 @@ import * as topojson from 'topojson-client';
 })
 export class RotatingEarthComponent implements OnInit {
   ngOnInit() {
-    d3.json('assets/data/world.json').then((data: any) => {
+    d3.json('assets/archive/world.json').then((data: any) => {
       const world = topojson.feature(data, data.objects.countries);
       this.initGlobe('rotating-globe', world);
     });
@@ -55,10 +55,7 @@ export class RotatingEarthComponent implements OnInit {
       .data(data.features)
       .enter()
       .append('path')
-      .attr(
-        'class',
-        (d: any) => 'country_' + d.properties.name.replace(' ', '_')
-      )
+      .attr('class', (d: any) => 'country_' + d.properties.name.replace(' ', '_'))
       .attr('d', path as any)
       .attr('fill', '#09119F')
       .style('stroke', 'black')
