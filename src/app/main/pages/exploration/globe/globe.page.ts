@@ -84,7 +84,7 @@ export class GlobePage {
       this.title = data['path'];
       this.data = {
         ...data['data'],
-        year: this.categoryForm.value.selectedCategory,
+        year: this.categoryForm.value.year,
       };
     });
 
