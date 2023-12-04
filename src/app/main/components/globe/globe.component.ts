@@ -73,7 +73,7 @@ export class GlobeEarthComponent implements AfterViewInit {
   initVis() {
     let vis = this;
 
-    vis.margin = { top: 20, right: 20, bottom: 20, left: 20 };
+    vis.margin = { top: 0, right: 0, bottom: 0, left: 0 };
     vis.width =
       this.globeContainer.nativeElement.offsetWidth -
       vis.margin.left -
@@ -128,6 +128,36 @@ export class GlobeEarthComponent implements AfterViewInit {
       .style('opacity', 0);
 
     let m0: any, o0: any;
+
+    // Store the initial scale of the projection
+    const initialScale = vis.projection.scale();
+
+    // Define Zoom Behavior
+    const zoom = d3.zoom()
+        .on('zoom', (event) => {
+            // Check if the zoom scale is above the minimum threshold
+            if (event.transform.k > 0.3) {
+                // Update the projection scale based on zoom level
+                vis.projection.scale(initialScale * event.transform.k);
+
+                // Update the path generator with the new projection
+                vis.path = d3.geoPath().projection(vis.projection);
+
+                // Apply the updated path to all country elements
+                vis.svg.selectAll('path')
+                    .attr('d', vis.path);
+
+                // Optionally, update the radius of the globe if it's a sphere
+                // vis.svg.select('.sphere').attr('r', vis.projection.scale());
+            } else {
+                // Prevent zooming out too much
+                event.transform.k = 0.3;
+            }
+        });
+
+
+    // Apply Zoom Behavior to the SVG
+    vis.svg.call(zoom);
 
     vis.svg.call(
       d3
@@ -338,16 +368,6 @@ export class GlobeEarthComponent implements AfterViewInit {
               style: 'currency',
               currency: 'USD',
             }).format(val);
-            // const dollars = [
-            //   'GDP per capita (constant 2015 US$)',
-            //   'Final consumption expenditure per capita (constant 2015 US$)',
-            // ];
-            // if (dollars.includes(vis.variable))
-            //   return new Intl.NumberFormat('en-US', {
-            //     style: 'currency',
-            //     currency: 'USD',
-            //   }).format(val);
-            // return val;
           };
 
           // Show the tooltip
