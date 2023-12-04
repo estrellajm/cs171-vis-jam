@@ -45,7 +45,7 @@ export class GlobeEarthComponent implements AfterViewInit {
       console.log(a);
     });
 
-    this.autoOpenDialog();
+    // this.autoOpenDialog();
   }
 
   autoOpenDialog() {
