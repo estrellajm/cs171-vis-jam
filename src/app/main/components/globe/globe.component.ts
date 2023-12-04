@@ -10,8 +10,6 @@ import {
   ViewContainerRef,
   inject,
 } from '@angular/core';
-import { TooltipComponent } from './tooltip/tooltip.component'; // Assume you have a TooltipComponent
-
 import * as d3 from 'd3';
 import { Observable } from 'rxjs';
 import * as topojson from 'topojson-client';
@@ -21,7 +19,7 @@ import { DialogService } from '@services/dialog/dialog.service';
   selector: 'jam-globe-component',
   standalone: true,
   imports: [CommonModule],
-  template: `<div #globeContainer id="globe-data" class="w-full h-full"></div>`,
+  template: `<div #globeContainer id="globeDiv" class="w-full h-full"></div>`,
 })
 export class GlobeEarthComponent implements AfterViewInit {
   @Input() data: any;
@@ -31,506 +29,175 @@ export class GlobeEarthComponent implements AfterViewInit {
   @ViewChild('globeContainer') globeContainer: ElementRef;
 
   private dialogService = inject(DialogService);
-  private overlayRef: OverlayRef;
 
-  constructor(
-    private overlay: Overlay,
-    private viewContainerRef: ViewContainerRef
-  ) {}
+  parentElement: any;
+  geoData: any;
+  category: any;
+  margin: any;
+  width: any;
+  height: any;
+  world: any;
+  path: any;
+  svg: any;
+  countries: any;
+  tooltip: any;
+  projection: any;
+  legend: any;
+  variable: any;
+  year: any;
+  countryInfo: any;
+  radarRawData: any;
+  radarDataByVariable: any;
+  colorScale: any;
+  radarData: any;
 
-  async ngAfterViewInit() {
-    this.initGlobe();
-    /** below will listen for changes in the selected values */
-    this.selectedValues$.subscribe((a) => {
-      console.log(a);
+  constructor() {}
+
+  async loadData() {
+    const world = await d3.json(
+      'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
+    );
+    const countries = await d3.json('assets/data/wd_indicators.json');
+
+    this.parentElement = 'globeDiv';
+    this.geoData = world;
+    this.data = countries;
+    this.category = this.title;
+    this.initVis();
+  }
+
+  ngAfterViewInit(): void {
+    this.loadData();
+    this.selectedValues$.subscribe((change) => {
+      console.log(change);
+      this.variable = change.category;
+      this.year = change.year;
+      this.wrangleData();
     });
-
-    // this.autoOpenDialog();
   }
 
-  autoOpenDialog() {
-    const cc = {
-      name: 'United States',
-      code: 'USA',
-      year: 2018,
-      average: 0.37,
-      color: 'rgb(36, 212, 166)',
-      category: 'CO2 emissions (kg per 2015 US$ of GDP)',
-      environment: {
-        '1960': null,
-        '1983': null,
-        '1997': 0.46,
-        '1998': 0.44,
-        '1999': 0.42,
-        '2000': 0.42,
-        '2001': 0.41,
-        '2002': 0.4,
-        '2003': 0.39,
-        '2004': 0.38,
-        '2005': 0.37,
-        '2006': 0.35,
-        '2007': 0.35,
-        '2008': 0.34,
-        '2009': 0.32,
-        '2010': 0.33,
-        '2011': 0.31,
-        '2012': 0.29,
-        '2013': 0.29,
-        '2014': 0.29,
-        '2015': 0.27,
-        '2016': 0.26,
-        '2017': 0.25,
-        '2018': 0.26,
-        '2019': 0.24,
-        '2020': 0.22,
-        '2021': null,
-        '2022': null,
-      },
-    };
-    this.dialogService.openDialog(cc);
-  }
+  initVis() {
+    let vis = this;
+    vis.variable = vis.selectedValues.category;
+    vis.year = 2018;
 
-  private initGlobe(): void {
-    const ng = this;
-    const width = this.globeContainer.nativeElement.offsetWidth;
-    const height = this.globeContainer.nativeElement.offsetHeight;
-    const sensitivity = 50;
-    const parentElement = 'globe-data';
-    const geoData = this.data.world;
+    vis.margin = { top: 0, right: 0, bottom: 0, left: 0 };
+    vis.width =
+      this.globeContainer.nativeElement.offsetWidth -
+      vis.margin.left -
+      vis.margin.right;
+    vis.height =
+      this.globeContainer.nativeElement.offsetHeight -
+      vis.margin.top -
+      vis.margin.bottom;
 
-    /** Use the function below to compare the data
-     * between the world and dataset
-     */
-    // this.compareDataToWorld();
-
-    /** INITIALIZATIONS */
-    let projection = d3
-      .geoOrthographic()
-      .scale(width / 2)
-      .center([0, 0])
-      .rotate([100, 0])
-      .translate([width / 2, height / 2]);
-
-    const initialScale = projection.scale();
-    let path = d3.geoPath().projection(projection);
-
-    /** Globe Init */
-    const svg = d3
-      .select(`#${parentElement}`)
+    // init drawing area
+    vis.svg = d3
+      .select('#' + vis.parentElement)
       .append('svg')
-      .attr('width', width)
-      .attr('height', height);
+      .attr('width', vis.width)
+      .attr('height', vis.height)
+      .attr('transform', `translate (${vis.margin.left}, ${vis.margin.top})`);
 
-    const globe = svg
-      .append('circle')
+    vis.colorScale = d3.scaleLog();
+
+    vis.colorScale.range(['rgba(36, 212, 166, 0.2)', 'rgba(36, 212, 166, 1)']);
+
+    // projection
+    vis.projection = d3
+      .geoOrthographic()
+      .translate([vis.width / 2, vis.height / 2]);
+
+    vis.path = d3.geoPath().projection(vis.projection);
+
+    vis.svg
+      .append('path')
+      .datum({ type: 'Sphere' })
+      .attr('class', 'sphere')
+      .attr('d', vis.path)
       .attr('fill', '#070b5d')
-      .attr('stroke', '#000')
-      .attr('stroke-width', '0.2')
-      .attr('cx', width / 2)
-      .attr('cy', height / 2)
-      .attr('r', initialScale);
+      .attr('stroke', 'none');
 
-    const getMaxAverage = (data: any, key: string) => {
-      const countryAverages: any = {};
+    vis.world = topojson.feature(vis.geoData, vis.geoData.objects.countries);
 
-      data.forEach((country: any) => {
-        const values = country[ng.title]
-          .map((econ: any) => econ[key])
-          .filter((val: any) => val !== null);
-        const sum = values.reduce((acc: number, val: number) => acc + val, 0);
-        const average = values.length > 0 ? sum / values.length : 0;
-        countryAverages[country.country] = average;
-      });
-      const averages: number[] = [
-        ...Object.values(countryAverages),
-      ] as number[];
-      const maxAverage = Math.max(...averages);
-      return { countryAverages, maxAverage };
-    };
-
-    const { countryAverages, maxAverage } = getMaxAverage(
-      ng.data.countries,
-      ng.selectedValues.category
-    );
-
-    // console.log('Average GDP per Capita per Country:', countryAverages);
-    // console.log('Highest Average GDP per Capita:', maxAverage);
-
-    const colorScale = d3
-      .scaleLinear()
-      .domain([0, maxAverage / 10]) // Assuming the value is normalized between 0 and 1
-      .range(['rgba(36, 212, 166, 0.2)', 'rgba(36, 212, 166, 1)'] as any);
-
-    /** Code below is to sort */
-    // Convert the countryGDP object into an array of [country, gdp] pairs
-    const countryGDPArray = Object.entries(countryAverages);
-
-    // Sort the array by GDP value in descending order
-    const sortedCountryGDPArray = countryGDPArray.sort(
-      (a: any, b: any) => b[1] - a[1]
-    );
-    // console.log(sortedCountryGDPArray);
-
-    const twoDecimalPlaces = (val: number | null): number | null => {
-      if (!val) return null;
-      return +val.toFixed(2);
-    };
-    function transformData(data: any, category: string) {
-      // console.log(data);
-
-      const years: any = {};
-      data.map((cat: any) => {
-        years[cat.Year] = twoDecimalPlaces(cat[category]);
-      });
-      return years;
-    }
-
-    /** DATA PROCESSING */
-    const worldData: any = {};
-    for (let d of ng.data.countries) {
-      const name = d.country;
-      const code = d.code;
-      const year = ng.selectedValues.year;
-      const category = ng.selectedValues.category;
-      const average = twoDecimalPlaces(countryAverages[name]) ?? 0;
-      const color = colorScale(average);
-
-      worldData[d.country] = {
-        name,
-        code,
-        year,
-        average,
-        color,
-        category,
-        [ng.title]: transformData(d[ng.title], category),
-      };
-    }
-
-    /** get geoData */
-    const world = topojson.feature(geoData, geoData.objects.countries) as any;
-
-    /** Add the countries */
-    const countries = svg
+    vis.countries = vis.svg
       .selectAll('.country')
-      .data(world.features)
+      .data(vis.world.features)
       .enter()
       .append('path')
-      .attr(
-        'class',
-        (d: any) => 'country_' + d.properties.name.replace(' ', '_')
-      )
       .attr('class', 'country')
-      .attr('d', path as any)
-      .attr('fill', '#09119F')
-      .style('stroke', 'black')
-      .style('stroke-width', 0.5)
-      .style('opacity', 0.8);
+      .attr('d', vis.path)
+      .attr('fill', 'transparent');
 
-    /** Create the tooltip div */
-    const tooltip = d3
+    vis.tooltip = d3
       .select('body')
       .append('div')
       .attr('class', 'tooltip')
       .style('opacity', 0);
 
-    /** Draw the legend */
-    ng.legend({ svg, height, width });
+    let m0: any, o0: any;
 
-    /** fill map color */
-    countries
-      .attr('fill', (d: any) => {
-        const countryName = d.properties.name;
-        return worldData[countryName] ? worldData[countryName].color : 'black';
-      })
-      .attr('stroke', '#000566') // Set the stroke color for the country borders
-      .attr('stroke-width', '1px')
-      .on('click', (event: PointerEvent, d: any) => {
-        let countryName = d.properties.name;
-        const country = worldData[countryName];
-        ng.dialogService.openDialog(country);
-      })
-      .on('mouseover', function (event: PointerEvent, d: any) {
-        // TODO: extract tooltip to component
-        // this.showTooltip(event, worldData[countryName]);
+    // Store the initial scale of the projection
+    const initialScale = vis.projection.scale();
 
-        // Highlight the country path
-        d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
+    // Define Zoom Behavior
+    const zoom = d3.zoom().on('zoom', (event) => {
+      // Check if the zoom scale is above the minimum threshold
+      if (event.transform.k > 0.3) {
+        // Update the projection scale based on zoom level
+        vis.projection.scale(initialScale * event.transform.k);
 
-        let countryName = d.properties.name;
-        const country = worldData[countryName];
+        // Update the path generator with the new projection
+        vis.path = d3.geoPath().projection(vis.projection);
 
-        if (!country) return;
+        // Apply the updated path to all country elements
+        vis.svg.selectAll('path').attr('d', vis.path);
 
-        const tooltipOffsetX = 10; // Horizontal offset from the cursor position
-        const tooltipOffsetY = 20;
-
-        const formatValue = (val: any) => {
-          const dollars = [
-            'GDP per capita (constant 2015 US$)',
-            'Final consumption expenditure per capita (constant 2015 US$)',
-          ];
-          if (dollars.includes(country.category))
-            return new Intl.NumberFormat('en-US', {
-              style: 'currency',
-              currency: 'USD',
-            }).format(val);
-          return val;
-        };
-
-        // Show the tooltip
-        tooltip
-          .style('position', 'absolute')
-          .style('opacity', 1)
-          .style('left', event.pageX + tooltipOffsetX + 'px')
-          .style('top', event.pageY + tooltipOffsetY + 'px')
-          .style('width', '379px')
-          .style('flex-shrink', 0)
-          .style('border-radius', '12px')
-          .style('background', '#FFF')
-          .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
-            <div class="p-5 space-y-1">
-                <div class="flex justify-between">
-                    <h2 class="font-bold text-[#09119F] text-xl">${countryName}</h2>
-                    <!-- <h2 class="font-bold text-[#09119F] text-xl">
-                    ${country.year}
-                    </h2> -->
-                </div>
-                <p class='data-point'>${ng.selectedValues.category}</p>
-                <p class='font-bold text-[#09119F]'>${formatValue(
-                  country.average
-                )}</p>
-                <svg id="timeseries-chart" width="325" height="100"></svg>
-            </div>
-          `);
-
-        const svg = d3.select('#timeseries-chart');
-
-        // Set the dimensions and margins of the graph
-        const margin = { top: 10, right: 10, bottom: 20, left: 30 },
-          width = +svg.attr('width') - margin.left - margin.right,
-          height = +svg.attr('height') - margin.top - margin.bottom;
-
-        // Append the SVG object to the body of the tooltip
-        const chart = svg
-          .append('g')
-          .attr('transform', `translate(${margin.left},${margin.top})`);
-
-        const arrayOfObjects = Object.entries(country[ng.title]).map(
-          ([year, value]) => ({
-            year: new Date(+year, 0, 1),
-            value: value ?? 0,
-          })
-        );
-
-        // Add X scale and axis
-        const x = d3
-          .scaleTime()
-          .domain(d3.extent(arrayOfObjects, (d) => d.year) as any)
-          .range([0, width]);
-
-        chart
-          .append('g')
-          .attr('transform', `translate(0, ${height})`)
-          .call(d3.axisBottom(x).ticks(6))
-          .attr('color', '#BABABA')
-          .selectAll('line')
-          .attr('stroke-width', 1);
-
-        // Add Y scale
-        const y = d3
-          .scaleLinear()
-          .domain([0, d3.max(arrayOfObjects, (d: any) => d.value)] as any)
-          .range([height, 0]);
-
-        // Add the line
-        chart
-          .append('path')
-          .datum(arrayOfObjects)
-          .attr('fill', 'none')
-          .attr('stroke', '#09119F')
-          .attr('stroke-width', 4)
-          .attr('stroke-linejoin', 'round')
-          .attr('stroke-linecap', 'round')
-          .attr(
-            'd',
-            d3
-              .line()
-              .curve(d3.curveBasis) // This creates the curved corners in the line
-              .x((d: any) => x(d.year))
-              .y((d: any) => y(d.value)) as any
-          );
-      })
-      .on('mouseout', function (event, d) {
-        // Hide the tooltip
-        d3.select(this)
-          .attr('stroke', '#000566') // Set the stroke color for the country borders
-          .attr('stroke-width', '1px');
-        tooltip.style('opacity', 0).style('left', '0px').style('top', '0px');
-      });
-
-    /** Code below adds 'drag' and 'zoom' */
-    svg
-      .call(
-        d3.drag().on('drag', (event) => {
-          const rotate = projection.rotate();
-          const k = sensitivity / projection.scale();
-          projection.rotate([
-            rotate[0] + event.dx * k,
-            rotate[1] - event.dy * k,
-            // rotate[1] /** disable Y rotation */,
-          ]);
-          path = d3.geoPath().projection(projection);
-          svg.selectAll('path').attr('d', path as any);
-        }) as any
-      )
-      .call(
-        d3.zoom().on('zoom', (event) => {
-          if (event.transform.k > 0.3) {
-            projection.scale(initialScale * event.transform.k);
-            path = d3.geoPath().projection(projection);
-            svg.selectAll('path').attr('d', path as any);
-            globe.attr('r', projection.scale());
-          } else {
-            event.transform.k = 0.3;
-          }
-        }) as any
-      );
-
-    /** --- Code below is for the Reset Rotation --- **/
-    // Select the parent element where the button will be appended
-    let parentEl = d3.select(`#${parentElement}`);
-    // Ensure the parent element is positioned relatively
-    parentEl.style('position', 'relative');
-    // Assume zoom is the d3.zoom() behavior attached to your SVG
-    let zoom = d3
-      .zoom()
-      // your zoom configuration here
-      .on('zoom', zoomed);
-
-    // Function to handle zooming
-    function zoomed(event: any) {
-      svg.attr('transform', event.transform);
-    }
-    // Append a button, set its text, and style it for top-left positioning
-    let resetButton = parentEl
-      .append('button')
-      .text('Reset Rotation')
-      .style('position', 'absolute')
-      .style('top', '10px')
-      .style('left', '10px')
-      .on('click', () => {
-        // Reset projection
-        projection = d3
-          .geoOrthographic()
-          .scale(250)
-          .center([0, 0])
-          .rotate([0, 0])
-          .translate([width / 2, height / 2]);
-
-        // Redraw the globe and paths
-        path = d3.geoPath().projection(projection);
-        svg.selectAll('path').attr('d', path as any);
-        globe.attr('r', projection.scale());
-
-        // Reset zoom
-        svg
-          /** transition and duration might be smooth, but start at full page width */
-          // .transition()
-          // .duration(500)
-          .call(zoom.transform as any, d3.zoomIdentity); // Reset zoom
-      });
-  }
-
-  // Assuming you have a method to create and return a position strategy
-  getPositionStrategy(x: number, y: number) {
-    return this.overlay
-      .position()
-      .flexibleConnectedTo({ x, y })
-      .withPositions([
-        {
-          originX: 'center',
-          originY: 'bottom',
-          overlayX: 'center',
-          overlayY: 'top',
-          offsetY: -10,
-        },
-      ]);
-  }
-
-  showTooltip(event: MouseEvent, country: any) {
-    // Close any existing tooltip overlays
-    this.hideTooltip();
-
-    // Use the event coordinates to set up the initial position strategy
-    const positionStrategy = this.getPositionStrategy(
-      event.clientX,
-      event.clientY
-    );
-
-    // Create the overlay with the initial position strategy
-    const overlayConfig = new OverlayConfig({
-      positionStrategy,
-      hasBackdrop: false,
-      panelClass: 'tooltip-panel',
-      scrollStrategy: this.overlay.scrollStrategies.reposition(),
-      height: '400px',
-      width: '600px',
+        // Optionally, update the radius of the globe if it's a sphere
+        // vis.svg.select('.sphere').attr('r', vis.projection.scale());
+      } else {
+        // Prevent zooming out too much
+        event.transform.k = 0.3;
+      }
     });
 
-    this.overlayRef = this.overlay.create(overlayConfig);
+    vis.svg
+      .call(
+        d3
+          .drag()
+          .on('start', function (event) {
+            var lastRotationParams = vis.projection.rotate();
+            m0 = [event.x, event.y];
+            o0 = [-lastRotationParams[0], -lastRotationParams[1]];
+          })
+          .on('drag', function (event) {
+            if (m0) {
+              var m1 = [event.x, event.y],
+                o1 = [o0[0] + (m0[0] - m1[0]) / 4, o0[1] + (m1[1] - m0[1]) / 4];
+              vis.projection.rotate([-o1[0], -o1[1]]);
+            }
 
-    // Attach the TooltipComponent to the overlay
-    const tooltipPortal = new ComponentPortal(
-      TooltipComponent,
-      this.viewContainerRef
-    );
-    const tooltipRef = this.overlayRef.attach(tooltipPortal);
-    tooltipRef.instance.text = country.name;
+            // Update the map (countries and graticule)
+            vis.svg.selectAll('.country').attr('d', vis.path);
+          })
+      )
+      .call(zoom);
 
-    // // Function to update the position of the tooltip
-    // const updatePosition = (e: MouseEvent) => {
-    //   // Update the position strategy with the new mouse position
-    //   this.overlayRef.updatePositionStrategy(
-    //     this.getPositionStrategy(e.clientX, e.clientY)
-    //   );
-    //   // Manually trigger an update of the overlay's position
-    //   this.overlayRef.updatePosition();
-    // };
-
-    // // Add mouse move listener to update the tooltip position
-    // window.addEventListener('mousemove', updatePosition);
-
-    // // Subscribe to the overlay's disposal to remove the event listener
-    // this.overlayRef.detachments().subscribe(() => {
-    //   window.removeEventListener('mousemove', updatePosition);
-    // });
-  }
-
-  hideTooltip() {
-    if (this.overlayRef) {
-      this.overlayRef.detach();
-    }
-  }
-
-  private addResetRotation() {}
-
-  private legend(earth: { svg: any; height: number; width: number }) {
-    /** LEGEND */
     const legendWidth = 200;
     const legendHeight = 10;
     const legendPosition = {
-      x: earth.width - legendWidth - 20,
-      y: earth.height - legendHeight - 20,
+      x: vis.width - legendWidth - 20,
+      y: vis.height - legendHeight - 20,
     };
 
     // Create a legend group
-    const legend = earth.svg
+    vis.legend = vis.svg
       .append('g')
       .attr('class', 'legend')
       .attr('transform', `translate(${legendPosition.x}, ${legendPosition.y})`);
 
     // Draw the legend gradient rectangles
-    const defs = earth.svg.append('defs');
+    const defs = vis.svg.append('defs');
     const gradient = defs
       .append('linearGradient')
       .attr('id', 'gradient')
@@ -551,8 +218,14 @@ export class GlobeEarthComponent implements AfterViewInit {
       .attr('offset', '100%')
       .attr('stop-color', 'rgba(36, 212, 166, 1)');
 
+    // Create a legend group
+    vis.legend = vis.svg
+      .append('g')
+      .attr('class', 'legend')
+      .attr('transform', `translate(${legendPosition.x}, ${legendPosition.y})`);
+
     // Draw the legend rectangle and fill it with the gradient
-    legend
+    vis.legend
       .append('rect')
       .attr('x', 0)
       .attr('y', 0)
@@ -561,98 +234,245 @@ export class GlobeEarthComponent implements AfterViewInit {
       .style('fill', 'url(#gradient)');
 
     // Add legend min/max labels
-    legend
+    vis.legend
       .append('text')
       .attr('x', 0)
       .attr('y', legendHeight + 15)
       .style('text-anchor', 'start')
       .text('Low');
 
-    legend
+    vis.legend
       .append('text')
       .attr('x', legendWidth)
       .attr('y', legendHeight + 15)
       .style('text-anchor', 'end')
       .text('High');
+
+    vis.wrangleData();
   }
 
-  private compareDataToWorld() {
-    function findDifferences(array1: any, array2: any) {
-      const uniqueInFirst = array1
-        .filter((element: any) => !array2.includes(element))
-        .sort();
-      const uniqueInSecond = array2
-        .filter((element: any) => !array1.includes(element))
-        .sort();
+  wrangleData() {
+    let vis = this;
 
-      return {
-        uniqueInFirst,
-        uniqueInSecond,
-      };
-    }
+    vis.countryInfo = {};
+    vis.radarRawData = {};
+    vis.radarDataByVariable = {};
+    vis.data.forEach((d: any) => {
+      let history: any = {};
+      d[vis.category]?.forEach((yearObject: any) => {
+        history[yearObject.year] = yearObject[vis.variable];
 
-    const array1 = this.data.world.objects.countries.geometries.map(
-      (c: any) => c.properties.name
-    );
-    const array2 = this.data.countries.map((c: any) => c.country);
-    const differences = findDifferences(array1, array2);
-
-    const normalizeCountryName = (name: any) => {
-      return name
-        .toLowerCase()
-        .replace(/\./g, '') // Remove periods
-        .replace(/[^a-z\s]/g, '') // Remove punctuation
-        .replace(/\b(islands?|isle|is)\b/g, 'is') // Standardize 'Islands' abbreviation
-        .replace(/\b(republic|rep)\b/g, 'rep') // Standardize 'Republic' abbreviation
-        .replace(/\bdemocratic\b/g, 'dem') // Standardize 'Democratic' abbreviation
-        .replace(/\bthe\b/g, '') // Remove 'The' prefix
-        .replace(/\s+/g, ' ') // Collapse multiple spaces to a single space
-        .trim(); // Remove leading/trailing spaces
-    };
-
-    const findSimilarAndUniqueCountries = (worldArray: any, dataArray: any) => {
-      const normalizedData = dataArray.map(normalizeCountryName);
-      let matches: any = {};
-      let uniqueInWorld: any = [];
-      let uniqueInData = normalizedData.slice(); // Start with a copy of normalized data array
-
-      worldArray.forEach((country: any) => {
-        const normalizedCountry = normalizeCountryName(country);
-        const indexInData = normalizedData.findIndex(
-          (dataCountry: any) =>
-            dataCountry === normalizedCountry ||
-            dataCountry.includes(normalizedCountry) ||
-            normalizedCountry.includes(dataCountry)
-        );
-
-        if (indexInData > -1) {
-          // If a match is found, add to matches and remove from uniqueInData
-          matches[country] = dataArray[indexInData];
-          uniqueInData.splice(indexInData, 1);
-        } else {
-          // If no match is found, add to uniqueInWorld
-          uniqueInWorld.push(country);
+        if (yearObject.year === vis.year) {
+          vis.radarRawData[d.country] = {};
+          for (let variable in yearObject) {
+            if (variable !== 'year' && yearObject[variable] !== null) {
+              vis.radarRawData[d.country][variable] = yearObject[variable];
+              if (!vis.radarDataByVariable.hasOwnProperty(variable)) {
+                vis.radarDataByVariable[variable] = [];
+              }
+              vis.radarDataByVariable[variable].push(yearObject[variable]);
+            }
+          }
         }
       });
 
-      return {
-        similar: matches,
-        uniqueInWorld: uniqueInWorld,
-        uniqueInData: uniqueInData.map(
-          (name: any, index: any) => dataArray[index]
-        ), // Map back to original names
+      vis.countryInfo[d.country] = {
+        value: history[vis.year],
+        color: vis.colorScale(history[vis.year]),
+        history: history,
       };
-    };
 
-    console.log('GeoData from World:', differences.uniqueInFirst);
-    console.log('Data from Team:', differences.uniqueInSecond);
-    const results = findSimilarAndUniqueCountries(
-      differences.uniqueInFirst,
-      differences.uniqueInSecond
+      // console.log(history);
+      // console.log(vis.countryInfo);
+    });
+
+    // define variables for which it is better to have smaller value
+    let ascending = [
+      'CO2 emissions per $ of GDP (kg, 2015 US$)',
+      'CO2 emissions per capita (tons)',
+      'Greenhouse gas emissions per capita (tons of CO2 equiv.)',
+    ];
+
+    for (let variable in vis.radarDataByVariable) {
+      if (ascending.includes(vis.variable)) {
+        vis.radarDataByVariable[variable].sort((a: any, b: any) => a - b);
+      } else {
+        vis.radarDataByVariable[variable].sort((a: any, b: any) => b - a);
+      }
+    }
+
+    vis.radarData = {};
+    for (let country in vis.radarRawData) {
+      vis.radarData[country] = [];
+      for (let variable in vis.radarRawData[country]) {
+        let value = vis.radarRawData[country][variable];
+        let rank = 1 + vis.radarDataByVariable[variable].indexOf(value);
+        let outOf = vis.radarDataByVariable[variable].length;
+        let scale = d3.scaleLinear().range([0, 100]).domain([outOf, 1]);
+        let axisValue = scale(rank);
+        vis.radarData[country].push({
+          axis: variable + ' ' + value + ' ' + rank + '/' + outOf,
+          axisValue: axisValue,
+          value: value,
+          rank: rank,
+          outOf: outOf,
+        });
+      }
+    }
+
+    vis.updateVis();
+  }
+
+  updateVis() {
+    let vis = this;
+
+    vis.colorScale.domain(
+      d3.extent(Object.values(vis.countryInfo), (d: any) => d.value)
     );
+    // console.log(d3.max(Object.values(vis.countryInfo), (d: any) => d.value));
+    vis.countries
+      .attr('fill', (d: any) => {
+        let countryName = d.properties.name;
+        return vis.countryInfo[countryName]
+          ? vis.colorScale(vis.countryInfo[countryName].value)
+          : 'black';
+      })
+      .attr('stroke', '#000566') // Set the stroke color for the country borders
+      .attr('stroke-width', '1px')
+      .on('click', (event: PointerEvent, d: any) => {
+        let countryName = d.properties.name;
+        const country = vis.countryInfo[countryName];
+        console.log(country);
+        // vis.dialogService.openDialog(country);
+      })
+      .on('mouseover', function (event: any, d: any) {
+        // Highlight the country path
+        d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
 
-    console.log('Similar countries:', results.similar);
-    console.log('Unique in world array:', results.uniqueInWorld);
-    console.log('Unique in data array:', results.uniqueInData);
+        let countryName = d.properties.name;
+
+        if (
+          vis.countryInfo.hasOwnProperty(countryName) &&
+          vis.countryInfo[countryName].value !== null
+        ) {
+          let dataPoint = vis.countryInfo[countryName];
+
+          let filteredHistory = Object.entries(dataPoint.history)
+            .filter((entry) => entry[1] !== null)
+            .map((entry) => [Number(entry[0]), entry[1]]);
+
+          let tooltipOffsetX = 10;
+          let tooltipOffsetY = 20;
+
+          const formatValue = (val: any) => {
+            return new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: 'USD',
+            }).format(val);
+          };
+
+          // Show the tooltip
+          vis.tooltip
+            .style('position', 'absolute')
+            .style('opacity', 1)
+            .style('left', event.pageX + tooltipOffsetX + 'px')
+            .style('top', event.pageY + tooltipOffsetY + 'px')
+            .style('width', '379px')
+            .style('height', '280px')
+            .style('flex-shrink', 0)
+            .style('border-radius', '12px')
+            .style('background', '#FFF')
+            .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
+              <div class="p-5 space-y-1">
+                <div class="flex justify-between">
+                  <h2 class="font-bold text-[#09119F] text-xl">${countryName}</h2>
+                  <h2 class="font-bold text-[#09119F] text-xl">
+                    ${vis.year}
+                  </h2>
+                </div>
+                <p class='data-point'>${vis.variable}</p>
+                <p class='font-bold text-[#09119F]'>${formatValue(
+                  dataPoint.value
+                )}</p>
+                <svg id="timeseries-chart" width="325" height="100"></svg>
+              </div>
+            `);
+
+          const svg = d3.select('#timeseries-chart');
+
+          // Set the dimensions and margins of the graph
+          const margin = { top: 10, right: 10, bottom: 20, left: 45 },
+            width = +svg.attr('width') - margin.left - margin.right,
+            height = +svg.attr('height') - margin.top - margin.bottom;
+
+          // Append the SVG object to the body of the tooltip
+          const chart = svg
+            .append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+
+          // Add X scale and axis
+          const x = d3
+            .scaleTime()
+            .domain(
+              d3.extent(
+                filteredHistory,
+                (d: any) => new Date(d[0], 0, 1)
+              ) as any
+            )
+            .range([0, width]);
+
+          chart
+            .append('g')
+            .attr('transform', `translate(0, ${height})`)
+            .call(d3.axisBottom(x).ticks(6))
+            .attr('color', '#BABABA')
+            .selectAll('line')
+            .attr('stroke-width', 1);
+
+          // Add Y scale
+          const y = d3
+            .scaleLinear()
+            .domain([0, d3.max(filteredHistory, (d: any) => d[1]) as any])
+            .range([height, 0]);
+
+          chart
+            .append('g')
+            .call(d3.axisLeft(y).ticks(5))
+            .attr('color', '#BABABA')
+            .selectAll('line')
+            .attr('stroke-width', 1);
+
+          // Add the line
+          chart
+            .append('path')
+            .datum(filteredHistory)
+            .attr('fill', 'none')
+            .attr('stroke', '#09119F')
+            .attr('stroke-width', 4)
+            .attr('stroke-linejoin', 'round')
+            .attr('stroke-linecap', 'round')
+            .attr(
+              'd',
+              d3
+                .line()
+                .curve(d3.curveBasis) // This creates the curved corners in the line
+                .x((d) => x(new Date(d[0], 0, 1)))
+                .y((d) => y(d[1])) as any
+            );
+        }
+      })
+      .on('mouseout', function (event: any, d: any) {
+        // Hide the tooltip
+        d3.select(this)
+          .attr('stroke', '#000566') // Set the stroke color for the country borders
+          .attr('stroke-width', '1px');
+        vis.tooltip
+          .style('opacity', 0)
+          .style('left', '0px')
+          .style('top', '0px')
+          .style('width', '0')
+          .style('height', '0')
+          .html(``);
+      });
   }
 }

@@ -2,14 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import {
   FormBuilder,
-  FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Country } from '@interfaces/country.interface';
-import { Observable, lastValueFrom, map } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { GlobeEarthComponent } from 'src/app/main/components/globe/globe.component';
 
 type RouteKey = 'economy' | 'education' | 'environment';
@@ -78,14 +77,14 @@ export class GlobePage {
       this.years$ = this.route.data.pipe(
         map((data) =>
           data['data'].countries[0][data['path']]
-            .map((item: { Year: any }) => item.Year)
+            .map((item: { year: any }) => item.year)
             .reverse()
         )
       );
       this.title = data['path'];
       this.data = {
         ...data['data'],
-        year: this.categoryForm.value.selectedCategory,
+        year: this.categoryForm.value.year,
       };
     });
 
@@ -103,11 +102,11 @@ export class GlobePage {
   }
 
   changeCategory(newCategory: string) {
-    this.categoryForm.patchValue({ selectedCategory: newCategory });
+    this.categoryForm.patchValue({ category: newCategory });
     this.showCategoryDropdown = false;
   }
   changeYear(newYear: number) {
-    this.categoryForm.patchValue({ selectedYear: newYear });
+    this.categoryForm.patchValue({ year: newYear });
     this.showYearDropdown = false;
   }
 
