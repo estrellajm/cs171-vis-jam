@@ -8,12 +8,14 @@ import {
   Input,
   ViewChild,
   ViewContainerRef,
+  inject,
 } from '@angular/core';
 import { TooltipComponent } from './tooltip/tooltip.component'; // Assume you have a TooltipComponent
 
 import * as d3 from 'd3';
 import { Observable } from 'rxjs';
 import * as topojson from 'topojson-client';
+import { DialogService } from '@services/dialog/dialog.service';
 
 @Component({
   selector: 'jam-globe-component',
@@ -28,6 +30,7 @@ export class GlobeEarthComponent implements AfterViewInit {
   @Input() selectedValues$: Observable<any>;
   @ViewChild('globeContainer') globeContainer: ElementRef;
 
+  private dialogService = inject(DialogService);
   private overlayRef: OverlayRef;
 
   constructor(
@@ -115,14 +118,14 @@ export class GlobeEarthComponent implements AfterViewInit {
       .range(['rgba(36, 212, 166, 0.2)', 'rgba(36, 212, 166, 1)'] as any);
 
     /** Code below is to sort */
-    // // Convert the countryGDP object into an array of [country, gdp] pairs
-    // const countryGDPArray = Object.entries(countryAverages);
+    // Convert the countryGDP object into an array of [country, gdp] pairs
+    const countryGDPArray = Object.entries(countryAverages);
 
-    // // Sort the array by GDP value in descending order
-    // const sortedCountryGDPArray = countryGDPArray.sort(
-    //   (a: any, b: any) => b[1] - a[1]
-    // );
-// // console.log(sortedCountryGDPArray);
+    // Sort the array by GDP value in descending order
+    const sortedCountryGDPArray = countryGDPArray.sort(
+      (a: any, b: any) => b[1] - a[1]
+    );
+    // console.log(sortedCountryGDPArray);
 
     const twoDecimalPlaces = (val: number | null): number | null => {
       if (!val) return null;
@@ -200,9 +203,7 @@ export class GlobeEarthComponent implements AfterViewInit {
       .on('click', (event: PointerEvent, d: any) => {
         let countryName = d.properties.name;
         const country = worldData[countryName];
-        console.log(country);
-
-        // TODO: Open popup with web data
+        ng.dialogService.openDialog(country);
       })
       .on('mouseover', function (event: PointerEvent, d: any) {
         // TODO: extract tooltip to component
@@ -246,9 +247,9 @@ export class GlobeEarthComponent implements AfterViewInit {
             <div class="p-5 space-y-1">
                 <div class="flex justify-between">
                     <h2 class="font-bold text-[#09119F] text-xl">${countryName}</h2>
-                    <h2  class="font-bold text-[#09119F] text-xl">${
-                      country.year
-                    }</h2>
+                    <!-- <h2 class="font-bold text-[#09119F] text-xl">
+                    ${country.year}
+                    </h2> -->
                 </div>
                 <p class='data-point'>${ng.selectedValues.category}</p>
                 <p class='font-bold text-[#09119F]'>${formatValue(
