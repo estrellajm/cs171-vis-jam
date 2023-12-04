@@ -247,6 +247,8 @@ export class GlobeEarthComponent implements AfterViewInit {
       .on('click', (event: PointerEvent, d: any) => {
         let countryName = d.properties.name;
         const country = worldData[countryName];
+        console.log(country);
+        
         ng.dialogService.openDialog(country);
       })
       .on('mouseover', function (event: PointerEvent, d: any) {
@@ -511,8 +513,6 @@ export class GlobeEarthComponent implements AfterViewInit {
       this.overlayRef.detach();
     }
   }
-
-  private addResetRotation() {}
 
   private legend(earth: { svg: any; height: number; width: number }) {
     /** LEGEND */
