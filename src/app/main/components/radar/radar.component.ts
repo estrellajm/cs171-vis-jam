@@ -92,7 +92,6 @@ export class RadarComponent {
     let levels = 5; // Adjust if needed
     for (let level = 0; level < levels; level++) {
       let r = vis.radius * ((level + 1) / levels);
-      console.log(vis.radius);
       vis.svg
         .append('circle')
         .attr('cx', 0)

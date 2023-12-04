@@ -69,7 +69,6 @@ export class GlobeEarthComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.loadData();
     this.selectedValues$.subscribe((change) => {
-      console.log(change);
       this.variable = change.category;
       this.year = change.year;
       this.wrangleData();
@@ -320,9 +319,6 @@ export class GlobeEarthComponent implements AfterViewInit {
       }
     }
 
-    console.log(vis.radarData);
-    
-
     vis.updateVis();
   }
 
@@ -345,7 +341,6 @@ export class GlobeEarthComponent implements AfterViewInit {
       .on('click', (event: PointerEvent, d: any) => {
         let countryName = d.properties.name;
         const country = vis.radarData[countryName];
-        console.log(country);
         vis.dialogService.openDialog(country);
       })
       .on('mouseover', function (event: any, d: any) {
