@@ -308,13 +308,12 @@ export class GlobeEarthComponent implements AfterViewInit {
       })
       .attr('stroke', '#000566') // Set the stroke color for the country borders
       .attr('stroke-width', '1px')
-      // .on('click', (event: PointerEvent, d: any) => {
-      //   let countryName = d.properties.name;
-      //   const country = vis.countryInfo[countryName];
-      //   console.log(country);
-
-      //   vis.dialogService.openDialog(country);
-      // })
+      .on('click', (event: PointerEvent, d: any) => {
+        let countryName = d.properties.name;
+        const country = vis.countryInfo[countryName];
+        console.log(country);
+        // vis.dialogService.openDialog(country);
+      })
       .on('mouseover', function (event: any, d: any) {
         // Highlight the country path
         d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
