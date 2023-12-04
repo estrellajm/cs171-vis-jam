@@ -10,7 +10,6 @@ import * as d3 from 'd3';
     id="radarDiv"
     class="w-full h-full bg-[#0C1673] flex justify-center items-center"
   ></div>`,
-  styleUrls: ['./radar.component.scss'],
 })
 export class RadarComponent {
   @ViewChild('radarContainer') globeContainer: ElementRef;
@@ -23,9 +22,7 @@ export class RadarComponent {
   ) {}
 
   ngAfterViewInit() {
-    console.log(this.country['name']);
-
-    this.initVis('radarDiv', this.radarData[this.country.name]);
+    this.initVis('radarDiv', this.country);
   }
 
   margin: any;
@@ -36,33 +33,46 @@ export class RadarComponent {
   angleSlice: any;
   rScale: any;
   initVis(parentElement: string, data: any) {
-    console.log(data);
     let vis = this;
-
     vis.data = data;
 
     // Set up dimensions
-
-    const hw = this.globeContainer.nativeElement.offsetWidth - 50;
-    vis.width = hw;
-    vis.height = hw;
-    vis.radius = hw / 3;
+    vis.margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    vis.width =
+      this.globeContainer.nativeElement.offsetWidth -
+      vis.margin.left -
+      vis.margin.right;
+    vis.height =
+      this.globeContainer.nativeElement.offsetHeight -
+      vis.margin.top -
+      vis.margin.bottom;
+    vis.radius = Math.min(vis.width, vis.height) / 2;
 
     // Init drawing area
     vis.svg = d3
       .select('#' + parentElement)
       .append('svg')
-      .attr('width', vis.width)
-      .attr('height', vis.height)
+      .attr('width', vis.width + vis.margin.left + vis.margin.right)
+      .attr('height', vis.height + vis.margin.top + vis.margin.bottom)
       .append('g')
-      .attr('transform', `translate(${vis.width / 2}, ${vis.height / 2})`);
+      .attr(
+        'transform',
+        `translate(${vis.margin.left + vis.width / 2}, ${
+          vis.margin.top + vis.height / 2
+        })`
+      );
 
-    // vis.svg
-    //   .append('rect')
-    //   .attr('width', vis.width)
-    //   .attr('height', vis.height)
-    //   .attr('transform', `translate(${-vis.width / 2}, ${-vis.height / 2})`)
-    //   .attr('fill', '#0C1673');
+    vis.svg
+      .append('rect')
+      .attr('width', vis.width + vis.margin.left + vis.margin.right)
+      .attr('height', vis.height + vis.margin.top + vis.margin.bottom)
+      .attr(
+        'transform',
+        `translate(${-vis.width / 2 - vis.margin.left}, ${
+          -vis.height / 2 - vis.margin.top
+        })`
+      )
+      .attr('fill', '#0C1673');
 
     // Scales and axes
     vis.angleSlice = (Math.PI * 2) / vis.data.length;
@@ -74,10 +84,15 @@ export class RadarComponent {
 
   createAxes() {
     let vis = this;
+
+    // Create axes labels, if needed
+    // ...
+
     // Create concentric circles
     let levels = 5; // Adjust if needed
     for (let level = 0; level < levels; level++) {
       let r = vis.radius * ((level + 1) / levels);
+      console.log(vis.radius);
       vis.svg
         .append('circle')
         .attr('cx', 0)

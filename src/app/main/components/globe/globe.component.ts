@@ -320,6 +320,9 @@ export class GlobeEarthComponent implements AfterViewInit {
       }
     }
 
+    console.log(vis.radarData);
+    
+
     vis.updateVis();
   }
 
@@ -341,9 +344,9 @@ export class GlobeEarthComponent implements AfterViewInit {
       .attr('stroke-width', '1px')
       .on('click', (event: PointerEvent, d: any) => {
         let countryName = d.properties.name;
-        const country = vis.countryInfo[countryName];
+        const country = vis.radarData[countryName];
         console.log(country);
-        // vis.dialogService.openDialog(country);
+        vis.dialogService.openDialog(country);
       })
       .on('mouseover', function (event: any, d: any) {
         // Highlight the country path
