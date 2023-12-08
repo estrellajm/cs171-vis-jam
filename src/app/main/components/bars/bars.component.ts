@@ -25,6 +25,12 @@ export class BarsComponent implements AfterViewInit {
   @Input() selectedValues$: Observable<any>;
   @ViewChild('barContainer') globeContainer: ElementRef;
 
+  colors: any = {
+    economy: '198, 212, 36',
+    education: '72, 244, 255',
+    environment: '36, 212, 166'
+  };
+
   parentElement: any;
   geoData: any;
   category: any;
@@ -170,7 +176,7 @@ export class BarsComponent implements AfterViewInit {
       .enter()
       .append('rect')
       .attr('class', 'bar')
-      .attr('fill', '#00d1b2')
+      .attr('fill', `rgba(${vis.colors[vis.category]}, 1)`)
       .merge(vis.bars)
       .transition()
       .duration(1500)
