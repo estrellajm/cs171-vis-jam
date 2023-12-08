@@ -1,8 +1,5 @@
 <div class="flex">
-  <div
-    class="flex flex-col  h-screen text-white"
-    *ngIf="path$ | async as path"
-  >
+  <div class="flex flex-col h-screen text-white" *ngIf="path$ | async as path">
     <div class="p-8">
       <a
         class="flex gap-2 items-center underline underline-offset-4"
@@ -176,15 +173,13 @@
       </form>
       <div class="pt-8">
         <h2 class="text-2xl font-semibold">TOP 10 RANKINGS</h2>
-        <ul class="mt-4">
-          <li class="flex justify-between items-center py-2">
-            <span class="text-sm">USA</span>
-            <span
-              class="bg-green-500 h-2 rounded-full"
-              style="width: 70%"
-            ></span>
-          </li>
-        </ul>
+        <jam-bars-component
+          class="w-full h-full"
+          [data]="data"
+          [title]="title"
+          [selectedValues]="categoryForm.value"
+          [selectedValues$]="categoryForm.valueChanges"
+        ></jam-bars-component>
       </div>
     </div>
     <div class="mt-auto p-8">

@@ -1,5 +1,3 @@
-import { Overlay, OverlayConfig, OverlayRef } from '@angular/cdk/overlay';
-import { ComponentPortal } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -7,13 +5,12 @@ import {
   ElementRef,
   Input,
   ViewChild,
-  ViewContainerRef,
   inject,
 } from '@angular/core';
+import { DialogService } from '@services/dialog/dialog.service';
 import * as d3 from 'd3';
 import { Observable } from 'rxjs';
 import * as topojson from 'topojson-client';
-import { DialogService } from '@services/dialog/dialog.service';
 
 @Component({
   selector: 'jam-globe-component',

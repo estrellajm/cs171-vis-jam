@@ -9,6 +9,7 @@ import {
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Country } from '@interfaces/country.interface';
 import { Observable, map } from 'rxjs';
+import { BarsComponent } from 'src/app/main/components/bars/bars.component';
 import { GlobeEarthComponent } from 'src/app/main/components/globe/globe.component';
 
 type RouteKey = 'economy' | 'education' | 'environment';
@@ -21,6 +22,7 @@ type RouteKey = 'economy' | 'education' | 'environment';
     GlobeEarthComponent,
     FormsModule,
     ReactiveFormsModule,
+    BarsComponent,
   ],
   templateUrl: './globe.page.html',
   styleUrls: ['./globe.page.scss'],
