@@ -85,8 +85,6 @@ export class RadarComponent {
   createAxes() {
     let vis = this;
 
-    // Create axes labels, if needed
-    // ...
 
     // Create concentric circles
     let levels = 5; // Adjust if needed
@@ -205,6 +203,6 @@ export class RadarComponent {
     }
 
     // Usage: Pass the selection of text elements and a specified width for wrapping
-    vis.svg.selectAll('.label').call(wrapText, 80);
+    vis.svg.selectAll('.label').call(wrapText, 180);
   }
 }
