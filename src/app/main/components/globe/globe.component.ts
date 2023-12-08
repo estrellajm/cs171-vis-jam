@@ -49,8 +49,8 @@ export class GlobeEarthComponent implements AfterViewInit {
   radarData: any;
 
   colors: any = {
-    economy: '232, 85, 23',
-    education: '142, 19, 238',
+    economy: '198, 212, 36',
+    education: '72, 244, 255',
     environment: '36, 212, 166'
   };
 
@@ -212,13 +212,12 @@ export class GlobeEarthComponent implements AfterViewInit {
     gradient
       .append('stop')
       .attr('offset', '0%')
-      .attr('stop-color', 'rgba(36, 212, 166, 0.2)');
-
+      .attr('stop-color', `rgba(${vis.colors[vis.category]}, 0.2)`);
     // Define the end of the gradient (100% opacity)
     gradient
       .append('stop')
       .attr('offset', '100%')
-      .attr('stop-color', 'rgba(36, 212, 166, 1)');
+      .attr('stop-color', `rgba(${vis.colors[vis.category]}, 1)`);
 
     // Create a legend group
     vis.legend = vis.svg
@@ -241,6 +240,7 @@ export class GlobeEarthComponent implements AfterViewInit {
       .attr('x', 0)
       .attr('y', legendHeight + 15)
       .style('text-anchor', 'start')
+      .style('fill', 'white')
       .text('Low');
 
     vis.legend
@@ -248,6 +248,7 @@ export class GlobeEarthComponent implements AfterViewInit {
       .attr('x', legendWidth)
       .attr('y', legendHeight + 15)
       .style('text-anchor', 'end')
+      .style('fill', 'white')
       .text('High');
 
     vis.wrangleData();
