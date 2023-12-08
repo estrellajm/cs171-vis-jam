@@ -1,6 +1,5 @@
 import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { RADARDATA } from './radar.data';
 import * as d3 from 'd3';
 
 @Component({
@@ -15,7 +14,6 @@ export class RadarComponent {
   @ViewChild('radarContainer') globeContainer: ElementRef;
 
   data: any;
-  radarData: any = RADARDATA;
   constructor(
     public dialogRef: MatDialogRef<RadarComponent>,
     @Inject(MAT_DIALOG_DATA) public country: any
@@ -84,7 +82,6 @@ export class RadarComponent {
 
   createAxes() {
     let vis = this;
-
 
     // Create concentric circles
     let levels = 5; // Adjust if needed

@@ -2,22 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import * as d3 from 'd3';
 
-interface DateObj {
-  Date: Date;
-  Amount: number;
-}
-
-interface DataSet {
-  key: string | number;
-  value: number;
-}
-
 @Component({
   selector: 'jam-scatter',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './scatter.component.html',
-  styleUrls: ['./scatter.component.scss'],
+  template: '<div id="scatterDiv"></div>',
 })
 export class ScatterEarthComponent {
   sortDataFunc: any;
@@ -350,7 +339,6 @@ export class ScatterEarthComponent {
       });
     });
   }
-
 
   addAreasToSelect(allDataArray: any) {
     let areas = allDataArray.map((item: any) => item.country);
