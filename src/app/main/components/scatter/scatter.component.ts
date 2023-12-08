@@ -351,7 +351,6 @@ export class ScatterEarthComponent {
     });
   }
 
-  //knsofnpskvdnosjdbv
 
   addAreasToSelect(allDataArray: any) {
     let areas = allDataArray.map((item: any) => item.country);
