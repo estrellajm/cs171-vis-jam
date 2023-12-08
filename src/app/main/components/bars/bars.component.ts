@@ -219,12 +219,12 @@ export class BarsComponent implements AfterViewInit {
       .remove();
 
     // Update the axes if needed
-    vis.xAxis
-      .transition()
-      .duration(vis.transitionDuration)
-      .call(d3.axisBottom(vis.x))
-      .style('fill', 'white')
-      .selectAll('text')
-      .style('fill', '#fff');
+    // vis.xAxis
+    //   .transition()
+    //   .duration(vis.transitionDuration)
+    //   .call(d3.axisBottom(vis.x))
+    //   .style('fill', 'white')
+    //   .selectAll('text')
+    //   .style('fill', '#fff');
   }
 }
