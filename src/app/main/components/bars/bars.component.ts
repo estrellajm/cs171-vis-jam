@@ -16,7 +16,7 @@ import * as topojson from 'topojson-client';
   selector: 'jam-bars-component',
   standalone: true,
   imports: [CommonModule],
-  template: `<div #barContainer id="barDiv"></div>`,
+  template: `<div #barContainer id="barDiv" class="w-full h-[400px]"></div>`,
 })
 export class BarsComponent implements AfterViewInit {
   @Input() data: any;
@@ -62,7 +62,7 @@ export class BarsComponent implements AfterViewInit {
     const countries = await d3.json('assets/data/wd_indicators.json');
 
     this.parentElement = 'barDiv';
-    this.geoData = world;
+
     this.data = countries;
     this.category = this.title;
     this.initVis();
@@ -97,10 +97,10 @@ export class BarsComponent implements AfterViewInit {
       .select('#' + vis.parentElement)
       .append('svg')
       .attr('width', vis.width + vis.margin.left + vis.margin.right)
-      .attr('height', vis.height + vis.margin.top + vis.margin.bottom)
-      .append('g')
-      .attr('transform', `translate(${vis.margin.left}, ${vis.margin.top})`)
-      .style('background-color', '#0D187C');
+      .attr('height', vis.height + vis.margin.top + vis.margin.bottom);
+    // .append('g')
+    // .attr('transform', `translate(${vis.margin.left} - 200, ${vis.margin.top})`)
+    // .style('background-color', '#0D187C');
 
     // Scales
     vis.x = d3.scaleLinear().range([0, vis.width]);
@@ -117,9 +117,6 @@ export class BarsComponent implements AfterViewInit {
 
   wrangleData() {
     let vis = this;
-
-    vis.variable = 'Literacy rate (% of population 15+)';
-    vis.year = 2018;
 
     vis.nMissing = 0;
     vis.countryInfo = {};
@@ -177,9 +174,9 @@ export class BarsComponent implements AfterViewInit {
       .merge(vis.bars)
       .transition()
       .duration(1500)
-      .attr('x', 0)
+      .attr('x', 180)
       .attr('y', (d: any) => vis.y(d[0]))
-      .attr('width', (d: any) => vis.x(d[1]))
+      .attr('width', (d: any) => vis.x(d[1]) - 150)
       .attr('height', vis.y.bandwidth());
 
     vis.bars
@@ -202,7 +199,7 @@ export class BarsComponent implements AfterViewInit {
       .transition()
       .duration(1500)
       .attr('y', (d: any) => vis.y(d[0]) + vis.y.bandwidth() / 2 + 5)
-      .attr('x', -150)
+      .attr('x', 0)
       .style('text-anchor', 'start')
       .text((d: any) => d[0]);
 
