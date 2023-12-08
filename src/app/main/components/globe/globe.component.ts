@@ -48,6 +48,12 @@ export class GlobeEarthComponent implements AfterViewInit {
   colorScale: any;
   radarData: any;
 
+  colors: any = {
+    economy: '232, 85, 23',
+    education: '142, 19, 238',
+    environment: '36, 212, 166'
+  };
+
   constructor() {}
 
   async loadData() {
@@ -97,7 +103,7 @@ export class GlobeEarthComponent implements AfterViewInit {
 
     vis.colorScale = d3.scaleLog();
 
-    vis.colorScale.range(['rgba(36, 212, 166, 0.2)', 'rgba(36, 212, 166, 1)']);
+    vis.colorScale.range([`rgba(${vis.colors[vis.category]}, 0.2)`, `rgba(${vis.colors[vis.category]}, 1)`]);
 
     // projection
     vis.projection = d3
