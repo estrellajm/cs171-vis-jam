@@ -74,7 +74,8 @@ export class GlobePage {
       this.categories$ = this.route.data.pipe(
         map((data: any) =>
           Object.keys(data['data'].countries[0][data['path']][0]).sort()
-        )
+        ),
+        map((a) => a.filter((b) => b !== 'year')) // remove the year from the options
       );
       this.years$ = this.route.data.pipe(
         map((data) =>
