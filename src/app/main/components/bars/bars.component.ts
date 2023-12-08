@@ -25,10 +25,11 @@ export class BarsComponent implements AfterViewInit {
   @Input() selectedValues$: Observable<any>;
   @ViewChild('barContainer') globeContainer: ElementRef;
 
+  transitionDuration = 800;
   colors: any = {
     economy: '198, 212, 36',
     education: '72, 244, 255',
-    environment: '36, 212, 166'
+    environment: '36, 212, 166',
   };
 
   parentElement: any;
@@ -179,7 +180,7 @@ export class BarsComponent implements AfterViewInit {
       .attr('fill', `rgba(${vis.colors[vis.category]}, 1)`)
       .merge(vis.bars)
       .transition()
-      .duration(1500)
+      .duration(vis.transitionDuration)
       .attr('x', 180)
       .attr('y', (d: any) => vis.y(d[0]))
       .attr('width', (d: any) => vis.x(d[1]) - 150)
@@ -188,7 +189,7 @@ export class BarsComponent implements AfterViewInit {
     vis.bars
       .exit()
       .transition()
-      .duration(1500)
+      .duration(vis.transitionDuration)
       .attr('y', vis.height)
       .style('opacity', '0')
       .remove();
@@ -203,7 +204,7 @@ export class BarsComponent implements AfterViewInit {
       .attr('fill', '#fff')
       .merge(vis.labels)
       .transition()
-      .duration(1500)
+      .duration(vis.transitionDuration)
       .attr('y', (d: any) => vis.y(d[0]) + vis.y.bandwidth() / 2 + 5)
       .attr('x', 0)
       .style('text-anchor', 'start')
@@ -212,7 +213,7 @@ export class BarsComponent implements AfterViewInit {
     vis.labels
       .exit()
       .transition()
-      .duration(1500)
+      .duration(vis.transitionDuration)
       .attr('y', vis.height)
       .style('opacity', '0')
       .remove();
@@ -220,7 +221,7 @@ export class BarsComponent implements AfterViewInit {
     // Update the axes if needed
     vis.xAxis
       .transition()
-      .duration(1000)
+      .duration(vis.transitionDuration)
       .call(d3.axisBottom(vis.x))
       .style('fill', 'white')
       .selectAll('text')
