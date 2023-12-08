@@ -11,7 +11,14 @@ To start this project locally, you need to have the following
 - Angular (optionally you can use the `npx` command)
 
 
-Once you confirm that you have the project above installed, in the root of the project run 
+Once you confirm that you have the project above installed, you'll need to install `node_modules`
+
+Run the command to generate a `node_modules`
+```
+npm install
+```
+
+Finally, in the root of the project run 
 ```
 ng serve
 ``` 
