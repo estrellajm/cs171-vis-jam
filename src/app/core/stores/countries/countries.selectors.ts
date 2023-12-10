@@ -14,6 +14,7 @@ export class CountriesSelectors {
 
   @Selector([CountriesState])
   static getSelectedCorrelationValues(state: CountriesStateModel) {
+    console.log(state);
     console.log(state.selectedCorrelationValues);
     
     return state.selectedCorrelationValues;

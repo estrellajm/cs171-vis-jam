@@ -36,11 +36,8 @@ const defaults: CountriesStateModel = {
 @Injectable()
 export class CountriesState {
   @Action(LoadCountries)
-  loadCountries({ setState }: StateContext<CountriesStateModel>) {
-    const data = inject(DataService).loadData()
-    console.log(data);
-    
-    setState(data);
+  loadCountries({ getState, patchState }: StateContext<CountriesStateModel>) {
+    patchState(inject(DataService).loadData());
   }
 
   @Action(LoadCountries)
