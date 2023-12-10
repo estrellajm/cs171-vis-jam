@@ -27,4 +27,9 @@ export class AppComponent {
       outlet.activatedRouteData['animation']
     );
   }
+
+  closeDiv() {
+    console.log('asdkjhbasd');
+    
+  }
 }

@@ -10,6 +10,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Country } from '@interfaces/country.interface';
 import { Select } from '@ngxs/store';
 import { Observable, map } from 'rxjs';
+import { ClickOutsideDivDirective } from 'src/app/core/directives/click-outside/click-outside-div.directive';
 import { CountriesSelectors } from 'src/app/core/stores/countries/countries.selectors';
 import { BarsComponent } from 'src/app/main/components/bars/bars.component';
 import { GlobeEarthComponent } from 'src/app/main/components/globe/globe.component';
@@ -35,6 +36,7 @@ type RouteKey = 'economy' | 'education' | 'environment';
     FormsModule,
     ReactiveFormsModule,
     BarsComponent,
+    ClickOutsideDivDirective
   ],
   templateUrl: './globe.page.html',
   styleUrls: ['./globe.page.scss'],
@@ -124,4 +126,6 @@ export class GlobePage {
     this.showCategoryDropdown = false;
     this.showYearDropdown = false;
   }
+
+  closeDiv() {}
 }
