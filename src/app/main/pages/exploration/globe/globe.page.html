@@ -1,5 +1,5 @@
 <div class="flex">
-  <div class="flex flex-col h-screen text-white">
+  <div class="flex flex-col h-screen text-white" *ngIf="path$ | async as path">
     <div class="p-8">
       <a
         class="flex gap-2 items-center underline underline-offset-4"
@@ -66,7 +66,7 @@
             aria-activedescendant="listbox-option-3"
           >
             <li
-              *ngFor="let category of categories"
+              *ngFor="let category of categories$ | async"
               class="text-gray-900 relative select-none py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white cursor-pointer"
               id="listbox-option-0"
               role="option"
@@ -137,7 +137,7 @@
               aria-activedescendant="listbox-option-3"
             >
               <li
-                *ngFor="let year of years"
+                *ngFor="let year of years$ | async"
                 class="text-gray-900 relative select-none py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white cursor-pointer"
                 id="listbox-option-0"
                 role="option"
