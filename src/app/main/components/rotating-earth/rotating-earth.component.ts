@@ -17,7 +17,7 @@ export class RotatingEarthComponent implements OnInit {
 
   ngOnInit() {
     this.countries$.subscribe((data) => {
-      console.log(data);
+      // console.log(data);
       const world = topojson.feature(data, data.objects.countries);
       this.initGlobe(world);
     });

@@ -1,0 +1,29 @@
+<div class="flex bg-[#3847CE] text-white">
+  <!-- Sidebar -->
+  <div class="w-16">
+    <div
+      class="w-16 flex flex-col items-center justify-center h-full bg-[#03093C] gap-4"
+    >
+      <button
+        *ngFor="let route of routes"
+        class="w-4 h-4 rounded-full border border-white cursor-pointer"
+        routerLink="/exploration/{{route.route}}"
+        routerLinkActive="bg-white"
+        (mouseover)="showTooltip($event, route.title)"
+        (mouseout)="hideTooltip()"
+      ></button>
+    </div>
+    <!-- Tooltip -->
+    <div
+      *ngIf="isTooltipVisible"
+      [ngStyle]="tooltipStyle"
+      class="absolute z-10 px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm"
+    >
+      {{ tooltipContent }}
+    </div>
+  </div>
+  <!-- Main Content -->
+  <div class="w-full">
+    <router-outlet></router-outlet>
+  </div>
+</div>

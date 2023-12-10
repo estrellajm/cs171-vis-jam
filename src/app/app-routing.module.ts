@@ -3,11 +3,10 @@ import { RouterModule, Routes } from '@angular/router';
 import { dataResolver } from '@resolvers/data.resolver';
 
 const routes: Routes = [
-  // { path: '', redirectTo: '/welcome', pathMatch: 'full' }, // redirect to `welcome`
   {
     path: '',
     loadChildren: () =>
-      import('./main/pages/page.module').then((m) => m.PagesModule),
+      import('./main/pages/pages.root.module').then((m) => m.PagesModule),
     resolve: { data: dataResolver },
   },
   {
