@@ -8,11 +8,23 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Country } from '@interfaces/country.interface';
+import { Select } from '@ngxs/store';
 import { Observable, map } from 'rxjs';
+import { CountriesSelectors } from 'src/app/core/stores/countries/countries.selectors';
 import { BarsComponent } from 'src/app/main/components/bars/bars.component';
 import { GlobeEarthComponent } from 'src/app/main/components/globe/globe.component';
 
+type Route = {
+  previous: string;
+  next: string;
+};
+
+type Routes = {
+  [key: string]: Route;
+};
+
 type RouteKey = 'economy' | 'education' | 'environment';
+
 @Component({
   selector: 'jam-globe-page',
   standalone: true,
@@ -28,16 +40,16 @@ type RouteKey = 'economy' | 'education' | 'environment';
   styleUrls: ['./globe.page.scss'],
 })
 export class GlobePage {
+  @Select(CountriesSelectors.getCountries) countries$: Observable<any>;
   categoryForm: FormGroup;
 
   title: string;
   data: Country[];
-  path$: Observable<{ previous: string; next: string }>;
 
-  categories$: Observable<string[]>;
+  categories: string[];
   showCategoryDropdown: boolean = false;
 
-  years$: Observable<number[]>;
+  years: number[];
   showYearDropdown: boolean = false;
 
   fb = inject(FormBuilder);
@@ -49,7 +61,8 @@ export class GlobePage {
     });
   }
 
-  routes = {
+  path: Route;
+  routes: Routes = {
     economy: {
       previous: 'welcome',
       next: 'education',
@@ -67,35 +80,29 @@ export class GlobePage {
   route = inject(ActivatedRoute);
 
   ngOnInit() {
-    this.route.data.subscribe((data) => {
-      this.path$ = this.route.data.pipe(
-        map((data: any) => this.routes[data['path'] as RouteKey])
-      );
-      this.categories$ = this.route.data.pipe(
-        map((data: any) =>
-          Object.keys(data['data'].countries[0][data['path']][0]).sort()
-        ),
-        map((a) => a.filter((b) => b !== 'year')) // remove the year from the options
-      );
-      this.years$ = this.route.data.pipe(
-        map((data) =>
-          data['data'].countries[0][data['path']]
-            .map((item: { year: any }) => item.year)
-            .reverse()
-        )
-      );
-      this.title = data['path'];
+    const path = this.route.snapshot.data['path'];
+    this.countries$.subscribe((data) => {
+      // set title
+      this.title = path;
+
+      // set route paths
+      this.path = this.routes[path];
+
+      // set categories
+      this.categories = Object.keys(data[0][path][0])
+        .sort()
+        .filter((b) => b !== 'year');
+      this.categoryForm.patchValue({ category: this.categories[0] });
+
+      // set years
+      this.years = data[0][path]
+        .map((item: { year: any }) => item.year)
+        .reverse();
+
       this.data = {
-        ...data['data'],
+        ...data,
         year: this.categoryForm.value.year,
       };
-    });
-
-    // Subscribe to categories$ and set the first element of the array to the form
-    this.categories$.subscribe((categories) => {
-      if (categories && categories.length > 0) {
-        this.categoryForm.patchValue({ category: categories[0] });
-      }
     });
   }
 
