@@ -380,25 +380,25 @@ export class GlobeEarthComponent implements AfterViewInit {
             .style('left', event.pageX + tooltipOffsetX + 'px')
             .style('top', event.pageY + tooltipOffsetY + 'px')
             .style('width', '379px')
-            .style('height', '280px')
+            .style('height', '250px')
             .style('flex-shrink', 0)
             .style('border-radius', '12px')
             .style('background', '#FFF')
             .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
-              <div class="p-5 space-y-1">
-                <div class="flex justify-between">
-                  <h2 class="font-bold text-[#09119F] text-xl">${countryName}</h2>
-                  <h2 class="font-bold text-[#09119F] text-xl">
-                    ${vis.year}
-                  </h2>
-                </div>
-                <p class='data-point'>${vis.variable}</p>
-                <p class='font-bold text-[#09119F]'>${formatValue(
-                  dataPoint.value
-                )}</p>
-                <svg id="timeseries-chart" width="325" height="100"></svg>
-              </div>
-            `);
+        <div class="p-5 space-y-1">
+          <div class="flex justify-between">
+            <h2 class="font-bold text-[#09119F] text-xl">${countryName}</h2>
+            <h2 class="font-bold text-[#09119F] text-xl">
+              ${vis.year}
+            </h2>
+          </div>
+          <p class='data-point'>${vis.variable}</p>
+          <p class='font-bold text-[#09119F]'>${formatValue(
+            dataPoint.value
+          )}</p>
+          <svg id="timeseries-chart" width="325" height="100"></svg>
+        </div>
+      `);
 
           const svg = d3.select('#timeseries-chart');
 
@@ -461,8 +461,29 @@ export class GlobeEarthComponent implements AfterViewInit {
                 .x((d) => x(new Date(d[0], 0, 1)))
                 .y((d) => y(d[1])) as any
             );
+
+          // Ensure tooltip stays within the viewport
+          let tooltip = vis.tooltip.node();
+          let tooltipRect = tooltip.getBoundingClientRect();
+          let xPosition = event.pageX + tooltipOffsetX;
+          let yPosition = event.pageY + tooltipOffsetY;
+
+          // Check if the tooltip is partially outside the viewport
+          if (xPosition + tooltipRect.width > window.innerWidth) {
+            xPosition = window.innerWidth - tooltipRect.width;
+          }
+
+          if (yPosition + tooltipRect.height > window.innerHeight) {
+            yPosition = window.innerHeight - tooltipRect.height;
+          }
+
+          // Update the tooltip's position
+          vis.tooltip
+            .style('left', xPosition + 'px')
+            .style('top', yPosition + 'px');
         }
       })
+
       .on('mouseout', function (event: any, d: any) {
         // Hide the tooltip
         d3.select(this)

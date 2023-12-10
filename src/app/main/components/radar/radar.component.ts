@@ -197,13 +197,13 @@ export class RadarComponent {
                                 <br>Rank: ${d.rank} / ${d.outOf}</p>
                             </div>
                             `);
-        });
-      // .on('mouseout', function (event: any, d: any) {
-      //   vis.tooltip
-      //     .style('opacity', 0)
-      //     .style('left', '0px')
-      //     .style('top', '0px');
-      // });
+        })
+       .on('mouseout', function (event: any, d: any) {
+         vis.tooltip
+           .style('opacity', 0)
+           .style('left', '0px')
+           .style('top', '0px');
+       });
     });
 
     function wrapText(text: any, width: any) {
