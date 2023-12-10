@@ -1,9 +1,7 @@
-import { Component, VERSION, inject } from '@angular/core';
+import { Component, VERSION } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { slider } from './slider';
-import { Store } from '@ngxs/store';
-import { LoadCountries } from './core/stores/countries/countries.actions';
 
 @Component({
   selector: 'jam-root',
@@ -39,11 +37,7 @@ export class AppComponent {
       title: 'Credits',
     },
   ];
-
-  store = inject(Store);
-  constructor() {
-    this.store.dispatch(LoadCountries);
-  }
+  constructor() {}
 
   prepareRoute(outlet: RouterOutlet) {
     return (
