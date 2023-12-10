@@ -349,7 +349,7 @@ export class GlobeEarthComponent implements AfterViewInit {
       })
       .on('mouseover', function (event: any, d: any) {
         // Highlight the country path
-        d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white');
+        d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white').raise();
 
         let countryName = d.properties.name;
 
