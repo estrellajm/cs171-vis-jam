@@ -29,7 +29,10 @@
         </p>
       </div>
       <form [formGroup]="selectedValues">
-        <div class="flex flex-col gap-20">
+        <div
+          class="flex flex-col gap-20"
+          *ngIf="correlation$ | async as correlation"
+        >
           <div>
             <label for="indicator" class="block text-sm font-medium">
               CHOOSE THE AXIS VARIABLE
@@ -76,7 +79,7 @@
                   aria-activedescendant="listbox-option-3"
                 >
                   <li
-                    *ngFor="let yValue of axisValues"
+                    *ngFor="let yValue of correlation.axis"
                     class="text-gray-900 relative select-none py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white cursor-pointer"
                     id="listbox-option-0"
                     role="option"
@@ -148,7 +151,7 @@
                   aria-activedescendant="listbox-option-3"
                 >
                   <li
-                    *ngFor="let xValue of axisValues"
+                    *ngFor="let xValue of correlation.axis"
                     class="text-gray-900 relative select-none py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white cursor-pointer"
                     id="listbox-option-0"
                     role="option"
@@ -228,7 +231,7 @@
                   aria-activedescendant="listbox-option-3"
                 >
                   <li
-                    *ngFor="let country of countries"
+                    *ngFor="let country of correlation.countries"
                     class="text-gray-900 relative select-none py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white cursor-pointer"
                     id="listbox-option-0"
                     role="option"
@@ -300,7 +303,7 @@
                   aria-activedescendant="listbox-option-3"
                 >
                   <li
-                    *ngFor="let year of [2018, 2019]"
+                    *ngFor="let year of correlation.years"
                     class="text-gray-900 relative select-none py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white cursor-pointer"
                     id="listbox-option-0"
                     role="option"

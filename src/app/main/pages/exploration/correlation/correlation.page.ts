@@ -7,8 +7,16 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { Select } from '@ngxs/store';
+import { Observable } from 'rxjs';
+import { CountriesSelectors } from 'src/app/core/stores/countries/countries.selectors';
 import { ScatterEarthComponent } from 'src/app/main/components/scatter/scatter.component';
 
+type Correlation = {
+  axis: string[];
+  countries: string[];
+  years: number[];
+};
 @Component({
   selector: 'jam-correlation',
   standalone: true,
@@ -23,6 +31,8 @@ import { ScatterEarthComponent } from 'src/app/main/components/scatter/scatter.c
   styleUrls: ['./correlation.page.scss'],
 })
 export class CorrelationPage {
+  @Select(CountriesSelectors.getCorrelationFields)
+  correlation$: Observable<Correlation>;
   selectedValues: FormGroup;
 
   selectedX: string = 'GDP Per Capita';
@@ -54,17 +64,17 @@ export class CorrelationPage {
     this.selectedValues.patchValue({ x });
     this.showXDropdown = false;
   }
-  
+
   changeSelectedY(y: string) {
     this.selectedValues.patchValue({ y });
     this.showYDropdown = false;
   }
-  
+
   changeSelectedCountry(country: string) {
     this.selectedValues.patchValue({ country });
     this.showCountryDropdown = false;
   }
-  
+
   changeSelectedYear(year: number) {
     this.selectedValues.patchValue({ year });
     this.showYearDropdown = false;
