@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Action, Selector, State, StateContext } from '@ngxs/store';
-import { CountriesAction, LoadCountries } from './countries.actions';
+import { Action, State, StateContext } from '@ngxs/store';
 import { DataService } from '@services/data/data.service';
+import { LoadCountries } from './countries.actions';
 
 export class CountriesStateModel {
   public rotating: {};
@@ -9,7 +9,7 @@ export class CountriesStateModel {
   public countries: string[];
 }
 
-const defaults = {
+const defaults: CountriesStateModel = {
   rotating: {},
   world: {},
   countries: [],
