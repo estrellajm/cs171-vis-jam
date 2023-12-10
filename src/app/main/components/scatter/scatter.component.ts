@@ -202,7 +202,7 @@ export class ScatterEarthComponent {
       }
     }
 
-    console.log(vis.displayData);
+    // console.log(vis.displayData);
 
     vis.updateVis();
   }
