@@ -1,13 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ScatterEarthComponent } from 'src/app/main/components/scatter/scatter.component';
 
 @Component({
   selector: 'jam-correlation',
   standalone: true,
-  imports: [CommonModule, RouterModule, ScatterEarthComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    ScatterEarthComponent,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './correlation.page.html',
   styleUrls: ['./correlation.page.scss'],
 })
@@ -39,23 +50,23 @@ export class CorrelationPage {
     });
   }
 
-  changeSelectedX(newX: string) {
-    this.selectedX = newX;
+  changeSelectedX(x: string) {
+    this.selectedValues.patchValue({ x });
     this.showXDropdown = false;
   }
-
-  changeSelectedY(newY: string) {
-    this.selectedY = newY;
+  
+  changeSelectedY(y: string) {
+    this.selectedValues.patchValue({ y });
     this.showYDropdown = false;
   }
-
-  changeSelectedCountry(newCountry: string) {
-    this.selectedCountry = newCountry;
+  
+  changeSelectedCountry(country: string) {
+    this.selectedValues.patchValue({ country });
     this.showCountryDropdown = false;
   }
-
-  changeSelectedYear(newYear: number) {
-    this.selectedYear = newYear;
+  
+  changeSelectedYear(year: number) {
+    this.selectedValues.patchValue({ year });
     this.showYearDropdown = false;
   }
 }

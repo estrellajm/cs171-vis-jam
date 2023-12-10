@@ -43,35 +43,39 @@ export class ScatterEarthComponent {
   displayData: any;
   circles: any;
 
-  ngOnInit() {
-    let promises = [d3.json('assets/data/wd_indicators.json')];
-    Promise.all(promises)
-      .then((data) => {
-        this.initMainPage(data);
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
+  ngOnInit() {}
+
+  async loadData() {
+    const countries: any = await d3.json('assets/data/wd_indicators.json');
+    this.parentElement = 'scatterDiv';
+    this.data = countries;
+    this.initMainPage(countries);
   }
 
-  initMainPage(allDataArray: any[]) {
-    this.addVariablesToSelect(allDataArray[0]);
-    this.addAreasToSelect(allDataArray[0]);
-    this.addYearsToSelect(allDataArray[0]);
+  ngAfterViewInit(): void {
+    this.loadData();
+    this.selectedValues$.subscribe((change) => {
+      console.log(change);
 
-    this.initVis('scatterDiv', allDataArray[0]);
+      this.wrangleData();
+    });
   }
 
-  initVis(parentElement: string, data: any) {
+  initMainPage(countries: any[]) {
+    this.addVariablesToSelect(countries);
+    this.addAreasToSelect(countries);
+    this.addYearsToSelect(countries);
+    this.initVis();
+  }
+
+  initVis() {
     let vis = this;
-    vis.parentElement = parentElement;
-    vis.data = data;
     vis.margin = { top: 0, right: 0, bottom: 0, left: 0 };
     vis.width = window.innerWidth - 700;
     vis.height = window.innerHeight - 200;
 
     vis.svg = d3
-      .select('#' + vis.parentElement)
+      .select(`#${vis.parentElement}`)
       .append('svg')
       .attr('width', vis.width)
       .attr('height', vis.height)
