@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { Select } from '@ngxs/store';
 import * as d3 from 'd3';
+import { Observable } from 'rxjs';
+import { CountriesSelectors } from 'src/app/core/stores/countries/countries.selectors';
 import * as topojson from 'topojson-client';
 
 @Component({
@@ -10,17 +13,24 @@ import * as topojson from 'topojson-client';
   template: `<div id="rotating-globe"></div>`,
 })
 export class RotatingEarthComponent implements OnInit {
+  @Select(CountriesSelectors.getCountries) countries$: Observable<any>;
+
   ngOnInit() {
     d3.json('assets/archive/world.json').then((data: any) => {
       const world = topojson.feature(data, data.objects.countries);
-      this.initGlobe('rotating-globe', world);
+      this.initGlobe(world);
+    });
+
+    this.countries$.subscribe((countries) => {
+      console.log(countries);
     });
   }
 
-  private initGlobe(parentElement: string, data: any): void {
+  private initGlobe(data: any): void {
+    const parentElement = 'rotating-globe';
     let width = 500;
     const height = 500;
-    const sensitivity = 50
+    const sensitivity = 50;
 
     const projection = d3
       .geoOrthographic()
@@ -56,7 +66,10 @@ export class RotatingEarthComponent implements OnInit {
       .data(data.features)
       .enter()
       .append('path')
-      .attr('class', (d: any) => 'country_' + d.properties.name.replace(' ', '_'))
+      .attr(
+        'class',
+        (d: any) => 'country_' + d.properties.name.replace(' ', '_')
+      )
       .attr('d', path as any)
       .attr('fill', '#09119F')
       .style('stroke', 'black')

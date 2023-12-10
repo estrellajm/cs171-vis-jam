@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Action, State, StateContext } from '@ngxs/store';
+import { Action, Selector, State, StateContext } from '@ngxs/store';
 import { CountriesAction, LoadCountries } from './countries.actions';
 import { DataService } from '@services/data/data.service';
 
