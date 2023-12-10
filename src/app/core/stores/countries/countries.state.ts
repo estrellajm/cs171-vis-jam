@@ -27,11 +27,7 @@ export class CountriesState {
   }
 
   @Action(LoadCountries)
-  filterCountryData({ patchState }: StateContext<CountriesStateModel>) {
-    // const countries = this.wd_indicators.map((item: any) => ({
-    //   country: item.country,
-    //   code: item.code,
-    //   [path]: item[path],
-    // }));
+  updateSelections({ setState }: StateContext<CountriesStateModel>) {
+    setState(inject(DataService).loadData());
   }
 }

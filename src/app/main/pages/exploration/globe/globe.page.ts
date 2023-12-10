@@ -43,7 +43,7 @@ export class GlobePage {
   @Select(CountriesSelectors.getCountries) countries$: Observable<any>;
   categoryForm: FormGroup;
 
-  title: string;
+  title: RouteKey;
   data: Country[];
 
   categories: string[];
@@ -80,7 +80,7 @@ export class GlobePage {
   route = inject(ActivatedRoute);
 
   ngOnInit() {
-    const path = this.route.snapshot.data['path'];
+    const path: RouteKey = this.route.snapshot.data['path'];
     this.countries$.subscribe((data) => {
       // set title
       this.title = path;
