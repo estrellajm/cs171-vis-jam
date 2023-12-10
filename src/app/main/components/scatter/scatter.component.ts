@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import * as d3 from 'd3';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'jam-scatter',
@@ -9,6 +10,8 @@ import * as d3 from 'd3';
   template: '<div id="scatterDiv"></div>',
 })
 export class ScatterEarthComponent {
+  @Input() selectedValues$: Observable<any>;
+
   sortDataFunc: any;
   ascending: boolean = true;
   colors = ['#fddbc7', '#f4a582', '#d6604d', '#b2182b'];

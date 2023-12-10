@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ScatterEarthComponent } from 'src/app/main/components/scatter/scatter.component';
 
@@ -11,6 +12,8 @@ import { ScatterEarthComponent } from 'src/app/main/components/scatter/scatter.c
   styleUrls: ['./correlation.page.scss'],
 })
 export class CorrelationPage {
+  selectedValues: FormGroup;
+
   selectedX: string = 'GDP Per Capita';
   selectedY: string = 'Literacy Rate';
   selectedCountry: string = 'Germany';
@@ -24,6 +27,17 @@ export class CorrelationPage {
   axisValues: string[] = ['GDP Per Capita', 'Literacy Rate'];
   countries: string[] = ['Germany', 'US'];
   years: number[] = [2018, 2019];
+
+  fb = inject(FormBuilder);
+
+  constructor() {
+    this.selectedValues = this.fb.group({
+      x: '',
+      y: '',
+      country: '',
+      year: '',
+    });
+  }
 
   changeSelectedX(newX: string) {
     this.selectedX = newX;

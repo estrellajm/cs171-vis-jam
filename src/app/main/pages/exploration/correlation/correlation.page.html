@@ -350,7 +350,9 @@
   <!-- Main content -->
   <div class="bg-[#1624B4]">
     <div class="relative h-full">
-      <jam-scatter></jam-scatter>
+      <jam-scatter
+        [selectedValues$]="selectedValues.valueChanges"
+      ></jam-scatter>
     </div>
   </div>
 </div>
