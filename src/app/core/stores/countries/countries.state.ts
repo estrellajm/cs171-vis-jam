@@ -4,11 +4,13 @@ import { CountriesAction, LoadCountries } from './countries.actions';
 import { DataService } from '@services/data/data.service';
 
 export class CountriesStateModel {
-  public countries: string[];
+  public rotating: {};
   public world: {};
+  public countries: string[];
 }
 
 const defaults = {
+  rotating: {},
   world: {},
   countries: [],
 };
@@ -21,8 +23,7 @@ const defaults = {
 export class CountriesState {
   @Action(LoadCountries)
   loadCountries({ setState }: StateContext<CountriesStateModel>) {
-    const { world, countries } = inject(DataService).loadData();
-    setState({ world, countries });
+    setState(inject(DataService).loadData());
   }
 
   @Action(LoadCountries)

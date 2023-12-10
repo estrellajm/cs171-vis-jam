@@ -13,16 +13,13 @@ import * as topojson from 'topojson-client';
   template: `<div id="rotating-globe"></div>`,
 })
 export class RotatingEarthComponent implements OnInit {
-  @Select(CountriesSelectors.getCountries) countries$: Observable<any>;
+  @Select(CountriesSelectors.getRotating) countries$: Observable<any>;
 
   ngOnInit() {
-    d3.json('assets/archive/world.json').then((data: any) => {
+    this.countries$.subscribe((data) => {
+      // console.log(data);
       const world = topojson.feature(data, data.objects.countries);
       this.initGlobe(world);
-    });
-
-    this.countries$.subscribe((countries) => {
-      console.log(countries);
     });
   }
 
@@ -66,6 +63,7 @@ export class RotatingEarthComponent implements OnInit {
       .data(data.features)
       .enter()
       .append('path')
+      // .attr('class', (d: any) => `country_${d.country}`)
       .attr(
         'class',
         (d: any) => 'country_' + d.properties.name.replace(' ', '_')
