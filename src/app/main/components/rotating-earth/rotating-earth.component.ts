@@ -13,14 +13,75 @@ import * as topojson from 'topojson-client';
   template: `<div id="rotating-globe"></div>`,
 })
 export class RotatingEarthComponent implements OnInit {
-  @Select(CountriesSelectors.getRotating) countries$: Observable<any>;
+  @Select(CountriesSelectors.getRotating) globe$: Observable<any>;
 
   ngOnInit() {
-    this.countries$.subscribe((data) => {
+    this.globe$.subscribe((data) => {
       // console.log(data);
+      // this.initGlobeUsingCDN(data);
+
+      /** Using old world data, located in archive */
       const world = topojson.feature(data, data.objects.countries);
       this.initGlobe(world);
     });
+  }
+
+  private initGlobeUsingCDN(data: any): void {
+    const parentElement = 'rotating-globe';
+    let width = 500;
+    const height = 500;
+    const sensitivity = 50;
+
+    const projection = d3
+      .geoOrthographic()
+      .scale(250)
+      .center([0, 0])
+      .rotate([0, 0])
+      .translate([width / 2, height / 2]);
+
+    const initialScale = projection.scale();
+    let path = d3.geoPath().projection(projection);
+
+    const svg = d3
+      .select(`#${parentElement}`)
+      .append('svg')
+      .attr('width', width)
+      .attr('height', height);
+
+    const globe = svg
+      .append('circle')
+      .attr('fill', '#070B5D')
+      .attr('stroke', '#000')
+      .attr('stroke-width', '0.2')
+      .attr('cx', width / 2)
+      .attr('cy', height / 2)
+      .attr('r', initialScale);
+
+    let map = svg.append('g');
+
+    map
+      .append('g')
+      .attr('class', 'countries')
+      .selectAll('path')
+      .data(data.features)
+      .enter()
+      .append('path')
+      .attr('class', (d: any) => `country_${d.country}`)
+      .attr('d', path as any)
+      .attr('fill', '#09119F')
+      .style('stroke', 'black')
+      .style('stroke-width', 0.5)
+      .style('opacity', 0.5);
+
+    // rotate
+    /** BUG: Code below is causing '[Violation] 'setTimeout' handler took 66ms' */
+    d3.timer(() => {
+      const rotate = projection.rotate();
+      const k = sensitivity / projection.scale();
+      projection.rotate([rotate[0] + 1 * k, rotate[1]]);
+      path = d3.geoPath().projection(projection);
+      svg.selectAll('path').attr('d', path as any);
+    }, 200);
   }
 
   private initGlobe(data: any): void {
@@ -63,7 +124,6 @@ export class RotatingEarthComponent implements OnInit {
       .data(data.features)
       .enter()
       .append('path')
-      // .attr('class', (d: any) => `country_${d.country}`)
       .attr(
         'class',
         (d: any) => 'country_' + d.properties.name.replace(' ', '_')
