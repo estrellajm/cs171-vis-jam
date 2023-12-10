@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { Select } from '@ngxs/store';
 import * as d3 from 'd3';
 import { Observable } from 'rxjs';
+import { CountriesSelectors } from 'src/app/core/stores/countries/countries.selectors';
 
 @Component({
   selector: 'jam-scatter',
@@ -11,6 +13,8 @@ import { Observable } from 'rxjs';
 })
 export class ScatterEarthComponent {
   @Input() selectedValues$: Observable<any>;
+  @Select(CountriesSelectors.getCorrelationFields)
+  selectedValues2$: Observable<any>;
 
   sortDataFunc: any;
   ascending: boolean = true;
@@ -45,30 +49,30 @@ export class ScatterEarthComponent {
     this.parentElement = 'scatterDiv';
     this.data = countries;
 
-    this.yVariable = 'GDP per capita (2015 US$)';
-    this.xVariable = 'Renewable energy consumption (% of energy consumption)';
-    this.areas = ['World'];
-    this.years = [
-      1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971,
-      1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983,
-      1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995,
-      1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,
-      2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019,
-      2020, 2021, 2022,
-    ];
+    // this.yVariable = 'GDP per capita (2015 US$)';
+    // this.xVariable = 'Renewable energy consumption (% of energy consumption)';
+    // this.areas = ['World'];
+    // this.years = [
+    //   1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971,
+    //   1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983,
+    //   1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995,
+    //   1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,
+    //   2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019,
+    //   2020, 2021, 2022,
+    // ];
 
-    this.initMainPage(countries);
+    // this.initMainPage(countries);
   }
 
   ngAfterViewInit(): void {
     this.loadData();
-    this.selectedValues$.subscribe((change) => {
+    this.selectedValues2$.subscribe((change) => {
       console.log(change);
 
-      this.xVariable = change.x;
-      this.yVariable = change.y;
-      this.areas = change.country;
-      this.years = [change.year];
+      this.xVariable = change.xVariable;
+      this.yVariable = change.yVariable;
+      this.areas = change.areas;
+      this.years = change.year;
       this.wrangleData();
     });
   }

@@ -13,6 +13,13 @@ export class CountriesSelectors {
   }
 
   @Selector([CountriesState])
+  static getSelectedCorrelationValues(state: CountriesStateModel) {
+    console.log(state.selectedCorrelationValues);
+    
+    return state.selectedCorrelationValues;
+  }
+
+  @Selector([CountriesState])
   static getCorrelationFields(state: CountriesStateModel) {
     return {
       axis: this.extractKeys(state.countries[0]),
