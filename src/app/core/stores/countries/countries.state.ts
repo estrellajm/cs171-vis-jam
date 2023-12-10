@@ -40,7 +40,7 @@ export class CountriesState {
     const data = inject(DataService).loadData()
     console.log(data);
     
-    setState({...data, });
+    setState(data);
   }
 
   @Action(LoadCountries)
