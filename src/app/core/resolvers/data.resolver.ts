@@ -4,13 +4,12 @@ import {
   ResolveFn,
   RouterStateSnapshot,
 } from '@angular/router';
-import { DataService } from '@services/data/data.service';
+import { Store } from '@ngxs/store';
+import { LoadCountries } from '../stores/countries/countries.actions';
 
 export const dataResolver: ResolveFn<any> = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
 ) => {
-  const path = route.data['path'];
-  // return inject(DataService).getData(path);
-  return []
+  return inject(Store).dispatch(LoadCountries);
 };
