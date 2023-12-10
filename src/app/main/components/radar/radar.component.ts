@@ -21,6 +21,7 @@ export class RadarComponent {
 
   ngAfterViewInit() {
     this.initVis('radarDiv', this.country);
+    console.log(this.country);
   }
 
   margin: any;
@@ -165,6 +166,11 @@ export class RadarComponent {
     });
     function wrapText(text: any, width: any) {
       text.each(function () {
+        let position = +(+d3.select(this).attr('x')).toFixed(5);
+        let w = width;
+        if (position===0) {
+          w = 180
+        };
         let text = d3.select(this),
           words = text.text().split(/\s+/).reverse(),
           word,

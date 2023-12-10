@@ -314,7 +314,7 @@ export class GlobeEarthComponent implements AfterViewInit {
         let scale = d3.scaleLinear().range([0, 100]).domain([outOf, 1]);
         let axisValue = scale(rank);
         vis.radarData[country].push({
-          axis: variable + ' ' + value + ' ' + rank + '/' + outOf,
+          axis: variable,
           axisValue: axisValue,
           value: value,
           rank: rank,
