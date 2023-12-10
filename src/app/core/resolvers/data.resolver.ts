@@ -11,5 +11,6 @@ export const dataResolver: ResolveFn<any> = (
   state: RouterStateSnapshot
 ) => {
   const path = route.data['path'];
-  return inject(DataService).getData(path);
+  // return inject(DataService).getData(path);
+  return []
 };

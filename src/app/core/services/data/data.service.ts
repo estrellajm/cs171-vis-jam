@@ -8,13 +8,10 @@ import WORLD from '@assets/data/world.json';
 export class DataService {
   wd_indicators = WD_INDICATORS as any;
   world = WORLD as any;
-  getData(path: string): any {
-    const countries = this.wd_indicators.map((item: any) => ({
-      country: item.country,
-      code: item.code,
-      [path]: item[path],
-    }));
+
+  loadData(): any {
     const world = this.world;
-    return { countries, world };
+    const countries = this.wd_indicators;
+    return { world, countries };
   }
 }
