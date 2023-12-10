@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Action, State, StateContext } from '@ngxs/store';
-import { DataService } from '@services/data/data.service';
 import { LoadCountries } from './countries.actions';
+import { DataService } from '@services/data/data.service';
 
 export class CountriesStateModel {
   public rotating: {};
@@ -28,6 +28,6 @@ export class CountriesState {
 
   @Action(LoadCountries)
   updateSelections({ setState }: StateContext<CountriesStateModel>) {
-    setState(inject(DataService).loadData());
+    // setState(inject(DataService).loadData());
   }
 }

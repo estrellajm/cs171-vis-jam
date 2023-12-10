@@ -1,21 +1,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { dataResolver } from '@resolvers/data.resolver';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/welcome', pathMatch: 'full' }, // redirect to `welcome`
+  // { path: '', redirectTo: '/welcome', pathMatch: 'full' }, // redirect to `welcome`
   {
-    path: 'welcome',
-    loadComponent: () =>
-      import('./main/pages/welcome/welcome.page').then((m) => m.WelcomePage),
-    data: { animation: 0 },
-  },
-  {
-    path: 'exploration',
+    path: '',
     loadChildren: () =>
-      import('./main/pages/exploration/exploration.root.module').then(
-        (m) => m.ExplorationModule
-      ),
-    data: { animation: 1 },
+      import('./main/pages/page.module').then((m) => m.PagesModule),
+    resolve: { data: dataResolver },
   },
   {
     path: 'credits',
