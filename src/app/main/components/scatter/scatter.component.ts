@@ -4,6 +4,7 @@ import { Select } from '@ngxs/store';
 import * as d3 from 'd3';
 import { Observable } from 'rxjs';
 import { CountriesSelectors } from 'src/app/core/stores/countries/countries.selectors';
+import { SelectedValues } from 'src/app/core/stores/countries/countries.state';
 
 @Component({
   selector: 'jam-scatter',
@@ -12,9 +13,8 @@ import { CountriesSelectors } from 'src/app/core/stores/countries/countries.sele
   template: '<div id="scatterDiv"></div>',
 })
 export class ScatterEarthComponent {
-  @Input() selectedValues$: Observable<any>;
-  @Select(CountriesSelectors.getCorrelationFields)
-  selectedValues2$: Observable<any>;
+  @Select(CountriesSelectors.getSelectedCorrelationValues)
+  selectedValues$: Observable<any>;
 
   sortDataFunc: any;
   ascending: boolean = true;
@@ -66,16 +66,13 @@ export class ScatterEarthComponent {
 
   ngAfterViewInit(): void {
     this.loadData();
-    this.selectedValues$.subscribe((change) => {
-      console.log(change);
-
-      this.xVariable = change.x;
-      this.yVariable = change.y;
-      this.areas = change.country;
-      this.years = [change.year];
+    this.selectedValues$.subscribe((selected: SelectedValues) => {
+      this.xVariable = selected.xVariable;
+      this.yVariable = selected.yVariable;
+      this.areas = selected.areas;
+      this.years = selected.selectedYears;
       this.wrangleData();
     });
-    this.selectedValues2$.subscribe(console.log);
   }
 
   initMainPage(countries: any[]) {
@@ -148,7 +145,7 @@ export class ScatterEarthComponent {
     let vis = this;
 
     let tempData: any = {};
-    vis.data.forEach((areaObject: any) => {
+    vis.data?.forEach((areaObject: any) => {
       if (vis.areas.includes(areaObject.country)) {
         tempData[areaObject.country] = {};
         for (let key in areaObject) {
@@ -238,6 +235,7 @@ export class ScatterEarthComponent {
 
     vis.y.range([vis.height, 0]);
 
+    if (vis.displayData.length < 1) return;
     vis.updateVis(false, true);
   }
 

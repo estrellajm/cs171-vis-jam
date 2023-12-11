@@ -28,7 +28,7 @@
           globe.
         </p>
       </div>
-      <form [formGroup]="selectedValues">
+      <form [formGroup]="scatterForm" ngxsForm="countries.scatterForm">
         <div
           class="flex flex-col gap-20"
           *ngIf="correlation$ | async as correlation"
@@ -51,7 +51,7 @@
                   <span
                     class="block truncate text-2xl font-bold text-[#09119F]"
                   >
-                    {{selectedY}}
+                    {{correlation.yVariable}}
                   </span>
                   <span
                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
@@ -123,7 +123,7 @@
                   <span
                     class="block truncate text-2xl font-bold text-[#09119F]"
                   >
-                    {{selectedX}}
+                    {{correlation.xVariable}}
                   </span>
                   <span
                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
@@ -185,7 +185,7 @@
               </div>
             </div>
           </div>
-          <div>
+          <!-- <div>
             <label for="indicator" class="block text-sm font-medium">
               FILTER BY COUNTRY AND YEAR
             </label>
@@ -203,7 +203,7 @@
                   <span
                     class="block truncate text-2xl font-bold text-[#09119F]"
                   >
-                    {{selectedCountry}}
+                    {{correlation.areas}}
                   </span>
                   <span
                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
@@ -275,7 +275,7 @@
                   <span
                     class="block truncate text-2xl font-bold text-[#09119F]"
                   >
-                    {{selectedYear}}
+                    {{correlation.years}}
                   </span>
                   <span
                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
@@ -336,7 +336,7 @@
                 </ul>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       </form>
     </div>
@@ -363,9 +363,7 @@
   <!-- Main content -->
   <div class="bg-[#1624B4]">
     <div class="relative h-full">
-      <jam-scatter
-        [selectedValues$]="selectedValues.valueChanges"
-      ></jam-scatter>
+      <jam-scatter></jam-scatter>
     </div>
   </div>
 </div>
