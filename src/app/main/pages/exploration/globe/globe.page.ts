@@ -49,6 +49,7 @@ export class GlobePage {
   data: Country[];
 
   categories: string[];
+  categoriesLabel: any;
   showCategoryDropdown: boolean = false;
 
   years: number[];
@@ -94,7 +95,24 @@ export class GlobePage {
       this.categories = Object.keys(data[0][path][0])
         .sort()
         .filter((b) => b !== 'year');
-      this.categoryForm.patchValue({ category: this.categories[3], year: 2018 });
+
+      this.categoriesLabel = this.categories.reduce((obj: any, item: any) => {
+        let index = item.indexOf('(');
+        let key = item;
+        let value = item;
+
+        if (index !== -1) {
+          value = item.substring(0, index).trim();
+        }
+
+        obj[key] = value;
+        return obj;
+      }, {});
+
+      this.categoryForm.patchValue({
+        category: this.categories[3],
+        year: 2018,
+      });
 
       // set years
       this.years = data[0][path]

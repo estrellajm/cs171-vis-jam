@@ -138,8 +138,6 @@ export class GlobeEarthComponent implements AfterViewInit {
       .attr('d', vis.path)
       .attr('fill', 'transparent');
 
-    console.log(vis.countries);
-
     vis.tooltip = d3
       .select('body')
       .append('div')

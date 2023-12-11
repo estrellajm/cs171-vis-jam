@@ -43,7 +43,7 @@
             aria-labelledby="listbox-label"
             (click)="showCategoryDropdown = !showCategoryDropdown"
           >
-            <span class="block truncate text-2xl font-bold text-[#09119F]">
+            <span class="block truncate text-lg font-bold text-[#09119F]">
               {{categoryForm.value.category}}
             </span>
             <span
@@ -82,7 +82,7 @@
                 class="block truncate"
                 [ngClass]="{'font-semibold': category === categoryForm.value.category}"
               >
-                {{category}}
+                {{categoriesLabel[category]}}
               </span>
               <span
                 *ngIf="category === categoryForm.value.category"
@@ -114,7 +114,7 @@
               aria-labelledby="listbox-label"
               (click)="showYearDropdown = !showYearDropdown"
             >
-              <span class="block truncate text-2xl font-bold text-[#09119F]">
+              <span class="block truncate text-lg font-bold text-[#09119F]">
                 {{categoryForm.value.year}}
               </span>
               <span
