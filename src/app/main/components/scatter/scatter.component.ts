@@ -265,10 +265,19 @@ export class ScatterEarthComponent {
           .attr('stroke', '#24D4A6')
           .style('opacity', '1');
 
+        let tooltipOffsetX = 10;
+        let tooltipOffsetY = 20;
         vis.tooltip
+          .style('position', 'absolute')
           .style('opacity', 1)
-          .style('left', event.pageX + 20 + 'px')
-          .style('top', event.pageY - 50 + 'px').html(`
+          .style('left', event.pageX + tooltipOffsetX + 'px')
+          .style('top', event.pageY + tooltipOffsetY + 'px')
+          // .style('width', '379px')
+          // .style('height', '250px')
+          .style('flex-shrink', 0)
+          .style('border-radius', '12px')
+          .style('background', '#FFF')
+          .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
                     <div style="border: thin solid grey; border-radius: 10px; background: white; padding: 20px">
                         <div style="display: flex; justify-content: space-between;">
                             <div class="country">${d.area}</div>
@@ -289,6 +298,21 @@ export class ScatterEarthComponent {
                              )}</div>
                         </div>
                     </div>`);
+
+        // Ensure tooltip stays within the viewport
+        let tooltip = vis.tooltip.node();
+        let tooltipRect = tooltip.getBoundingClientRect();
+        let xPosition = event.pageX + tooltipOffsetX;
+        let yPosition = event.pageY + tooltipOffsetY;
+
+        // Check if the tooltip is partially outside the viewport
+        if (xPosition + tooltipRect.width > window.innerWidth) {
+          xPosition = window.innerWidth - tooltipRect.width;
+        }
+
+        if (yPosition + tooltipRect.height > window.innerHeight) {
+          yPosition = window.innerHeight - tooltipRect.height;
+        }
       })
       .on('mouseout', function (event: any, d: any) {
         d3.select(this).attr('stroke', 'none').style('opacity', '0.5');

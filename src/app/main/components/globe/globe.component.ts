@@ -353,7 +353,10 @@ export class GlobeEarthComponent implements AfterViewInit {
       .on('mouseover', function (event: any, d: any) {
         this.parentNode.appendChild(this);
         // Highlight the country path
-        d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white').raise();
+        d3.select(this)
+          .attr('stroke-width', '1px')
+          .attr('stroke', 'white')
+          .raise();
 
         let countryName = d.properties.name;
 
@@ -389,20 +392,23 @@ export class GlobeEarthComponent implements AfterViewInit {
             .style('border-radius', '12px')
             .style('background', '#FFF')
             .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
-        <div class="p-5 space-y-1">
-          <div class="flex justify-between">
-            <h2 class="font-bold text-[#09119F] text-xl">${countryName}</h2>
-            <h2 class="font-bold text-[#09119F] text-xl">
-              ${vis.year}
-            </h2>
-          </div>
-          <p class='data-point'>${vis.variable}</p>
-          <p class='font-bold text-[#09119F]'>${formatValue(
-            dataPoint.value
-          )}</p>
-          <svg id="timeseries-chart" width="325" height="100"></svg>
-        </div>
-      `);
+              <div class="p-5 space-y-1">
+                <div class="flex justify-between">
+                  <h2 class="font-bold text-[#09119F] text-xl">
+                    ${countryName}
+                  </h2>
+                  <h2 class="font-bold text-[#09119F] text-xl">
+                    ${vis.year}
+                  </h2>
+                </div>
+                <p class='data-point'>${vis.variable}</p>
+                <p class='font-bold text-[#09119F]'>${formatValue(
+                  dataPoint.value
+                )}</p>
+                <svg id="timeseries-chart" width="325" height="100">
+                </svg>
+              </div>
+            `);
 
           const svg = d3.select('#timeseries-chart');
 
