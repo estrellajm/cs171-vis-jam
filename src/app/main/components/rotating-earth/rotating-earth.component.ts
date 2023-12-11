@@ -25,13 +25,13 @@ export class RotatingEarthComponent implements OnInit {
 
   private initGlobe(data: any): void {
     const parentElement = 'rotating-globe';
-    let width = 500;
-    const height = 500;
+    let width = 700;
+    const height = 700;
     const sensitivity = 50;
 
     const projection = d3
       .geoOrthographic()
-      .scale(250)
+      .scale(300)
       .center([0, 0])
       .rotate([0, 0])
       .translate([width / 2, height / 2]);
@@ -77,7 +77,7 @@ export class RotatingEarthComponent implements OnInit {
     d3.timer(function (elapsed) {
       const rotate = projection.rotate();
       const k = sensitivity / projection.scale();
-      projection.rotate([rotate[0] + 1 * k, rotate[1]]);
+      projection.rotate([rotate[0] + 5 * k, rotate[1]]);
       path = d3.geoPath().projection(projection);
       svg.selectAll('path').attr('d', path as any);
     }, 200);

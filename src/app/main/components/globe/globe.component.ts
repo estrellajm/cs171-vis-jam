@@ -56,11 +56,9 @@ export class GlobeEarthComponent implements AfterViewInit {
 
   constructor() {}
 
-  // load earth data and world bank data
   async loadData() {
-    const world = await d3.json(
-      'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
-    );
+   const world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json');
+    //const world = await d3.json('assets/data/world.json');
     const countries = await d3.json('assets/data/wd_indicators.json');
 
     this.parentElement = 'globeDiv';
@@ -70,7 +68,6 @@ export class GlobeEarthComponent implements AfterViewInit {
     this.initVis();
   }
 
-  // load data and subscribe to changes
   ngAfterViewInit(): void {
     this.loadData();
     this.selectedValues$.subscribe((change) => {
@@ -80,11 +77,10 @@ export class GlobeEarthComponent implements AfterViewInit {
     });
   }
 
-  // init D3
   initVis() {
     let vis = this;
     vis.variable = vis.selectedValues.category;
-    vis.year = 2018;
+    vis.year = 2014;
 
     vis.margin = { top: 0, right: 0, bottom: 0, left: 0 };
     vis.width =
@@ -114,6 +110,7 @@ export class GlobeEarthComponent implements AfterViewInit {
     // projection
     vis.projection = d3
       .geoOrthographic()
+      .scale(350) //scaling the default zoom
       .translate([vis.width / 2, vis.height / 2]);
 
     vis.path = d3.geoPath().projection(vis.projection);
@@ -127,8 +124,9 @@ export class GlobeEarthComponent implements AfterViewInit {
       .attr('stroke', 'none');
 
     vis.world = topojson.feature(vis.geoData, vis.geoData.objects.countries);
+    //vis.world = vis.geoData.features
 
-    // draw countries
+
     vis.countries = vis.svg
       .selectAll('.country')
       .data(vis.world.features)
@@ -138,7 +136,6 @@ export class GlobeEarthComponent implements AfterViewInit {
       .attr('d', vis.path)
       .attr('fill', 'transparent');
 
-    // add tooltips
     vis.tooltip = d3
       .select('body')
       .append('div')
@@ -162,13 +159,15 @@ export class GlobeEarthComponent implements AfterViewInit {
 
         // Apply the updated path to all country elements
         vis.svg.selectAll('path').attr('d', vis.path);
+
+        // Optionally, update the radius of the globe if it's a sphere
+        // vis.svg.select('.sphere').attr('r', vis.projection.scale());
       } else {
         // Prevent zooming out too much
         event.transform.k = 0.3;
       }
     });
 
-    // set the drag behavior
     vis.svg
       .call(
         d3
@@ -189,13 +188,13 @@ export class GlobeEarthComponent implements AfterViewInit {
             vis.svg.selectAll('.country').attr('d', vis.path);
           })
       )
-      .call(zoom); // set the zoom
+      .call(zoom);
 
     const legendWidth = 200;
     const legendHeight = 10;
     const legendPosition = {
-      x: vis.width - legendWidth - 20,
-      y: vis.height - legendHeight - 20,
+      x: vis.width - legendWidth - 40,
+      y: vis.height - legendHeight - 40,
     };
 
     // Create a legend group
@@ -290,6 +289,9 @@ export class GlobeEarthComponent implements AfterViewInit {
         color: vis.colorScale(history[vis.year]),
         history: history,
       };
+
+      // console.log(history);
+      // console.log(vis.countryInfo);
     });
 
     // define variables for which it is better to have smaller value
@@ -317,7 +319,7 @@ export class GlobeEarthComponent implements AfterViewInit {
         let scale = d3.scaleLinear().range([0, 100]).domain([outOf, 1]);
         let axisValue = scale(rank);
         vis.radarData[country].push({
-          axis: variable,
+          axis: variable + ' ' + value + ' ' + rank + '/' + outOf,
           axisValue: axisValue,
           value: value,
           rank: rank,
@@ -351,12 +353,8 @@ export class GlobeEarthComponent implements AfterViewInit {
         vis.dialogService.openDialog(country);
       })
       .on('mouseover', function (event: any, d: any) {
-        this.parentNode.appendChild(this);
         // Highlight the country path
-        d3.select(this)
-          .attr('stroke-width', '1px')
-          .attr('stroke', 'white')
-          .raise();
+        d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white').raise();
 
         let countryName = d.properties.name;
 
@@ -374,10 +372,7 @@ export class GlobeEarthComponent implements AfterViewInit {
           let tooltipOffsetY = 20;
 
           const formatValue = (val: any) => {
-            return new Intl.NumberFormat('en-US', {
-              style: 'currency',
-              currency: 'USD',
-            }).format(val);
+            return val;
           };
 
           // Show the tooltip
@@ -392,28 +387,25 @@ export class GlobeEarthComponent implements AfterViewInit {
             .style('border-radius', '12px')
             .style('background', '#FFF')
             .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
-              <div class="p-5 space-y-1">
-                <div class="flex justify-between">
-                  <h2 class="font-bold text-[#09119F] text-xl">
-                    ${countryName}
-                  </h2>
-                  <h2 class="font-bold text-[#09119F] text-xl">
-                    ${vis.year}
-                  </h2>
-                </div>
-                <p class='data-point'>${vis.variable}</p>
-                <p class='font-bold text-[#09119F]'>${formatValue(
-                  dataPoint.value
-                )}</p>
-                <svg id="timeseries-chart" width="325" height="100">
-                </svg>
-              </div>
-            `);
+        <div class="p-5 space-y-1">
+          <div class="flex justify-between">
+            <h2 class="font-bold text-[#09119F] text-xl">${countryName}</h2>
+            <h2 class="font-bold text-[#09119F] text-xl">
+              ${vis.year}
+            </h2>
+          </div>
+          <p class='data-point'>${vis.variable}</p>
+          <p class='font-bold text-[#09119F]'>${formatValue(
+            dataPoint.value
+          )}</p>
+          <svg id="timeseries-chart" width="325" height="100"></svg>
+        </div>
+      `);
 
           const svg = d3.select('#timeseries-chart');
 
           // Set the dimensions and margins of the graph
-          const margin = { top: 10, right: 10, bottom: 20, left: 45 },
+          const margin = { top: 10, right: 10, bottom: 20, left: 10 },
             width = +svg.attr('width') - margin.left - margin.right,
             height = +svg.attr('height') - margin.top - margin.bottom;
 

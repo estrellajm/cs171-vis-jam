@@ -59,7 +59,7 @@ export class GlobePage {
   constructor() {
     this.categoryForm = this.fb.group({
       category: '',
-      year: 2018,
+      year: 2014,
     });
   }
 
