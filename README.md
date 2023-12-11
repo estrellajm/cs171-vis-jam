@@ -5,6 +5,29 @@ https://cs171-vis-jam.web.app/
 
 Visit the link above to view the live server.
 
+## Notes on Comments
+
+The comments have been made to all the D3 components, which are located within the following directory
+
+```
+src/app/main/components
+```
+
+Within components, you can find the components where the D3 is built.
+```
+.
+├── bars
+│   └── bars.component.ts
+├── globe
+│   └── globe.component.ts
+├── radar
+│   └── radar.component.ts
+├── rotating-earth
+│   └── rotating-earth.component.ts
+└── scatter
+    └── scatter.component.ts
+```
+
 ## Run Locally
 To start this project locally, you need to have the following
 - Node
