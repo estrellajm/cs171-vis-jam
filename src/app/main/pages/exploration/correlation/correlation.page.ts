@@ -68,11 +68,14 @@ export class CorrelationPage {
     });
 
     this.loadInitialValues();
-    // // this.selectedValues.valueChanges.subscribe((values) => {
-    // //   console.log(values);
+  }
 
-    // //   this.store.dispatch(new UpdateSelections(values));
-    // // });
+  getLabel(key: string) {
+    let index = key.indexOf('(');
+    if (index !== -1) {
+      return key.substring(0, index).trim();
+    }
+    return key;
   }
 
   async loadInitialValues() {

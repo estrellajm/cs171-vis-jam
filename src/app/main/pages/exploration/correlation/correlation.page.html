@@ -1,5 +1,5 @@
 <div class="flex">
-  <div class="min-h-screen flex flex-col w-3/4 bg-[#0D1779] text-white">
+  <div class="min-h-screen flex flex-col bg-[#0D1779] text-white max-w-[24rem]">
     <div class="p-8">
       <a
         class="flex gap-2 items-center underline underline-offset-4"
@@ -44,16 +44,16 @@
               >
                 <button
                   type="button"
-                  class="max-w-[330px] relative w-full rounded-full bg-white py-3 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
+                  class="min-w-[20rem] relative w-full rounded-full bg-white py-3 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
                   aria-haspopup="listbox"
                   aria-expanded="true"
                   aria-labelledby="listbox-label"
                   (click)="showYDropdown = !showYDropdown"
                 >
                   <span
-                    class="block truncate text-2xl font-bold text-[#09119F]"
+                    class="block truncate text-lg font-bold text-[#09119F]"
                   >
-                    {{correlation.yVariable}}
+                    {{getLabel(correlation.yVariable)}}
                   </span>
                   <span
                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
@@ -74,7 +74,7 @@
                 </button>
                 <ul
                   *ngIf="showYDropdown"
-                  class="max-w-[330px] absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm transition ease-in duration-100 opacity-100"
+                  class="min-w-[20rem] absolute z-10 mt-1 min-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm transition ease-in duration-100 opacity-100"
                   tabindex="-1"
                   role="listbox"
                   aria-labelledby="listbox-label"
@@ -91,7 +91,7 @@
                       class="block truncate"
                       [ngClass]="{'font-semibold': yValue === selectedValues.value.yVariable}"
                     >
-                      {{yValue}}
+                      {{getLabel(yValue)}}
                     </span>
                     <span
                       *ngIf="yValue === selectedValues.value.yVariable"
@@ -120,16 +120,16 @@
               >
                 <button
                   type="button"
-                  class="max-w-[330px] relative w-full rounded-full bg-white py-3 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
+                  class="min-w-[20rem] relative w-full rounded-full bg-white py-3 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
                   aria-haspopup="listbox"
                   aria-expanded="true"
                   aria-labelledby="listbox-label"
                   (click)="showXDropdown = !showXDropdown"
                 >
                   <span
-                    class="block truncate text-2xl font-bold text-[#09119F]"
+                    class="block truncate text-lg font-bold text-[#09119F]"
                   >
-                    {{correlation.xVariable}}
+                    {{getLabel(correlation.xVariable)}}
                   </span>
                   <span
                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
@@ -150,7 +150,7 @@
                 </button>
                 <ul
                   *ngIf="showXDropdown"
-                  class="max-w-[330px] absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm transition ease-in duration-100 opacity-100"
+                  class="min-w-[20rem] absolute z-10 mt-1 min-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm transition ease-in duration-100 opacity-100"
                   tabindex="-1"
                   role="listbox"
                   aria-labelledby="listbox-label"
@@ -167,7 +167,7 @@
                       class="block truncate"
                       [ngClass]="{'font-semibold': xValue === selectedValues.value.xVariable}"
                     >
-                      {{xValue}}
+                      {{getLabel(xValue)}}
                     </span>
                     <span
                       *ngIf="xValue === selectedValues.value.xVariable"
@@ -200,7 +200,7 @@
               <div class="relative">
                 <button
                   type="button"
-                  class="max-w-[330px] relative w-full rounded-full bg-white py-3 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
+                  class="min-w-[20rem] relative w-full rounded-full bg-white py-3 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
                   aria-haspopup="listbox"
                   aria-expanded="true"
                   aria-labelledby="listbox-label"
@@ -230,7 +230,7 @@
                 </button>
                 <ul
                   *ngIf="showCountryDropdown"
-                  class="max-w-[330px] absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm transition ease-in duration-100 opacity-100"
+                  class="min-w-[20rem] absolute z-10 mt-1 min-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm transition ease-in duration-100 opacity-100"
                   tabindex="-1"
                   role="listbox"
                   aria-labelledby="listbox-label"
@@ -272,7 +272,7 @@
               <div class="relative">
                 <button
                   type="button"
-                  class="max-w-[330px] relative w-full rounded-full bg-white py-3 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
+                  class="min-w-[20rem] relative w-full rounded-full bg-white py-3 pl-5 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 cursor-pointer"
                   aria-haspopup="listbox"
                   aria-expanded="true"
                   aria-labelledby="listbox-label"
@@ -302,7 +302,7 @@
                 </button>
                 <ul
                   *ngIf="showYearDropdown"
-                  class="max-w-[330px] absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm transition ease-in duration-100 opacity-100"
+                  class="min-w-[20rem] absolute z-10 mt-1 min-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm transition ease-in duration-100 opacity-100"
                   tabindex="-1"
                   role="listbox"
                   aria-labelledby="listbox-label"
@@ -367,9 +367,7 @@
     </div>
   </div>
   <!-- Main content -->
-  <div class="bg-[#1624B4]">
-    <div class="relative h-full">
-      <jam-scatter></jam-scatter>
-    </div>
+  <div class="bg-[#1624B4] w-full h-full flex">
+    <jam-scatter></jam-scatter>
   </div>
 </div>
