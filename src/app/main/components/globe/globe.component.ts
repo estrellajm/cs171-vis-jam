@@ -56,7 +56,6 @@ export class GlobeEarthComponent implements AfterViewInit {
   constructor() {}
 
   async loadData() {
-    //  const world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json');
     const world = await d3.json('assets/data/world.json');
     const countries = await d3.json('assets/data/wd_indicators.json');
 
