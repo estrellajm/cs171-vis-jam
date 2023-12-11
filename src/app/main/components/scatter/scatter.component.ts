@@ -49,6 +49,7 @@ export class ScatterEarthComponent {
     this.parentElement = 'scatterDiv';
     this.data = countries;
 
+    // set default values for the scatter plot
     this.yVariable = 'GDP per capita (2015 US$)';
     this.xVariable = 'Renewable energy consumption (% of energy consumption)';
     this.areas = ['World'];
@@ -64,6 +65,7 @@ export class ScatterEarthComponent {
     this.initMainPage(countries);
   }
 
+  // load the data and subscribe to changes
   ngAfterViewInit(): void {
     this.loadData();
     this.selectedValues$.subscribe((selected: SelectedValues) => {
@@ -75,6 +77,7 @@ export class ScatterEarthComponent {
     });
   }
 
+  // init with data
   initMainPage(countries: any[]) {
     this.addVariablesToSelect(countries);
     this.addAreasToSelect(countries);
@@ -82,6 +85,7 @@ export class ScatterEarthComponent {
     this.initVis();
   }
 
+  // init D3
   initVis() {
     let vis = this;
 
@@ -102,6 +106,7 @@ export class ScatterEarthComponent {
     vis.x = d3.scaleLinear().range([0, vis.width]);
     vis.y = d3.scaleLinear().range([vis.height, 0]);
 
+    // axis
     vis.xAxis = vis.svg
       .append('g')
       .attr('class', 'axis axis--x')
@@ -109,6 +114,7 @@ export class ScatterEarthComponent {
 
     vis.yAxis = vis.svg.append('g').attr('class', 'axis axis--y');
 
+    // axis labes
     vis.xAxisLabel = vis.svg
       .append('g')
       .attr('class', 'x-axis-label')
@@ -132,6 +138,7 @@ export class ScatterEarthComponent {
       .attr('font-size', 11)
       .style('fill', 'white');
 
+    // tooltip
     vis.tooltip = d3
       .select('body')
       .append('div')
@@ -203,8 +210,6 @@ export class ScatterEarthComponent {
         }
       }
     }
-
-    // console.log(vis.displayData);
 
     vis.updateVis();
   }

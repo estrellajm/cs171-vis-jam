@@ -17,9 +17,6 @@ export class RotatingEarthComponent implements OnInit {
 
   ngOnInit() {
     this.globe$.subscribe((data) => {
-      // console.log(data);
-      // this.initGlobeUsingCDN(data);
-
       /** Using old world data, located in archive */
       const world = topojson.feature(data, data.objects.countries);
       this.initGlobe(world);
@@ -77,7 +74,6 @@ export class RotatingEarthComponent implements OnInit {
       .style('opacity', 0.8);
 
     // rotate
-    /** BUG: Code below is causing '[Violation] 'setTimeout' handler took 66ms' */
     d3.timer(function (elapsed) {
       const rotate = projection.rotate();
       const k = sensitivity / projection.scale();
