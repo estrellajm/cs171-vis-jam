@@ -80,7 +80,7 @@ export class GlobeEarthComponent implements AfterViewInit {
   initVis() {
     let vis = this;
     vis.variable = vis.selectedValues.category;
-    vis.year = 2014;
+    vis.year = 2018;
 
     vis.margin = { top: 0, right: 0, bottom: 0, left: 0 };
     vis.width =
@@ -124,7 +124,7 @@ export class GlobeEarthComponent implements AfterViewInit {
       .attr('stroke', 'none');
 
     vis.world = topojson.feature(vis.geoData, vis.geoData.objects.countries);
-    //vis.world = vis.geoData.features
+    //vis.world = vis.geoData.features;
 
 
     vis.countries = vis.svg
@@ -372,7 +372,7 @@ export class GlobeEarthComponent implements AfterViewInit {
           let tooltipOffsetY = 20;
 
           const formatValue = (val: any) => {
-            return val;
+            return val.toLocaleString('en-US');
           };
 
           // Show the tooltip
@@ -405,7 +405,7 @@ export class GlobeEarthComponent implements AfterViewInit {
           const svg = d3.select('#timeseries-chart');
 
           // Set the dimensions and margins of the graph
-          const margin = { top: 10, right: 10, bottom: 20, left: 10 },
+          const margin = { top: 10, right: 10, bottom: 20, left: 40 },
             width = +svg.attr('width') - margin.left - margin.right,
             height = +svg.attr('height') - margin.top - margin.bottom;
 
