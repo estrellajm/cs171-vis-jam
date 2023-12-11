@@ -67,6 +67,83 @@ Then visit
 http://localhost:4200/
 ```
 
+## Project Structure
+
+Below is the complete project structure that is located within the `src` directory
+
+```
+.
+├── app-routing.module.ts
+├── app.component.html
+├── app.component.scss
+├── app.component.ts
+├── app.module.ts
+├── core
+│   ├── directives
+│   │   └── click-outside
+│   │       ├── click-outside-div.directive.spec.ts
+│   │       └── click-outside-div.directive.ts
+│   ├── interfaces
+│   │   ├── country.interface.ts
+│   │   └── user.interface.ts
+│   ├── resolvers
+│   │   ├── data.resolver.spec.ts
+│   │   └── data.resolver.ts
+│   ├── services
+│   │   ├── data
+│   │   │   ├── data.service.spec.ts
+│   │   │   └── data.service.ts
+│   │   └── dialog
+│   │       ├── dialog.service.spec.ts
+│   │       └── dialog.service.ts
+│   └── stores
+│       └── countries
+│           ├── countries.actions.ts
+│           ├── countries.selectors.ts
+│           └── countries.state.ts
+├── main
+│   ├── components
+│   │   ├── bars
+│   │   │   └── bars.component.ts
+│   │   ├── globe
+│   │   │   └── globe.component.ts
+│   │   ├── radar
+│   │   │   └── radar.component.ts
+│   │   ├── rotating-earth
+│   │   │   └── rotating-earth.component.ts
+│   │   └── scatter
+│   │       └── scatter.component.ts
+│   └── pages
+│       ├── credits
+│       │   ├── credits.page.html
+│       │   ├── credits.page.scss
+│       │   ├── credits.page.spec.ts
+│       │   └── credits.page.ts
+│       ├── exploration
+│       │   ├── correlation
+│       │   │   ├── correlation.page.html
+│       │   │   ├── correlation.page.scss
+│       │   │   ├── correlation.page.spec.ts
+│       │   │   └── correlation.page.ts
+│       │   ├── exploration.root.html
+│       │   ├── exploration.root.module.ts
+│       │   ├── exploration.root.ts
+│       │   └── globe
+│       │       ├── globe.page.html
+│       │       ├── globe.page.scss
+│       │       ├── globe.page.spec.ts
+│       │       └── globe.page.ts
+│       ├── pages.root.html
+│       ├── pages.root.module.ts
+│       ├── pages.root.ts
+│       └── welcome
+│           ├── welcome.page.html
+│           ├── welcome.page.scss
+│           ├── welcome.page.spec.ts
+│           └── welcome.page.ts
+└── slider.ts
+```
+
 ## Git Commands
 
 To switch to a new branch
