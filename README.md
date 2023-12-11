@@ -5,6 +5,12 @@ https://cs171-vis-jam.web.app/
 
 Visit the link above to view the live server.
 
+## Process Book
+
+Below is the link to our team's process book
+
+[Process Book - Google Drive](https://docs.google.com/document/d/1S9Q-4hUzh9FjuUb7bH_uFZvz2amB4Qqf9EyxCqESPmo/edit#heading=h.r7owtswhdbft)
+
 ## Notes on Comments
 
 The comments have been made to all the D3 components, which are located within the following directory
@@ -27,6 +33,15 @@ Within components, you can find the components where the D3 is built.
 └── scatter
     └── scatter.component.ts
 ```
+
+## Technology Used
+
+- Angular (Frontend Framework)
+- NGXS (FE Data store)
+- Firebase (Hosting)
+- Github (Repository)
+- Github Actions (CI/CD)
+
 
 ## Run Locally
 To start this project locally, you need to have the following
