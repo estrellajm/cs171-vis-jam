@@ -1,5 +1,8 @@
 # CS-171 Vis JAM
 
+![image](https://github.com/estrellajm/cs171-vis-jam/assets/104507318/3d2b9abc-b688-4150-ae57-aa98f0d0cfe5)
+
+
 ## Hosting
 https://cs171-vis-jam.web.app/
 
