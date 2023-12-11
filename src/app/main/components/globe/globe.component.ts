@@ -56,6 +56,7 @@ export class GlobeEarthComponent implements AfterViewInit {
 
   constructor() {}
 
+  // load earth data and world bank data
   async loadData() {
     const world = await d3.json(
       'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
@@ -69,6 +70,7 @@ export class GlobeEarthComponent implements AfterViewInit {
     this.initVis();
   }
 
+  // load data and subscribe to changes
   ngAfterViewInit(): void {
     this.loadData();
     this.selectedValues$.subscribe((change) => {
@@ -78,6 +80,7 @@ export class GlobeEarthComponent implements AfterViewInit {
     });
   }
 
+  // init D3
   initVis() {
     let vis = this;
     vis.variable = vis.selectedValues.category;
@@ -125,6 +128,7 @@ export class GlobeEarthComponent implements AfterViewInit {
 
     vis.world = topojson.feature(vis.geoData, vis.geoData.objects.countries);
 
+    // draw countries
     vis.countries = vis.svg
       .selectAll('.country')
       .data(vis.world.features)
@@ -134,6 +138,7 @@ export class GlobeEarthComponent implements AfterViewInit {
       .attr('d', vis.path)
       .attr('fill', 'transparent');
 
+    // add tooltips
     vis.tooltip = d3
       .select('body')
       .append('div')
@@ -157,15 +162,13 @@ export class GlobeEarthComponent implements AfterViewInit {
 
         // Apply the updated path to all country elements
         vis.svg.selectAll('path').attr('d', vis.path);
-
-        // Optionally, update the radius of the globe if it's a sphere
-        // vis.svg.select('.sphere').attr('r', vis.projection.scale());
       } else {
         // Prevent zooming out too much
         event.transform.k = 0.3;
       }
     });
 
+    // set the drag behavior
     vis.svg
       .call(
         d3
@@ -186,7 +189,7 @@ export class GlobeEarthComponent implements AfterViewInit {
             vis.svg.selectAll('.country').attr('d', vis.path);
           })
       )
-      .call(zoom);
+      .call(zoom); // set the zoom
 
     const legendWidth = 200;
     const legendHeight = 10;
@@ -287,9 +290,6 @@ export class GlobeEarthComponent implements AfterViewInit {
         color: vis.colorScale(history[vis.year]),
         history: history,
       };
-
-      // console.log(history);
-      // console.log(vis.countryInfo);
     });
 
     // define variables for which it is better to have smaller value
