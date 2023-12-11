@@ -3,7 +3,6 @@ import {
   ElementRef,
   EventEmitter,
   HostListener,
-  Input,
   Output,
 } from '@angular/core';
 
@@ -12,26 +11,19 @@ import {
   standalone: true,
 })
 export class ClickOutsideDivDirective {
-  @Input() jamClickOutsideDiv: boolean;
-  @Output() clickOutside = new EventEmitter<void>();
+  @Output() clickOutside = new EventEmitter<MouseEvent>();
 
-  constructor(private elementRef: ElementRef) {
-    
-  }
+  constructor(private elementRef: ElementRef) {}
 
-  @HostListener('document:click', ['$event.target'])
-  public onClick(targetElement: HTMLElement): void {
-
-
-    console.log(this.jamClickOutsideDiv);
-    if (!this.jamClickOutsideDiv) {
-      // If the condition is false, do nothing
+  @HostListener('document:click', ['$event', '$event.target'])
+  public onClick(event: MouseEvent, targetElement: HTMLElement): void {
+    if (!targetElement) {
       return;
     }
 
     const clickedInside = this.elementRef.nativeElement.contains(targetElement);
     if (!clickedInside) {
-      this.clickOutside.emit();
+      this.clickOutside.emit(event);
     }
   }
 }

@@ -11,6 +11,7 @@ import { RouterModule } from '@angular/router';
 import { NgxsFormPluginModule } from '@ngxs/form-plugin';
 import { Select, Store } from '@ngxs/store';
 import { Observable, firstValueFrom } from 'rxjs';
+import { ClickOutsideDivDirective } from 'src/app/core/directives/click-outside/click-outside-div.directive';
 import { UpdateSelections } from 'src/app/core/stores/countries/countries.actions';
 import { CountriesSelectors } from 'src/app/core/stores/countries/countries.selectors';
 import { SelectedValues } from 'src/app/core/stores/countries/countries.state';
@@ -31,6 +32,7 @@ export type Correlation = SelectedValues & {
     FormsModule,
     ReactiveFormsModule,
     NgxsFormPluginModule,
+    ClickOutsideDivDirective,
   ],
   templateUrl: './correlation.page.html',
   styleUrls: ['./correlation.page.scss'],
@@ -83,19 +85,19 @@ export class CorrelationPage {
     this.store.dispatch(new UpdateSelections(this.selectedValues.value));
     this.showXDropdown = false;
   }
-  
+
   changeSelectedY(yVariable: string) {
     this.selectedValues.patchValue({ yVariable });
     this.store.dispatch(new UpdateSelections(this.selectedValues.value));
     this.showYDropdown = false;
   }
-  
+
   changeSelectedCountry(areas: string) {
     this.selectedValues.patchValue({ areas });
     this.store.dispatch(new UpdateSelections(this.selectedValues.value));
     this.showCountryDropdown = false;
   }
-  
+
   changeSelectedYear(selectedYears: number) {
     this.selectedValues.patchValue({ selectedYears });
     this.store.dispatch(new UpdateSelections(this.selectedValues.value));

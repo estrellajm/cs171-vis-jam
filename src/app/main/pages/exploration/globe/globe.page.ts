@@ -36,7 +36,7 @@ type RouteKey = 'economy' | 'education' | 'environment';
     FormsModule,
     ReactiveFormsModule,
     BarsComponent,
-    ClickOutsideDivDirective
+    ClickOutsideDivDirective,
   ],
   templateUrl: './globe.page.html',
   styleUrls: ['./globe.page.scss'],
@@ -121,11 +121,4 @@ export class GlobePage {
     this.categoryForm.patchValue({ year: newYear });
     this.showYearDropdown = false;
   }
-
-  closeDropdown() {
-    this.showCategoryDropdown = false;
-    this.showYearDropdown = false;
-  }
-
-  closeDiv() {}
 }
