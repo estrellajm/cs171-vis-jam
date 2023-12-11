@@ -25,7 +25,9 @@ export class BarsComponent implements AfterViewInit {
   @Input() selectedValues$: Observable<any>;
   @ViewChild('barContainer') globeContainer: ElementRef;
 
+  // bars transition duration
   transitionDuration = 800;
+  // set colors
   colors: any = {
     economy: '198, 212, 36',
     education: '72, 244, 255',
@@ -63,9 +65,6 @@ export class BarsComponent implements AfterViewInit {
   constructor() {}
 
   async loadData() {
-    const world = await d3.json(
-      'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
-    );
     const countries = await d3.json('assets/data/wd_indicators.json');
 
     this.parentElement = 'barDiv';
@@ -75,6 +74,7 @@ export class BarsComponent implements AfterViewInit {
     this.initVis();
   }
 
+  // load data and subscribe to data changes
   ngAfterViewInit(): void {
     this.loadData();
     this.selectedValues$.subscribe((change) => {
@@ -84,6 +84,7 @@ export class BarsComponent implements AfterViewInit {
     });
   }
 
+  // init D3
   initVis() {
     const vis = this;
     vis.variable = vis.selectedValues.category;
@@ -105,9 +106,6 @@ export class BarsComponent implements AfterViewInit {
       .append('svg')
       .attr('width', vis.width + vis.margin.left + vis.margin.right)
       .attr('height', vis.height + vis.margin.top + vis.margin.bottom);
-    // .append('g')
-    // .attr('transform', `translate(${vis.margin.left} - 200, ${vis.margin.top})`)
-    // .style('background-color', '#0D187C');
 
     // Scales
     vis.x = d3.scaleLinear().range([0, vis.width]);
@@ -148,7 +146,8 @@ export class BarsComponent implements AfterViewInit {
       'Greenhouse gas emissions per capita (tons of CO2 equiv.)',
     ];
 
-    console.log(`Data is missing for ${vis.nMissing} countries.`);
+    // uncomment to show the missing data
+    // console.log(`Data is missing for ${vis.nMissing} countries.`);
 
     vis.countryInfo = Object.entries(vis.countryInfo);
     if (ascending.includes(vis.variable)) {
@@ -218,14 +217,5 @@ export class BarsComponent implements AfterViewInit {
       .attr('y', vis.height)
       .style('opacity', '0')
       .remove();
-
-    // Update the axes if needed
-    // vis.xAxis
-    //   .transition()
-    //   .duration(vis.transitionDuration)
-    //   .call(d3.axisBottom(vis.x))
-    //   .style('fill', 'white')
-    //   .selectAll('text')
-    //   .style('fill', '#fff');
   }
 }
