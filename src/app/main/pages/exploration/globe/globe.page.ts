@@ -59,7 +59,7 @@ export class GlobePage {
   constructor() {
     this.categoryForm = this.fb.group({
       category: '',
-      year: 2014,
+      year: null,
     });
   }
 
@@ -94,7 +94,7 @@ export class GlobePage {
       this.categories = Object.keys(data[0][path][0])
         .sort()
         .filter((b) => b !== 'year');
-      this.categoryForm.patchValue({ category: this.categories[0] });
+      this.categoryForm.patchValue({ category: this.categories[3], year: 2018 });
 
       // set years
       this.years = data[0][path]

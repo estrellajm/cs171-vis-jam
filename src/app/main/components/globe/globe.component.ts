@@ -57,8 +57,8 @@ export class GlobeEarthComponent implements AfterViewInit {
   constructor() {}
 
   async loadData() {
-   const world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json');
-    //const world = await d3.json('assets/data/world.json');
+    //  const world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json');
+    const world = await d3.json('assets/data/world.json');
     const countries = await d3.json('assets/data/wd_indicators.json');
 
     this.parentElement = 'globeDiv';
@@ -115,6 +115,12 @@ export class GlobeEarthComponent implements AfterViewInit {
 
     vis.path = d3.geoPath().projection(vis.projection);
 
+    // console.log(vis.geoData.features);
+
+    const filteredCountries = vis.geoData.features.filter(
+      (c: any) => c.properties.NAME !== 'San Marino'
+    );
+
     vis.svg
       .append('path')
       .datum({ type: 'Sphere' })
@@ -123,18 +129,17 @@ export class GlobeEarthComponent implements AfterViewInit {
       .attr('fill', '#070b5d')
       .attr('stroke', 'none');
 
-    vis.world = topojson.feature(vis.geoData, vis.geoData.objects.countries);
-    //vis.world = vis.geoData.features;
-
-
     vis.countries = vis.svg
       .selectAll('.country')
-      .data(vis.world.features)
+      .data(filteredCountries)
       .enter()
       .append('path')
       .attr('class', 'country')
+      .attr('id', (d: any) => d.properties.NAME)
       .attr('d', vis.path)
       .attr('fill', 'transparent');
+
+    console.log(vis.countries);
 
     vis.tooltip = d3
       .select('body')
@@ -338,9 +343,10 @@ export class GlobeEarthComponent implements AfterViewInit {
       d3.extent(Object.values(vis.countryInfo), (d: any) => d.value)
     );
     // console.log(d3.max(Object.values(vis.countryInfo), (d: any) => d.value));
+
     vis.countries
       .attr('fill', (d: any) => {
-        let countryName = d.properties.name;
+        let countryName = d.properties.NAME;
         return vis.countryInfo[countryName]
           ? vis.colorScale(vis.countryInfo[countryName].value)
           : 'black';
@@ -348,15 +354,18 @@ export class GlobeEarthComponent implements AfterViewInit {
       .attr('stroke', '#000566') // Set the stroke color for the country borders
       .attr('stroke-width', '1px')
       .on('click', (event: PointerEvent, d: any) => {
-        let countryName = d.properties.name;
+        let countryName = d.properties.NAME;
         const country = vis.radarData[countryName];
         vis.dialogService.openDialog(country);
       })
       .on('mouseover', function (event: any, d: any) {
         // Highlight the country path
-        d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white').raise();
+        d3.select(this)
+          .attr('stroke-width', '1px')
+          .attr('stroke', 'white')
+          .raise();
 
-        let countryName = d.properties.name;
+        let countryName = d.properties.NAME;
 
         if (
           vis.countryInfo.hasOwnProperty(countryName) &&
@@ -485,7 +494,6 @@ export class GlobeEarthComponent implements AfterViewInit {
             .style('top', yPosition + 'px');
         }
       })
-
       .on('mouseout', function (event: any, d: any) {
         // Hide the tooltip
         d3.select(this)
