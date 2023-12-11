@@ -2,17 +2,21 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import {
   FormBuilder,
+  FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { Select } from '@ngxs/store';
-import { Observable } from 'rxjs';
+import { NgxsFormPluginModule } from '@ngxs/form-plugin';
+import { Select, Store } from '@ngxs/store';
+import { Observable, firstValueFrom } from 'rxjs';
+import { UpdateSelections } from 'src/app/core/stores/countries/countries.actions';
 import { CountriesSelectors } from 'src/app/core/stores/countries/countries.selectors';
+import { SelectedValues } from 'src/app/core/stores/countries/countries.state';
 import { ScatterEarthComponent } from 'src/app/main/components/scatter/scatter.component';
 
-type Correlation = {
+export type Correlation = SelectedValues & {
   axis: string[];
   countries: string[];
   years: number[];
@@ -26,6 +30,7 @@ type Correlation = {
     ScatterEarthComponent,
     FormsModule,
     ReactiveFormsModule,
+    NgxsFormPluginModule,
   ],
   templateUrl: './correlation.page.html',
   styleUrls: ['./correlation.page.scss'],
@@ -33,19 +38,16 @@ type Correlation = {
 export class CorrelationPage {
   @Select(CountriesSelectors.getCorrelationFields)
   correlation$: Observable<Correlation>;
-  selectedValues: FormGroup;
+  @Select(CountriesSelectors.getSelectedCorrelationValues)
+  selectedValues$: Observable<any>;
 
-  selectedX: string = 'Renewable energy consumption (% of energy consumption)';
-  selectedY: string = 'GDP per capita (2015 US$)';
-  selectedCountry: string = 'World';
-  selectedYear: number[] = [
-    1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971,
-    1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983,
-    1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995,
-    1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,
-    2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019,
-    2020, 2021, 2022,
-  ];
+  scatterForm: FormGroup = new FormGroup({
+    xVariable: new FormControl(),
+    yVariable: new FormControl(),
+    areas: new FormControl(),
+    selectedYears: new FormControl(),
+  });
+  selectedValues: FormGroup;
 
   showXDropdown: boolean = false;
   showYDropdown: boolean = false;
@@ -53,33 +55,50 @@ export class CorrelationPage {
   showYearDropdown: boolean = false;
 
   fb = inject(FormBuilder);
+  store = inject(Store);
 
   constructor() {
     this.selectedValues = this.fb.group({
-      x: '',
-      y: '',
-      country: '',
-      year: '',
+      xVariable: '',
+      yVariable: '',
+      areas: '',
+      selectedYears: '',
     });
+
+    this.loadInitialValues();
+    // // this.selectedValues.valueChanges.subscribe((values) => {
+    // //   console.log(values);
+
+    // //   this.store.dispatch(new UpdateSelections(values));
+    // // });
   }
 
-  changeSelectedX(x: string) {
-    this.selectedValues.patchValue({ x });
+  async loadInitialValues() {
+    const initialValues = await firstValueFrom(this.selectedValues$);
+    this.selectedValues.patchValue(initialValues);
+  }
+
+  changeSelectedX(xVariable: string) {
+    this.selectedValues.patchValue({ xVariable });
+    this.store.dispatch(new UpdateSelections(this.selectedValues.value));
     this.showXDropdown = false;
   }
-
-  changeSelectedY(y: string) {
-    this.selectedValues.patchValue({ y });
+  
+  changeSelectedY(yVariable: string) {
+    this.selectedValues.patchValue({ yVariable });
+    this.store.dispatch(new UpdateSelections(this.selectedValues.value));
     this.showYDropdown = false;
   }
-
-  changeSelectedCountry(country: string) {
-    this.selectedValues.patchValue({ country });
+  
+  changeSelectedCountry(areas: string) {
+    this.selectedValues.patchValue({ areas });
+    this.store.dispatch(new UpdateSelections(this.selectedValues.value));
     this.showCountryDropdown = false;
   }
-
-  changeSelectedYear(year: number) {
-    this.selectedValues.patchValue({ year });
+  
+  changeSelectedYear(selectedYears: number) {
+    this.selectedValues.patchValue({ selectedYears });
+    this.store.dispatch(new UpdateSelections(this.selectedValues.value));
     this.showYearDropdown = false;
   }
 }

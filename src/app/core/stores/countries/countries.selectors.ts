@@ -14,9 +14,6 @@ export class CountriesSelectors {
 
   @Selector([CountriesState])
   static getSelectedCorrelationValues(state: CountriesStateModel) {
-    console.log(state);
-    console.log(state.selectedCorrelationValues);
-    
     return state.selectedCorrelationValues;
   }
 
@@ -26,6 +23,7 @@ export class CountriesSelectors {
       axis: this.extractKeys(state.countries[0]),
       countries: this.extractCountries(state.countries),
       years: this.extractYears(state.countries[0]),
+      ...state.selectedCorrelationValues,
     };
   }
 
@@ -41,14 +39,20 @@ export class CountriesSelectors {
         if (firstItem) {
           // Extract keys from the first item and add them to the set
           Object.keys(firstItem).forEach((key) => {
-            if (key !== 'year') {
+            if (
+              ![
+                'year',
+                'Educational attainment, upper secondary (% of population 25+)',
+                "Educational attainment, Bachelor's (% of population 25+)",
+                'Educational attainment, Doctoral (% of population 25+)',
+              ].includes(key)
+            ) {
               consolidatedKeys.add(key);
             }
           });
         }
       }
     }
-
     return Array.from(consolidatedKeys).sort() as string[];
   }
 

@@ -37,7 +37,7 @@ export class RadarComponent {
     vis.data = data;
 
     // Set up dimensions
-    vis.margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    vis.margin = { top: 100, right: 150, bottom: 100, left: 150 };
     vis.width =
       this.globeContainer.nativeElement.offsetWidth -
       vis.margin.left -
@@ -170,40 +170,40 @@ export class RadarComponent {
         .text(d.axis.split(' (')[0])
         .style('fill', 'white')
         .style('font-size', '15px')
-        .on('mouseover', function (event: any, dd: any) {
-          let tooltipOffsetX = 80;
-          let tooltipOffsetY = 10;
+        // .on('mouseover', function (event: any, dd: any) {
+        //   let tooltipOffsetX = 80;
+        //   let tooltipOffsetY = 10;
 
-          vis.tooltip
-            .style('position', 'absolute')
-            .style('opacity', 1)
-            .style('left', event.pageX + tooltipOffsetX + 'px')
-            .style('top', event.pageY + tooltipOffsetY + 'px')
-            .style('width', '480')
-            .attr('class', 'z-50')
-            .style('flex-shrink', 0)
-            .style('border-radius', '12px')
-            .style('background', '#FFF')
-            .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
-                                <div style="padding: 10px;">
-                                <div style="display: flex; justify-content: space-between;">
-                                    <h2 style="font-size: 24px">${
-                                      d.axis.split(' (')[0]
-                                    }</h2>
-                                </div>
-                                <p class='data-point'><br>Value: ${d.value.toLocaleString(
-                                  'en-US'
-                                )} (${d.axis.split(' (')[1]}
-                                <br>Rank: ${d.rank} / ${d.outOf}</p>
-                            </div>
-                            `);
-        })
-        .on('mouseout', function (event: any, d: any) {
-          vis.tooltip
-            .style('opacity', 0)
-            .style('left', '0px')
-            .style('top', '0px');
-        });
+        //   vis.tooltip
+        //     .style('position', 'absolute')
+        //     .style('opacity', 1)
+        //     .style('left', event.pageX + tooltipOffsetX + 'px')
+        //     .style('top', event.pageY + tooltipOffsetY + 'px')
+        //     .style('width', '480')
+        //     .attr('class', 'z-50')
+        //     .style('flex-shrink', 0)
+        //     .style('border-radius', '12px')
+        //     .style('background', '#FFF')
+        //     .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
+        //                         <div style="padding: 10px;">
+        //                         <div style="display: flex; justify-content: space-between;">
+        //                             <h2 style="font-size: 24px">${
+        //                               d.axis.split(' (')[0]
+        //                             }</h2>
+        //                         </div>
+        //                         <p class='data-point'><br>Value: ${d.value.toLocaleString(
+        //                           'en-US'
+        //                         )} (${d.axis.split(' (')[1]}
+        //                         <br>Rank: ${d.rank} / ${d.outOf}</p>
+        //                     </div>
+        //                     `);
+        // })
+        // .on('mouseout', function (event: any, d: any) {
+        //   vis.tooltip
+        //     .style('opacity', 0)
+        //     .style('left', '0px')
+        //     .style('top', '0px');
+        // });
     });
 
     function wrapText(text: any, width: any) {
