@@ -16,7 +16,7 @@ import * as topojson from 'topojson-client';
   selector: 'jam-bars-component',
   standalone: true,
   imports: [CommonModule],
-  template: `<div #barContainer id="barDiv" class="w-full h-[210px]"></div>`,
+  template: `<div #barContainer id="barDiv" class="w-full h-[200px]"></div>`,
 })
 export class BarsComponent implements AfterViewInit {
   @Input() data: any;
@@ -88,7 +88,7 @@ export class BarsComponent implements AfterViewInit {
   initVis() {
     const vis = this;
     vis.variable = vis.selectedValues.category;
-    vis.year = 2014;
+    vis.year = 2018;
 
     vis.margin = { top: 0, right: 0, bottom: 0, left: 0 };
     vis.width =
