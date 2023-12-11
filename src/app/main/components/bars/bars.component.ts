@@ -89,7 +89,7 @@ export class BarsComponent implements AfterViewInit {
     vis.variable = vis.selectedValues.category;
     vis.year = 2018;
 
-    vis.margin = { top: 0, right: 0, bottom: 0, left: 0 };
+    vis.margin = { top: 0, right: 0, bottom: 100, left: 0 };
     vis.width =
       this.globeContainer.nativeElement.offsetWidth -
       vis.margin.left -
@@ -112,7 +112,7 @@ export class BarsComponent implements AfterViewInit {
     // Scales
     vis.x = d3.scaleLinear().range([0, vis.width]);
 
-    vis.y = d3.scaleBand().range([0, vis.height]).padding(0.5);
+    vis.y = d3.scaleBand().range([0, vis.height]).padding(0.3);
 
     // Axes
     vis.xAxis = vis.svg
