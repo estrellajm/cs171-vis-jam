@@ -89,12 +89,12 @@
                   >
                     <span
                       class="block truncate"
-                      [ngClass]="{'font-semibold': yValue === selectedValues.value.y}"
+                      [ngClass]="{'font-semibold': yValue === selectedValues.value.yVariable}"
                     >
                       {{yValue}}
                     </span>
                     <span
-                      *ngIf="yValue === selectedValues.value.y"
+                      *ngIf="yValue === selectedValues.value.yVariable"
                       class="absolute inset-y-0 right-0 flex items-center pr-4 hover:text-white"
                     >
                       <svg
@@ -165,12 +165,12 @@
                   >
                     <span
                       class="block truncate"
-                      [ngClass]="{'font-semibold': xValue === selectedValues.value.x}"
+                      [ngClass]="{'font-semibold': xValue === selectedValues.value.xVariable}"
                     >
                       {{xValue}}
                     </span>
                     <span
-                      *ngIf="xValue === selectedValues.value.x"
+                      *ngIf="xValue === selectedValues.value.xVariable"
                       class="absolute inset-y-0 right-0 flex items-center pr-4 hover:text-white"
                     >
                       <svg

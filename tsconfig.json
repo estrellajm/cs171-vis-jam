@@ -25,7 +25,7 @@
     "useDefineForClassFields": false,
     "paths": {
       "@interfaces/*": ["./src/app/core/interfaces/*"],
-      "@services/*": ["./src/app/core/services/*"],
+      "@services/*": ["src/app/core/services/*"],
       "@resolvers/*": ["./src/app/core/resolvers/*"],
       "@assets/*": ["./src/assets/*"]
     },

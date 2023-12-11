@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Action, State, StateContext } from '@ngxs/store';
+import { DataService } from 'src/app/core/services/data/data.service';
 import { LoadCountries, UpdateSelections } from './countries.actions';
-import { DataService } from '@services/data/data.service';
 
 export type SelectedValues = {
   xVariable: string;
