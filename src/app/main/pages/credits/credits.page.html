@@ -1,52 +1,54 @@
 <div class="flex items-center justify-center h-screen">
-  <div class="w-3/4">
-    <div class="relative h-full">
-      <a
-        class="mt-auto flex items-center mx-4 my-2 rounded text-blue-800 w-fit"
-        routerLink="/exploration/correlation"
-      >
-        Back to Correlation
-      </a>
-      <div class="content">
-        <div class="left-side">
-          <h1 class="text-green-500">CS171 Vis JAM</h1>
-          <img src="assets/img/team-logo.png" alt="team-logo" class="h-10 mt-2 ml-auto" />
-        </div>
-        <div class="divider" role="separator" aria-label="Divider"></div>
-        <div class="right-side">
-          <ul>
-            <h3 class="font-bold">Team Members</h3>
-            <li *ngFor="let user of users" class="nowrap">
-              <span [innerHTML]="makeFirstCharBold(user.firstName)"></span>
-              {{ user.lastName}}
-              <a class="text-blue-700 cursor-pointer" href="mailto:{{ user }}"
-                >{{ user.email }}</a
-              >
-            </li>
-          </ul>
-        </div>
+  <div class="relative">
+    <a
+      class="mt-auto flex items-center mx-4 my-2 rounded text-blue-800 w-fit"
+      routerLink="/exploration/correlation"
+    >
+      Back to Correlation
+    </a>
+    <div class="content">
+      <div class="left-side">
+        <h1 class="text-green-500">CS171 Vis JAM</h1>
+        <img
+          src="assets/img/team-logo.png"
+          alt="team-logo"
+          class="h-10 mt-2 ml-auto"
+        />
       </div>
-      <div class="pl-5">
-        <div class="flex gap-[50px]">
-          <h2 class="font-bold">Raw Data</h2>
-          <a
-            class="text-blue-600 underline"
-            href="https://databank.worldbank.org/source/world-development-indicators"
-            target="_blank"
-            rel="noopener noreferrer"
-            >World Bank</a
-          >
-        </div>
-        <div class="flex gap-[18px]">
-          <h2 class="font-bold">Cleaned Data</h2>
-          <a
-            class="text-blue-600 underline"
-            href="https://drive.google.com/drive/folders/1lDKukd_mZyzRAYdM-Ks7i9pPQqy-3Xfw"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Google Drive</a
-          >
-        </div>
+      <div class="divider" role="separator" aria-label="Divider"></div>
+      <div class="right-side">
+        <ul>
+          <h3 class="font-bold">Team Members</h3>
+          <li *ngFor="let user of users" class="nowrap">
+            <span [innerHTML]="makeFirstCharBold(user.firstName)"></span>
+            {{ user.lastName}}
+            <a class="text-blue-700 cursor-pointer" href="mailto:{{ user }}"
+              >{{ user.email }}</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="pl-5">
+      <div class="flex gap-[50px]">
+        <h2 class="font-bold">Raw Data</h2>
+        <a
+          class="text-blue-600 underline"
+          href="https://databank.worldbank.org/source/world-development-indicators"
+          target="_blank"
+          rel="noopener noreferrer"
+          >World Bank</a
+        >
+      </div>
+      <div class="flex gap-[18px]">
+        <h2 class="font-bold">Cleaned Data</h2>
+        <a
+          class="text-blue-600 underline"
+          href="https://drive.google.com/drive/folders/1lDKukd_mZyzRAYdM-Ks7i9pPQqy-3Xfw"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Google Drive</a
+        >
       </div>
     </div>
   </div>
