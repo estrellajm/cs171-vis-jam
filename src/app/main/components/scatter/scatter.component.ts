@@ -18,7 +18,6 @@ export class ScatterEarthComponent {
 
   sortDataFunc: any;
   ascending: boolean = true;
-  colors = ['#fddbc7', '#f4a582', '#d6604d', '#b2182b'];
 
   parentElement: any;
   data: any;
@@ -277,30 +276,31 @@ export class ScatterEarthComponent {
           .style('opacity', 1)
           .style('left', event.pageX + tooltipOffsetX + 'px')
           .style('top', event.pageY + tooltipOffsetY + 'px')
-          // .style('width', '379px')
-          // .style('height', '250px')
+          .style('width', '350px')
+          .style('height', '200px')
           .style('flex-shrink', 0)
           .style('border-radius', '12px')
           .style('background', '#FFF')
           .style('box-shadow', '4px 4px 4px 0px rgba(0, 0, 0, 0.35)').html(`
-                    <div style="border: thin solid grey; border-radius: 10px; background: white; padding: 20px">
+                    <div style="border-radius: 10px; background: white; padding: 20px">
                         <div style="display: flex; justify-content: space-between;">
-                            <div class="country">${d.area}</div>
-                            <div class="year">${d.year}</div>
+                            <h2 class="country font-bold text-[#09119F] text-xl">${d.area}</h2>
+                            <h2 class="year font-bold text-[#09119F] text-xl">${d.year}</h2>
                         </div>
                         <div class="content" style="text-align: left;">
                             ${
                               vis.xVariable !== vis.yVariable
-                                ? `<div class="label">${vis.yVariable}</div>
-                             <div class="value">${d.y.toLocaleString(
+                                ? `<p class="label">${vis.yVariable}</p>
+                             <p class="value font-bold text-[#09119F]">${d.y.toLocaleString(
                                'en-US'
-                             )}</div>`
+                             )}</p> <div style="height: 10px;"></div>
+`
                                 : ''
                             }
                              <div class="label">${vis.xVariable}</div>
-                             <div class="value">${d.x.toLocaleString(
+                             <p class="value font-bold text-[#09119F]">${d.x.toLocaleString(
                                'en-US'
-                             )}</div>
+                             )}</p>
                         </div>
                     </div>`);
 
@@ -318,6 +318,12 @@ export class ScatterEarthComponent {
         if (yPosition + tooltipRect.height > window.innerHeight) {
           yPosition = window.innerHeight - tooltipRect.height;
         }
+
+        // Update the tooltip's position
+        vis.tooltip
+          .style('left', xPosition + 'px')
+          .style('top', yPosition + 'px');
+
       })
       .on('mouseout', function (event: any, d: any) {
         d3.select(this).attr('stroke', 'none').style('opacity', '0.5');

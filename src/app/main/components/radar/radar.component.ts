@@ -23,6 +23,8 @@ export class RadarComponent {
     this.initVis('radarDiv', this.country);
   }
 
+
+
   margin: any;
   width: any;
   height: any;
