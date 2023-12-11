@@ -164,7 +164,7 @@ export class BarsComponent implements AfterViewInit {
 
     // Update the scale domains with the new data
     const maxValue = d3.max(vis.countryInfo, (d: any) => d[1]) ?? 0;
-    vis.x.domain([0, maxValue]).range([0, 175]);
+    vis.x.domain([0, maxValue]).range([0, 150]);
     vis.y.domain(vis.countryInfo.map((d: any) => d[0]));
 
     // Bars
@@ -180,6 +180,7 @@ export class BarsComponent implements AfterViewInit {
       .duration(vis.transitionDuration)
       .attr('x', 180)
       .attr('y', (d: any) => vis.y(d[0]))
+      .attr('rx', 6) // Rounding the corners
       .attr('width', (d: any) => vis.x(d[1]))
       .attr('height', vis.y.bandwidth());
 
