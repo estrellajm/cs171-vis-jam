@@ -51,7 +51,7 @@ export class GlobeEarthComponent implements AfterViewInit {
   colors: any = {
     economy: '198, 212, 36',
     education: '72, 244, 255',
-    environment: '36, 212, 166'
+    environment: '36, 212, 166',
   };
 
   constructor() {}
@@ -103,7 +103,10 @@ export class GlobeEarthComponent implements AfterViewInit {
 
     vis.colorScale = d3.scaleLog();
 
-    vis.colorScale.range([`rgba(${vis.colors[vis.category]}, 0.2)`, `rgba(${vis.colors[vis.category]}, 1)`]);
+    vis.colorScale.range([
+      `rgba(${vis.colors[vis.category]}, 0.2)`,
+      `rgba(${vis.colors[vis.category]}, 1)`,
+    ]);
 
     // projection
     vis.projection = d3
@@ -348,6 +351,7 @@ export class GlobeEarthComponent implements AfterViewInit {
         vis.dialogService.openDialog(country);
       })
       .on('mouseover', function (event: any, d: any) {
+        this.parentNode.appendChild(this);
         // Highlight the country path
         d3.select(this).attr('stroke-width', '1px').attr('stroke', 'white').raise();
 

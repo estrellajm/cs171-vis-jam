@@ -197,7 +197,6 @@ export class RadarComponent {
                                 <br>Rank: ${d.rank} / ${d.outOf}</p>
                             </div>
                             `);
-        })
        .on('mouseout', function (event: any, d: any) {
          vis.tooltip
            .style('opacity', 0)
